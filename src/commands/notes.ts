@@ -189,7 +189,6 @@ notesCommand
               port: publishConfig.port,
               blockchain: {
                 name: publishConfig.blockchain,
-                publicKey: publishConfig.publicKey,
                 privateKey: publishConfig.privateKey,
                 rpc: publishConfig.rpcUrl,
               },

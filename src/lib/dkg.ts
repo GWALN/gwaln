@@ -72,33 +72,53 @@ export const publishJsonLdViaSdk = async (
     throw new Error('Missing blockchain private key for DKG publish.');
   }
 
+  const payload = wrapPayload(jsonld, options.privacy);
+
+  const blockchainConfig: { name: string; privateKey: string; publicKey?: string; rpc?: string } = {
+    name: options.blockchain.name,
+    privateKey: options.blockchain.privateKey,
+  };
+
+  if (options.blockchain.publicKey) {
+    blockchainConfig.publicKey = options.blockchain.publicKey;
+  }
+  if (options.blockchain.rpc) {
+    blockchainConfig.rpc = options.blockchain.rpc;
+  }
+
   const client = new (DkgClient as unknown as DkgSdk)({
     endpoint: sanitizeEndpoint(options.endpoint),
     port: options.port ?? 8900,
     environment: options.environment,
     maxNumberOfRetries: options.maxNumberOfRetries,
     frequency: options.frequencySeconds,
-    blockchain: {
-      name: options.blockchain.name,
-      privateKey: options.blockchain.privateKey,
-      publicKey: options.blockchain.publicKey,
-      rpc: options.blockchain.rpc,
-    },
+    blockchain: blockchainConfig,
   });
 
-  const payload = wrapPayload(jsonld, options.privacy);
-  const response = await client.asset.create(payload, {
-    epochsNum: options.epochsNum ?? 6,
-    maxNumberOfRetries: options.maxNumberOfRetries,
-    frequency: options.frequencySeconds,
-  });
+  console.log(`[dkg] Publishing to ${options.endpoint}:${options.port ?? 8900}`);
+  console.log(`[dkg] Blockchain: ${options.blockchain.name}`);
+  console.log(`[dkg] RPC: ${blockchainConfig.rpc || 'SDK default'}`);
+  console.log(`[dkg] Max polling retries: ${options.maxNumberOfRetries}`);
+  console.log(`[dkg] Epochs: ${options.epochsNum ?? 6}`);
 
-  const ual = typeof response.UAL === 'string' ? response.UAL : null;
+  try {
+    const response = await client.asset.create(payload, {
+      epochsNum: options.epochsNum ?? 6,
+      maxNumberOfRetries: options.maxNumberOfRetries,
+      frequency: options.frequencySeconds,
+    });
 
-  return {
-    ual,
-    raw: response,
-  };
+    const ual = typeof response.UAL === 'string' ? response.UAL : null;
+    console.log(`[dkg] ✓ Success! Response:`, JSON.stringify(response, null, 2));
+
+    return {
+      ual,
+      raw: response,
+    };
+  } catch (error) {
+    console.error(`[dkg] ✗ Error details:`, error);
+    throw error;
+  }
 };
 
 export { BLOCKCHAIN_IDS };
