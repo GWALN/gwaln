@@ -421,10 +421,10 @@ const renderHtmlReport = (
       progress:
         totalSentences > 0
           ? Math.min(
-              1,
-              totalSentences /
-                Math.max(summary.wiki_sentence_count, summary.grok_sentence_count, 1),
-            )
+            1,
+            totalSentences /
+            Math.max(summary.wiki_sentence_count, summary.grok_sentence_count, 1),
+          )
           : 0,
     },
     {
@@ -439,7 +439,7 @@ const renderHtmlReport = (
       <p>${escapeHtml(card.label)}</p>
       <strong>${escapeHtml(card.value)}</strong>
       <div class="subtext">${escapeHtml(card.detail)}</div>
-      <div class="progress"><span style="width:${(Math.min(1, Math.max(0, card.progress ?? 0)) * 100).toFixed(1)}%"></span></div>
+      <div class="progress"><span style="width:${(Math.min(1, Math.max(0, card.progress ?? 0)) * 100).toFixed(1)}%;"></span></div>
     </div>`,
     )
     .join('');
@@ -636,15 +636,15 @@ const renderHtmlReport = (
         <section class="kpi-grid">${statsCards}</section>
         <section class="dashboard-grid">
           ${renderList(
-            `Missing snippets (Wikipedia, total ${summary.missing_sentence_count})`,
-            comparison.sentences.missing,
-            'missing',
-          )}
+    `Missing snippets (Wikipedia, total ${summary.missing_sentence_count})`,
+    comparison.sentences.missing,
+    'missing',
+  )}
           ${renderList(
-            `Extra snippets (Grokipedia, total ${summary.extra_sentence_count})`,
-            comparison.sentences.extra,
-            'extra',
-          )}
+    `Extra snippets (Grokipedia, total ${summary.extra_sentence_count})`,
+    comparison.sentences.extra,
+    'extra',
+  )}
           ${renderAlignmentTable(analysis)}
           ${renderDiscrepancyList('Core discrepancies', discrepancies.primary, 'neutral')}
           ${renderBiasPanel(analysis)}

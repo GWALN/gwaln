@@ -21,7 +21,7 @@ import {
   type SectionAlignmentRecord,
 } from './alignment';
 import { biasCategories } from './bias-lexicon';
-import { computeBiasMetrics, type BiasMetrics } from './bias-metrics';
+import { type BiasMetrics, computeBiasMetrics } from './bias-metrics';
 import {
   detectEntityDiscrepancies,
   detectNumericDiscrepancies,
