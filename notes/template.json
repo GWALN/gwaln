@@ -1,0 +1,93 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "schema": "https://schema.org/",
+    "anno": "http://www.w3.org/ns/anno#",
+    "Annotation": "anno:Annotation",
+    "TextualBody": "anno:TextualBody",
+    "TextQuoteSelector": "anno:TextQuoteSelector",
+    "motivation": { "@id": "anno:motivatedBy" },
+    "body": { "@id": "anno:body" },
+    "target": { "@id": "anno:target" },
+    "source": { "@id": "anno:source" },
+    "selector": { "@id": "anno:selector" },
+    "exact": { "@id": "anno:exact" },
+    "classification": "https://civiclens.dev/ontology/classification",
+    "topic_id": "identifier",
+    "topic_title": "alternateName",
+    "civicLensTrust": "https://civiclens.dev/ontology/trustScores",
+    "tone_bias": "https://civiclens.dev/ontology/toneBias",
+    "stake": "MonetaryAmount",
+    "token": "currency",
+    "amount": "value",
+    "analysisSummary": "result"
+  },
+  "@type": "ClaimReview",
+  "topic_id": "example-topic-id",
+  "topic_title": "Example Topic",
+  "claimReviewed": "Comparison of Example Topic on Grokipedia vs Wikipedia",
+  "dateCreated": "2025-11-13T15:00:00Z",
+  "author": {
+    "@type": "Organization",
+    "name": "CivicLens",
+    "identifier": "did:civiclens:team"
+  },
+  "itemReviewed": {
+    "@type": "CreativeWork",
+    "name": "Example Topic (Wikipedia)",
+    "url": "https://en.wikipedia.org/wiki/Example"
+  },
+  "reviewRating": {
+    "@type": "Rating",
+    "bestRating": 5,
+    "worstRating": 0,
+    "ratingValue": 3,
+    "ratingExplanation": "One or two sentences describing overall alignment."
+  },
+  "civicLensTrust": {
+    "accuracy": 3,
+    "completeness": 2,
+    "tone_bias": 4,
+    "stake": {
+      "token": "TRAC",
+      "amount": 0
+    }
+  },
+  "hasPart": [
+    {
+      "@type": "Annotation",
+      "classification": "missing_context",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Grokipedia omits the 'Environmental impact' section present on Wikipedia."
+      },
+      "target": [
+        {
+          "source": "https://en.wikipedia.org/wiki/Example#Environmental_impact",
+          "selector": {
+            "type": "TextQuoteSelector",
+            "exact": "Environmental impact section text…"
+          }
+        },
+        {
+          "source": "https://grokipedia.com/example"
+        }
+      ]
+    }
+  ],
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Example"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Grokipedia",
+      "url": "https://grokipedia.com/example"
+    }
+  ],
+  "ual": null,
+  "notes": "Optional reviewer comments."
+}

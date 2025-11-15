@@ -1,0 +1,19 @@
+{
+  "notes": [
+    {
+      "topic_id": "moon",
+      "topic_title": "Moon",
+      "file": "moon.json",
+      "status": "published",
+      "analysis_file": "../analysis/moon.json",
+      "generated_at": "2025-11-15T10:41:46.757Z",
+      "published_at": "2025-11-14T11:29:05.959Z",
+      "ual": "did:dkg:otp:20430/0xcdb28e93ed340ec10a71bba00a31dbfcf1bd5d37/389940",
+      "stake": {
+        "token": "TRAC",
+        "amount": 0
+      }
+    }
+  ],
+  "updated_at": "2025-11-15T10:41:46.757Z"
+}

@@ -1,0 +1,592 @@
+{
+  "@context": [
+    "https://schema.org",
+    "https://www.w3.org/ns/anno.jsonld"
+  ],
+  "@type": "ClaimReview",
+  "@id": "urn:civiclens:note:moon:2025-11-15T01:52:05.891Z",
+  "topic_id": "moon",
+  "topic_title": "Moon",
+  "claimReviewed": "Comparison of Moon entries on Grokipedia and Wikipedia",
+  "dateCreated": "2025-11-15T10:41:46.745Z",
+  "author": {
+    "@type": "Organization",
+    "name": "CivicLens"
+  },
+  "itemReviewed": {
+    "@type": "CreativeWork",
+    "name": "Moon (Wikipedia)",
+    "url": "https://en.wikipedia.org/wiki/Moon"
+  },
+  "reviewRating": {
+    "@type": "Rating",
+    "bestRating": 5,
+    "worstRating": 0,
+    "ratingValue": "-25",
+    "ratingExplanation": "Grok omits the NASA mission context and adds speculative claims."
+  },
+  "civicLensTrust": {
+    "accuracy": 3,
+    "completeness": 3,
+    "tone_bias": 3,
+    "stake": {
+      "token": "TRAC",
+      "amount": 0
+    }
+  },
+  "hasPart": [
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:0",
+      "classification": "missing_context",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Sentence present on Wikipedia but absent on Grokipedia."
+      },
+      "target": [
+        {
+          "source": "https://en.wikipedia.org/wiki/Moon",
+          "selector": {
+            "type": "TextQuoteSelector",
+            "exact": "The Moon is the only natural satellite orbiting Earth."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:1",
+      "classification": "missing_context",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Sentence present on Wikipedia but absent on Grokipedia."
+      },
+      "target": [
+        {
+          "source": "https://en.wikipedia.org/wiki/Moon",
+          "selector": {
+            "type": "TextQuoteSelector",
+            "exact": "It orbits around Earth at an average distance of ,"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:2",
+      "classification": "missing_context",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Sentence present on Wikipedia but absent on Grokipedia."
+      },
+      "target": [
+        {
+          "source": "https://en.wikipedia.org/wiki/Moon",
+          "selector": {
+            "type": "TextQuoteSelector",
+            "exact": "a distance roughly 30 times the width of Earth, and completes an orbit (lunar month) in relation to Earth and the Sun (synodically) every 29."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:3",
+      "classification": "missing_context",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Sentence present on Wikipedia but absent on Grokipedia."
+      },
+      "target": [
+        {
+          "source": "https://en.wikipedia.org/wiki/Moon",
+          "selector": {
+            "type": "TextQuoteSelector",
+            "exact": "5 days."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:4",
+      "classification": "missing_context",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Sentence present on Wikipedia but absent on Grokipedia."
+      },
+      "target": [
+        {
+          "source": "https://en.wikipedia.org/wiki/Moon",
+          "selector": {
+            "type": "TextQuoteSelector",
+            "exact": "The Moon and Earth gravitationally pull on each other."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:5",
+      "classification": "added_claim",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Sentence present on Grokipedia but absent on Wikipedia."
+      },
+      "target": [
+        {
+          "source": "https://grokipedia.com/page/Moon",
+          "selector": {
+            "type": "TextQuoteSelector",
+            "exact": "The Moon is Earth's only natural satellite, a differentiated rocky body with a diameter of 3,474 kilometers, roughly one-quarter that of Earth, and a mass about one-eightieth of Earth's."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:6",
+      "classification": "added_claim",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Sentence present on Grokipedia but absent on Wikipedia."
+      },
+      "target": [
+        {
+          "source": "https://grokipedia.com/page/Moon",
+          "selector": {
+            "type": "TextQuoteSelector",
+            "exact": "\\[1\\]\\[2\\] It orbits Earth at an average distance of 384,400 kilometers, completing a sidereal orbit every 27."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:7",
+      "classification": "added_claim",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Sentence present on Grokipedia but absent on Wikipedia."
+      },
+      "target": [
+        {
+          "source": "https://grokipedia.com/page/Moon",
+          "selector": {
+            "type": "TextQuoteSelector",
+            "exact": "3 days while tidally locked to perpetually show the same hemisphere to Earth."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:8",
+      "classification": "added_claim",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Sentence present on Grokipedia but absent on Wikipedia."
+      },
+      "target": [
+        {
+          "source": "https://grokipedia.com/page/Moon",
+          "selector": {
+            "type": "TextQuoteSelector",
+            "exact": "\\[3\\]\\[4\\] The Moon's formation occurred around 4."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:9",
+      "classification": "added_claim",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Sentence present on Grokipedia but absent on Wikipedia."
+      },
+      "target": [
+        {
+          "source": "https://grokipedia.com/page/Moon",
+          "selector": {
+            "type": "TextQuoteSelector",
+            "exact": "5 billion years ago when a Mars-sized protoplanet, often termed Theia, collided with the proto-Earth, ejecting debris that coalesced into the satellite."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:10",
+      "classification": "section_missing",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Section \"Names and etymology\" exists on Wikipedia but not on Grokipedia."
+      },
+      "target": [
+        {
+          "source": "https://grokipedia.com/page/Moon"
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:11",
+      "classification": "section_missing",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Section \"Natural history\" exists on Wikipedia but not on Grokipedia."
+      },
+      "target": [
+        {
+          "source": "https://grokipedia.com/page/Moon"
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:12",
+      "classification": "section_missing",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Section \"Formation\" exists on Wikipedia but not on Grokipedia."
+      },
+      "target": [
+        {
+          "source": "https://grokipedia.com/page/Moon"
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:13",
+      "classification": "section_missing",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Section \"Natural development\" exists on Wikipedia but not on Grokipedia."
+      },
+      "target": [
+        {
+          "source": "https://grokipedia.com/page/Moon"
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:14",
+      "classification": "section_missing",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Section \"Lunar geologic timescale\" exists on Wikipedia but not on Grokipedia."
+      },
+      "target": [
+        {
+          "source": "https://grokipedia.com/page/Moon"
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:15",
+      "classification": "section_extra",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Grokipedia adds a section \"Moon\" not found on Wikipedia."
+      },
+      "target": [
+        {
+          "source": "https://grokipedia.com/page/Moon",
+          "selector": {
+            "type": "TextQuoteSelector",
+            "exact": "Moon"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:16",
+      "classification": "section_extra",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Grokipedia adds a section \"Nomenclature and Etymology\" not found on Wikipedia."
+      },
+      "target": [
+        {
+          "source": "https://grokipedia.com/page/Moon",
+          "selector": {
+            "type": "TextQuoteSelector",
+            "exact": "Nomenclature and Etymology"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:17",
+      "classification": "section_extra",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Grokipedia adds a section \"Linguistic Origins and Cross-Cultural Names\" not found on Wikipedia."
+      },
+      "target": [
+        {
+          "source": "https://grokipedia.com/page/Moon",
+          "selector": {
+            "type": "TextQuoteSelector",
+            "exact": "Linguistic Origins and Cross-Cultural Names"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:18",
+      "classification": "section_extra",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Grokipedia adds a section \"Origin and Geological Evolution\" not found on Wikipedia."
+      },
+      "target": [
+        {
+          "source": "https://grokipedia.com/page/Moon",
+          "selector": {
+            "type": "TextQuoteSelector",
+            "exact": "Origin and Geological Evolution"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:19",
+      "classification": "section_extra",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Grokipedia adds a section \"Formation Theories and Empirical Evidence\" not found on Wikipedia."
+      },
+      "target": [
+        {
+          "source": "https://grokipedia.com/page/Moon",
+          "selector": {
+            "type": "TextQuoteSelector",
+            "exact": "Formation Theories and Empirical Evidence"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:20",
+      "classification": "missing_citation",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Citation present on Wikipedia is missing on Grokipedia."
+      },
+      "target": [
+        {
+          "source": "https://grokipedia.com/page/Moon"
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:21",
+      "classification": "missing_citation",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Citation present on Wikipedia is missing on Grokipedia."
+      },
+      "target": [
+        {
+          "source": "https://grokipedia.com/page/Moon"
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:22",
+      "classification": "missing_citation",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Citation present on Wikipedia is missing on Grokipedia."
+      },
+      "target": [
+        {
+          "source": "https://grokipedia.com/page/Moon"
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:23",
+      "classification": "missing_citation",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Citation present on Wikipedia is missing on Grokipedia."
+      },
+      "target": [
+        {
+          "source": "https://grokipedia.com/page/Moon"
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:24",
+      "classification": "missing_citation",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Citation present on Wikipedia is missing on Grokipedia."
+      },
+      "target": [
+        {
+          "source": "https://grokipedia.com/page/Moon"
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:25",
+      "classification": "added_citation",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Grokipedia introduces an uncited reference not present on Wikipedia."
+      },
+      "target": [
+        {
+          "source": "https://grokipedia.com/page/Moon",
+          "selector": {
+            "type": "TextQuoteSelector",
+            "exact": "https://science.nasa.gov/moon/facts/"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:26",
+      "classification": "added_citation",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Grokipedia introduces an uncited reference not present on Wikipedia."
+      },
+      "target": [
+        {
+          "source": "https://grokipedia.com/page/Moon",
+          "selector": {
+            "type": "TextQuoteSelector",
+            "exact": "https://spaceplace.nasa.gov/all-about-the-moon/en/"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:27",
+      "classification": "added_citation",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Grokipedia introduces an uncited reference not present on Wikipedia."
+      },
+      "target": [
+        {
+          "source": "https://grokipedia.com/page/Moon",
+          "selector": {
+            "type": "TextQuoteSelector",
+            "exact": "https://science.nasa.gov/learn/basics-of-space-flight/chapter1-2/"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:28",
+      "classification": "added_citation",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Grokipedia introduces an uncited reference not present on Wikipedia."
+      },
+      "target": [
+        {
+          "source": "https://grokipedia.com/page/Moon",
+          "selector": {
+            "type": "TextQuoteSelector",
+            "exact": "https://science.nasa.gov/moon/top-moon-questions/"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Annotation",
+      "@id": "urn:civiclens:annotation:moon:29",
+      "classification": "added_citation",
+      "motivation": "commenting",
+      "body": {
+        "@type": "TextualBody",
+        "value": "Grokipedia introduces an uncited reference not present on Wikipedia."
+      },
+      "target": [
+        {
+          "source": "https://grokipedia.com/page/Moon",
+          "selector": {
+            "type": "TextQuoteSelector",
+            "exact": "https://science.nasa.gov/moon/formation/"
+          }
+        }
+      ]
+    }
+  ],
+  "citation": [
+    {
+      "@type": "CreativeWork",
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Moon"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Grokipedia",
+      "url": "https://grokipedia.com/page/Moon"
+    }
+  ],
+  "analysisSummary": {
+    "missing_count": 5,
+    "added_count": 5,
+    "similarity_ratio": 0.7919,
+    "ngram_overlap": 0.0061,
+    "confidence_label": "suspected_divergence",
+    "confidence_score": 0.124,
+    "analyzer_version": "civiclens-analyzer@0.1.0-alpha.1"
+  },
+  "ual": null,
+  "notes": ""
+}
