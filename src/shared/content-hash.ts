@@ -6,13 +6,13 @@
  * @author Doğu Abaris <abaris@null.net>
  */
 
-import crypto from "node:crypto";
-import {ANALYZER_VERSION} from "./analyzer-config";
+import crypto from 'node:crypto';
+import { ANALYZER_VERSION } from './analyzer-config';
 
 export const computeContentHash = (wikiRaw: string, grokRaw: string): string =>
-    crypto
-        .createHash("sha256")
-        .update(wikiRaw)
-        .update(grokRaw)
-        .update(ANALYZER_VERSION)
-        .digest("hex");
+  crypto
+    .createHash('sha256')
+    .update(wikiRaw)
+    .update(grokRaw)
+    .update(ANALYZER_VERSION)
+    .digest('hex');

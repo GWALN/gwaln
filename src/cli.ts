@@ -26,26 +26,26 @@
  * @see README.md for full usage details.
  */
 
-import figlet from "figlet";
-import fs from "node:fs";
-import path from "node:path";
-import chalk from "chalk";
-import {Command} from "commander";
-import initCommand from "./commands/init";
-import fetchCommand from "./commands/fetch";
-import analyseCommand from "./commands/analyse";
-import showCommand from "./commands/show";
-import notesCommand from "./commands/notes";
-import publishCommand from "./commands/publish";
-import topicsCommand from "./commands/topics";
+import chalk from 'chalk';
+import { Command } from 'commander';
+import figlet from 'figlet';
+import fs from 'node:fs';
+import path from 'node:path';
+import analyseCommand from './commands/analyse';
+import fetchCommand from './commands/fetch';
+import initCommand from './commands/init';
+import notesCommand from './commands/notes';
+import publishCommand from './commands/publish';
+import showCommand from './commands/show';
+import topicsCommand from './commands/topics';
 
-const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../package.json"), "utf8"));
+const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../package.json'), 'utf8'));
 
 const program = new Command();
 program
-    .name("civiclens")
-    .description("CLI for comparing Grokipedia and Wikipedia topics + drafting trust annotations")
-    .version(pkg.version, "-v, --version", "Display CLI version");
+  .name('civiclens')
+  .description('CLI for comparing Grokipedia and Wikipedia topics + drafting trust annotations')
+  .version(pkg.version, '-v, --version', 'Display CLI version');
 
 program.addCommand(initCommand);
 program.addCommand(fetchCommand);
@@ -58,10 +58,10 @@ program.addCommand(publishCommand);
 const args = process.argv.slice(2);
 
 if (!args.length) {
-    const banner = figlet.textSync("CIVICLENS", {font: "Standard"});
-    console.log(chalk.hex("#9be2ff")(banner));
-    program.outputHelp();
-    process.exit(0);
+  const banner = figlet.textSync('CIVICLENS', { font: 'Standard' });
+  console.log(chalk.hex('#9be2ff')(banner));
+  program.outputHelp();
+  process.exit(0);
 } else {
-    program.parse();
+  program.parse();
 }

@@ -4,28 +4,28 @@
  * @author Doğu Abaris <abaris@null.net>
  */
 
-import fs from "node:fs";
-import path from "node:path";
+import fs from 'node:fs';
+import path from 'node:path';
 
-const ROOT = path.resolve(__dirname, "..", "..");
-const DATA_DIR = path.join(ROOT, "data");
-const WIKI_DIR = path.join(DATA_DIR, "wiki");
-const GROK_DIR = path.join(DATA_DIR, "grok");
-const ANALYSIS_DIR = path.join(ROOT, "analysis");
-const NOTES_DIR = path.join(ROOT, "notes");
+const ROOT = path.resolve(__dirname, '..', '..');
+const DATA_DIR = path.join(ROOT, 'data');
+const WIKI_DIR = path.join(DATA_DIR, 'wiki');
+const GROK_DIR = path.join(DATA_DIR, 'grok');
+const ANALYSIS_DIR = path.join(ROOT, 'analysis');
+const NOTES_DIR = path.join(ROOT, 'notes');
 
 const ensureDir = (target: string): void => {
-    fs.mkdirSync(target, {recursive: true});
+  fs.mkdirSync(target, { recursive: true });
 };
 
 export const paths = {
-    ROOT,
-    TOPICS: path.join(ROOT, "topics.json"),
-    DATA_DIR,
-    WIKI_DIR,
-    GROK_DIR,
-    ANALYSIS_DIR,
-    NOTES_DIR,
-    NOTES_INDEX: path.join(NOTES_DIR, "index.json"),
-    ensureDir
+  ROOT,
+  TOPICS: path.join(ROOT, 'topics.json'),
+  DATA_DIR,
+  WIKI_DIR,
+  GROK_DIR,
+  ANALYSIS_DIR,
+  NOTES_DIR,
+  NOTES_INDEX: path.join(NOTES_DIR, 'index.json'),
+  ensureDir,
 };

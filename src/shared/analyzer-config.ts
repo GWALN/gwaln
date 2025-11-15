@@ -5,7 +5,7 @@
  * @author Doğu Abaris <abaris@null.net>
  */
 
-import pkg from "../../package.json";
+import pkg from '../../package.json';
 
 export const ANALYZER_VERSION = `civiclens-analyzer@${pkg.version}`;
 
@@ -21,14 +21,14 @@ export const CACHE_TTL_HOURS = 72;
 export const SHINGLE_SIZE = 4;
 
 export const CLASSIFICATION_THRESHOLDS = {
-    aligned: {
-        similarity: 0.94,
-        ngram: 0.88
-    },
-    possible: {
-        similarity: 0.85,
-        ngram: 0.78
-    }
+  aligned: {
+    similarity: 0.94,
+    ngram: 0.88,
+  },
+  possible: {
+    similarity: 0.85,
+    ngram: 0.78,
+  },
 };
 
 export const HIGHLIGHT_WINDOW = 3;

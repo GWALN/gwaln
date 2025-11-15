@@ -5,235 +5,262 @@
  * @author Doğu Abaris <abaris@null.net>
  */
 
-import fs from "node:fs";
-import path from "node:path";
-import {spawn} from "node:child_process";
-import {Command} from "commander";
-import chalk from "chalk";
-import {paths} from "../shared/paths";
-import {loadNoteEntry, loadNotesIndex, NoteIndexEntry} from "../shared/notes";
-import {loadTopics, Topic} from "../shared/topics";
-import {
-    coerceStructuredAnalysisReport,
-    StructuredAnalysisReport
-} from "../lib/structured-report";
-import type {DiscrepancyRecord} from "../lib/analyzer";
+import chalk from 'chalk';
+import { Command } from 'commander';
+import { spawn } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
+import type { DiscrepancyRecord } from '../lib/analyzer';
+import { coerceStructuredAnalysisReport, StructuredAnalysisReport } from '../lib/structured-report';
+import { loadNoteEntry, loadNotesIndex, NoteIndexEntry } from '../shared/notes';
+import { paths } from '../shared/paths';
+import { loadTopics, Topic } from '../shared/topics';
 
 type NotePayload = { entry: NoteIndexEntry | null; note: Record<string, unknown> | null };
 
 const loadAnalysis = (topic: Topic): StructuredAnalysisReport => {
-    const target = path.join(paths.ANALYSIS_DIR, `${topic.id}.json`);
-    if (!fs.existsSync(target)) {
-        throw new Error(`Analysis not found for topic '${topic.id}'. Run 'civiclens analyse --topic ${topic.id}' first.`);
-    }
-    const raw = fs.readFileSync(target, "utf8");
-    const parsed = JSON.parse(raw) as StructuredAnalysisReport | Record<string, unknown>;
-    return coerceStructuredAnalysisReport(topic, parsed as StructuredAnalysisReport);
+  const target = path.join(paths.ANALYSIS_DIR, `${topic.id}.json`);
+  if (!fs.existsSync(target)) {
+    throw new Error(
+      `Analysis not found for topic '${topic.id}'. Run 'civiclens analyse --topic ${topic.id}' first.`,
+    );
+  }
+  const raw = fs.readFileSync(target, 'utf8');
+  const parsed = JSON.parse(raw) as StructuredAnalysisReport | Record<string, unknown>;
+  return coerceStructuredAnalysisReport(topic, parsed as StructuredAnalysisReport);
 };
 
 const formatPercent = (ratio: number): string => `${(ratio * 100).toFixed(1)}%`;
 
-const formatSnippet = (value: string): string => (value.length > 160 ? `${value.slice(0, 160)}…` : value);
+const formatSnippet = (value: string): string =>
+  value.length > 160 ? `${value.slice(0, 160)}…` : value;
 
 const colorDiffLine = (line: string): string => {
-    if (line.startsWith("+") && !line.startsWith("+++")) {
-        return chalk.green(line);
-    }
-    if (line.startsWith("-") && !line.startsWith("---")) {
-        return chalk.red(line);
-    }
-    if (line.startsWith("@@")) {
-        return chalk.cyan(line);
-    }
-    if (line.startsWith("diff") || line.startsWith("---") || line.startsWith("+++")) {
-        return chalk.magenta(line);
-    }
-    return line;
+  if (line.startsWith('+') && !line.startsWith('+++')) {
+    return chalk.green(line);
+  }
+  if (line.startsWith('-') && !line.startsWith('---')) {
+    return chalk.red(line);
+  }
+  if (line.startsWith('@@')) {
+    return chalk.cyan(line);
+  }
+  if (line.startsWith('diff') || line.startsWith('---') || line.startsWith('+++')) {
+    return chalk.magenta(line);
+  }
+  return line;
 };
 
-const printBulletSection = (title: string, color: (input: string) => string, items: string[]): void => {
-    if (!items.length) return;
-    console.log(color(`\n${title}`));
-    items.forEach((item) => console.log(` • ${formatSnippet(item)}`));
+const printBulletSection = (
+  title: string,
+  color: (input: string) => string,
+  items: string[],
+): void => {
+  if (!items.length) return;
+  console.log(color(`\n${title}`));
+  items.forEach((item) => console.log(` • ${formatSnippet(item)}`));
 };
 
 const printAnalysis = (analysis: StructuredAnalysisReport): void => {
-    const {topic, summary, comparison, discrepancies, attachments, bias_metrics: biasMetrics} = analysis;
-    console.log(chalk.bold(`# ${topic.title} (${topic.id})`));
-    console.log(chalk.gray(summary.headline));
+  const {
+    topic,
+    summary,
+    comparison,
+    discrepancies,
+    attachments,
+    bias_metrics: biasMetrics,
+  } = analysis;
+  console.log(chalk.bold(`# ${topic.title} (${topic.id})`));
+  console.log(chalk.gray(summary.headline));
+  console.log(
+    [
+      `Similarity: ${formatPercent(summary.similarity_ratio)}`,
+      `N-gram overlap: ${formatPercent(summary.ngram_overlap)}`,
+      `Wiki chars: ${summary.wiki_char_count}`,
+      `Grok chars: ${summary.grok_char_count}`,
+      `Confidence: ${summary.confidence.label} (${summary.confidence.score.toFixed(2)})`,
+    ].join(' · '),
+  );
+
+  printBulletSection(
+    'Missing snippets (Wikipedia only)',
+    chalk.yellow,
+    comparison.sentences.missing,
+  );
+  printBulletSection('Extra snippets (Grokipedia only)', chalk.cyan, comparison.sentences.extra);
+
+  const structuralIssues = discrepancies.primary ?? [];
+  if (structuralIssues.length) {
+    console.log(chalk.bold('\nStructured discrepancies:'));
+    structuralIssues.forEach((issue, idx) => {
+      const evidence = issue.evidence ?? {};
+      const wikiEvidence = evidence.wikipedia
+        ? `\n   - Wikipedia: ${formatSnippet(evidence.wikipedia)}`
+        : '';
+      const grokEvidence = evidence.grokipedia
+        ? `\n   - Grokipedia: ${formatSnippet(evidence.grokipedia)}`
+        : '';
+      console.log(
+        ` ${idx + 1}. [${issue.type}] ${issue.description}${wikiEvidence}${grokEvidence}`,
+      );
+    });
+  }
+
+  const sectionsMissing = comparison.sections.missing ?? [];
+  const sectionsExtra = comparison.sections.extra ?? [];
+  if (sectionsMissing.length || sectionsExtra.length) {
+    console.log(chalk.bold('\nSection inventory:'));
+    if (sectionsMissing.length) {
+      console.log(
+        chalk.yellow(` - Missing (${sectionsMissing.length}): ${sectionsMissing.join(', ')}`),
+      );
+    }
+    if (sectionsExtra.length) {
+      console.log(chalk.cyan(` - Extra (${sectionsExtra.length}): ${sectionsExtra.join(', ')}`));
+    }
+  }
+
+  if (biasMetrics) {
     console.log(
-        [
-            `Similarity: ${formatPercent(summary.similarity_ratio)}`,
-            `N-gram overlap: ${formatPercent(summary.ngram_overlap)}`,
-            `Wiki chars: ${summary.wiki_char_count}`,
-            `Grok chars: ${summary.grok_char_count}`,
-            `Confidence: ${summary.confidence.label} (${summary.confidence.score.toFixed(2)})`
-        ].join(" · ")
+      chalk.bold(
+        `\nBias deltas → subjectivity: ${biasMetrics.subjectivity_delta.toFixed(3)}, polarity: ${biasMetrics.polarity_delta.toFixed(3)}`,
+      ),
     );
+  }
 
-    printBulletSection("Missing snippets (Wikipedia only)", chalk.yellow, comparison.sentences.missing);
-    printBulletSection("Extra snippets (Grokipedia only)", chalk.cyan, comparison.sentences.extra);
+  if (discrepancies.bias.length) {
+    printBulletSection(
+      'Bias cues',
+      chalk.magenta,
+      discrepancies.bias.map((event) => event.description ?? ''),
+    );
+  }
 
-    const structuralIssues = discrepancies.primary ?? [];
-    if (structuralIssues.length) {
-        console.log(chalk.bold("\nStructured discrepancies:"));
-        structuralIssues.forEach((issue, idx) => {
-            const evidence = issue.evidence ?? {};
-            const wikiEvidence = evidence.wikipedia ? `\n   - Wikipedia: ${formatSnippet(evidence.wikipedia)}` : "";
-            const grokEvidence = evidence.grokipedia ? `\n   - Grokipedia: ${formatSnippet(evidence.grokipedia)}` : "";
-            console.log(` ${idx + 1}. [${issue.type}] ${issue.description}${wikiEvidence}${grokEvidence}`);
-        });
-    }
+  if (discrepancies.hallucinations.length) {
+    printBulletSection(
+      'Hallucination flags',
+      chalk.red,
+      discrepancies.hallucinations.map((event) => event.description ?? ''),
+    );
+  }
 
-    const sectionsMissing = comparison.sections.missing ?? [];
-    const sectionsExtra = comparison.sections.extra ?? [];
-    if (sectionsMissing.length || sectionsExtra.length) {
-        console.log(chalk.bold("\nSection inventory:"));
-        if (sectionsMissing.length) {
-            console.log(chalk.yellow(` - Missing (${sectionsMissing.length}): ${sectionsMissing.join(", ")}`));
-        }
-        if (sectionsExtra.length) {
-            console.log(chalk.cyan(` - Extra (${sectionsExtra.length}): ${sectionsExtra.join(", ")}`));
-        }
-    }
+  const diffSample = attachments.diff_sample ?? [];
+  if (diffSample.length) {
+    console.log(chalk.gray('\nDiff sample:'));
+    diffSample.slice(0, 24).forEach((line) => console.log(colorDiffLine(line)));
+  }
 
-    if (biasMetrics) {
-        console.log(
-            chalk.bold(
-                `\nBias deltas → subjectivity: ${biasMetrics.subjectivity_delta.toFixed(3)}, polarity: ${biasMetrics.polarity_delta.toFixed(3)}`
-            )
-        );
-    }
+  const citationChecks = attachments.citation_verifications ?? [];
+  if (citationChecks.length) {
+    console.log(chalk.bold('\nCitation verification:'));
+    citationChecks.forEach((entry) => {
+      const url = entry.supporting_url ? ` (${entry.supporting_url})` : '';
+      const message = entry.message ? ` — ${entry.message}` : '';
+      console.log(` - [${entry.status}] ${formatSnippet(entry.sentence ?? '')}${url}${message}`);
+    });
+  }
 
-    if (discrepancies.bias.length) {
-        printBulletSection("Bias cues", chalk.magenta, discrepancies.bias.map((event) => event.description ?? ""));
-    }
+  const biasVerifications = attachments.bias_verifications ?? [];
+  if (biasVerifications.length) {
+    console.log(chalk.bold('\nBias verification (external):'));
+    biasVerifications.forEach((entry) => {
+      const confidence =
+        typeof entry.confidence === 'number'
+          ? ` (confidence ${entry.confidence.toFixed(2)})`
+          : entry.confidence
+            ? ` (${entry.confidence})`
+            : '';
+      console.log(
+        ` - [${entry.provider}] event #${entry.event_index}: ${entry.verdict}${confidence}${
+          entry.rationale ? ` — ${formatSnippet(entry.rationale)}` : ''
+        }`,
+      );
+    });
+  }
 
-    if (discrepancies.hallucinations.length) {
-        printBulletSection(
-            "Hallucination flags",
-            chalk.red,
-            discrepancies.hallucinations.map((event) => event.description ?? "")
-        );
-    }
-
-    const diffSample = attachments.diff_sample ?? [];
-    if (diffSample.length) {
-        console.log(chalk.gray("\nDiff sample:"));
-        diffSample.slice(0, 24).forEach((line) => console.log(colorDiffLine(line)));
-    }
-
-    const citationChecks = attachments.citation_verifications ?? [];
-    if (citationChecks.length) {
-        console.log(chalk.bold("\nCitation verification:"));
-        citationChecks.forEach((entry) => {
-            const url = entry.supporting_url ? ` (${entry.supporting_url})` : "";
-            const message = entry.message ? ` — ${entry.message}` : "";
-            console.log(` - [${entry.status}] ${formatSnippet(entry.sentence ?? "")}${url}${message}`);
-        });
-    }
-
-    const biasVerifications = attachments.bias_verifications ?? [];
-    if (biasVerifications.length) {
-        console.log(chalk.bold("\nBias verification (external):"));
-        biasVerifications.forEach((entry) => {
-            const confidence =
-                typeof entry.confidence === "number"
-                    ? ` (confidence ${entry.confidence.toFixed(2)})`
-                    : entry.confidence
-                    ? ` (${entry.confidence})`
-                    : "";
-            console.log(
-                ` - [${entry.provider}] event #${entry.event_index}: ${entry.verdict}${confidence}${
-                    entry.rationale ? ` — ${formatSnippet(entry.rationale)}` : ""
-                }`
-            );
-        });
-    }
-
-    if (attachments.gemini_summary?.text) {
-        console.log(chalk.bold("\nGemini comparison summary:"));
-        console.log(attachments.gemini_summary.text);
-    }
+  if (attachments.gemini_summary?.text) {
+    console.log(chalk.bold('\nGemini comparison summary:'));
+    console.log(attachments.gemini_summary.text);
+  }
 };
 
 const printNote = (topicId: string, payload?: NotePayload): void => {
-    console.log(chalk.bold("\n# Community Note"));
-    const {entry, note} = payload ?? loadNoteEntry(topicId);
-    if (!entry) {
-        console.log("No draft registered in notes/index.json yet.");
-        return;
-    }
-    console.log(`- Status: ${entry.status ?? "unknown"}`);
-    console.log(`- File: ${entry.file}`);
-    console.log(`- UAL: ${entry.ual ?? "unpublished"}`);
-    if (!note) {
-        console.log("Draft file missing—copy template.json to begin.");
-        return;
-    }
-    const rating = (note["reviewRating"] as Record<string, unknown>) ?? {};
-    console.log(`Summary: ${(rating["ratingExplanation"] as string) ?? "n/a"}`);
-    const trust = (note["civicLensTrust"] as Record<string, unknown>) ?? {};
-    const scores = {
-        accuracy: trust["accuracy"],
-        completeness: trust["completeness"],
-        tone_bias: trust["tone_bias"]
-    };
-    if (Object.keys(scores).length) {
-        console.log(
-            `Trust scores -> accuracy: ${scores["accuracy"] ?? "?"}, completeness: ${scores["completeness"] ?? "?"}, tone/bias: ${
-                scores["tone_bias"] ?? "?"
-            }`
-        );
-    }
-    const stake = trust["stake"] as Record<string, unknown> | undefined;
-    if (stake) {
-        console.log(`Stake: ${stake["amount"] ?? 0} ${stake["token"] ?? "TRAC"}`);
-    }
-    const annotations = (note["hasPart"] as Array<Record<string, unknown>>) ?? [];
-    annotations.forEach((issue, idx) => {
-        const body = issue.body as Record<string, string> | undefined;
-        const target = issue.target as Array<Record<string, unknown>> | undefined;
-        const wikiTarget = target?.find((t) => (t.source as string)?.includes("wikipedia"));
-        const grokTarget = target?.find((t) => (t.source as string)?.includes("grokipedia"));
-        console.log(
-            `- ${idx + 1}. [${issue.classification ?? "annotation"}] ${body?.value ?? ""}\n   Wikipedia: ${
-                wikiTarget?.source ?? "n/a"
-            }\n   Grokipedia: ${grokTarget?.source ?? "n/a"}`
-        );
-    });
+  console.log(chalk.bold('\n# Community Note'));
+  const { entry, note } = payload ?? loadNoteEntry(topicId);
+  if (!entry) {
+    console.log('No draft registered in notes/index.json yet.');
+    return;
+  }
+  console.log(`- Status: ${entry.status ?? 'unknown'}`);
+  console.log(`- File: ${entry.file}`);
+  console.log(`- UAL: ${entry.ual ?? 'unpublished'}`);
+  if (!note) {
+    console.log('Draft file missing—copy template.json to begin.');
+    return;
+  }
+  const rating = (note['reviewRating'] as Record<string, unknown>) ?? {};
+  console.log(`Summary: ${(rating['ratingExplanation'] as string) ?? 'n/a'}`);
+  const trust = (note['civicLensTrust'] as Record<string, unknown>) ?? {};
+  const scores = {
+    accuracy: trust['accuracy'],
+    completeness: trust['completeness'],
+    tone_bias: trust['tone_bias'],
+  };
+  if (Object.keys(scores).length) {
+    console.log(
+      `Trust scores -> accuracy: ${scores['accuracy'] ?? '?'}, completeness: ${scores['completeness'] ?? '?'}, tone/bias: ${
+        scores['tone_bias'] ?? '?'
+      }`,
+    );
+  }
+  const stake = trust['stake'] as Record<string, unknown> | undefined;
+  if (stake) {
+    console.log(`Stake: ${stake['amount'] ?? 0} ${stake['token'] ?? 'TRAC'}`);
+  }
+  const annotations = (note['hasPart'] as Array<Record<string, unknown>>) ?? [];
+  annotations.forEach((issue, idx) => {
+    const body = issue.body as Record<string, string> | undefined;
+    const target = issue.target as Array<Record<string, unknown>> | undefined;
+    const wikiTarget = target?.find((t) => (t.source as string)?.includes('wikipedia'));
+    const grokTarget = target?.find((t) => (t.source as string)?.includes('grokipedia'));
+    console.log(
+      `- ${idx + 1}. [${issue.classification ?? 'annotation'}] ${body?.value ?? ''}\n   Wikipedia: ${
+        wikiTarget?.source ?? 'n/a'
+      }\n   Grokipedia: ${grokTarget?.source ?? 'n/a'}`,
+    );
+  });
 };
 
 const escapeHtml = (value: string): string =>
-    value
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 
-const renderList = (title: string, items: string[], tone: "missing" | "extra"): string => {
-    if (!items.length) return "";
-    const listItems = items.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
-    return `<section class="card list-block ${tone}">
+const renderList = (title: string, items: string[], tone: 'missing' | 'extra'): string => {
+  if (!items.length) return '';
+  const listItems = items.map((item) => `<li>${escapeHtml(item)}</li>`).join('');
+  return `<section class="card list-block ${tone}">
       <div class="tile-title">${escapeHtml(title)}</div>
       <ul>${listItems}</ul>
     </section>`;
 };
 
 const renderAlignmentTable = (analysis: StructuredAnalysisReport): string => {
-    const rows = analysis.comparison.sections.alignment
-        .slice(0, 8)
-        .map(
-            (record) => `<tr>
-        <td>${escapeHtml(record.wikipedia?.heading ?? "—")}</td>
-        <td>${escapeHtml(record.grokipedia?.heading ?? "—")}</td>
+  const rows = analysis.comparison.sections.alignment
+    .slice(0, 8)
+    .map(
+      (record) => `<tr>
+        <td>${escapeHtml(record.wikipedia?.heading ?? '—')}</td>
+        <td>${escapeHtml(record.grokipedia?.heading ?? '—')}</td>
         <td>${formatPercent(record.similarity)}</td>
-      </tr>`
-        )
-        .join("");
-    if (!rows) return "";
-    return `<section class="card">
+      </tr>`,
+    )
+    .join('');
+  if (!rows) return '';
+  return `<section class="card">
       <div class="card-title">Section alignment</div>
       <table>
         <thead><tr><th>Wikipedia</th><th>Grokipedia</th><th>Similarity</th></tr></thead>
@@ -242,37 +269,45 @@ const renderAlignmentTable = (analysis: StructuredAnalysisReport): string => {
     </section>`;
 };
 
-const renderDiscrepancyList = (title: string, issues: DiscrepancyRecord[], tone: "neutral" | "alert"): string => {
-    if (!issues.length) return "";
-    const color = tone === "alert" ? "var(--rose-600)" : "var(--slate-700)";
-    const list = issues
-        .map((issue, idx) => {
-            const evidence = issue.evidence ?? {};
-            const wiki = evidence.wikipedia ? `<div class="evidence"><strong>Wikipedia</strong>: ${escapeHtml(evidence.wikipedia)}</div>` : "";
-            const grok =
-                evidence.grokipedia ? `<div class="evidence"><strong>Grokipedia</strong>: ${escapeHtml(evidence.grokipedia)}</div>` : "";
-            return `<li>
-          <span class="issue-label">${idx + 1}. [${escapeHtml(issue.type)}]</span> ${escapeHtml(issue.description ?? "")}
+const renderDiscrepancyList = (
+  title: string,
+  issues: DiscrepancyRecord[],
+  tone: 'neutral' | 'alert',
+): string => {
+  if (!issues.length) return '';
+  const color = tone === 'alert' ? 'var(--rose-600)' : 'var(--slate-700)';
+  const list = issues
+    .map((issue, idx) => {
+      const evidence = issue.evidence ?? {};
+      const wiki = evidence.wikipedia
+        ? `<div class="evidence"><strong>Wikipedia</strong>: ${escapeHtml(evidence.wikipedia)}</div>`
+        : '';
+      const grok = evidence.grokipedia
+        ? `<div class="evidence"><strong>Grokipedia</strong>: ${escapeHtml(evidence.grokipedia)}</div>`
+        : '';
+      return `<li>
+          <span class="issue-label">${idx + 1}. [${escapeHtml(issue.type)}]</span> ${escapeHtml(issue.description ?? '')}
           ${wiki}${grok}
         </li>`;
-        })
-        .join("");
-    return `<section class="card">
+    })
+    .join('');
+  return `<section class="card">
       <div class="card-title" style="color:${color}">${escapeHtml(title)}</div>
       <ol>${list}</ol>
     </section>`;
 };
 
 const renderBiasPanel = (analysis: StructuredAnalysisReport): string => {
-    const metrics = analysis.bias_metrics;
-    const listLoadedTerms = (label: string, entries: Record<string, number>): string => {
-        if (!entries || !Object.keys(entries).length) return `<p class="muted">${escapeHtml(label)}: n/a</p>`;
-        const items = Object.entries(entries)
-            .map(([term, count]) => `<li>${escapeHtml(term)} <span>${count}</span></li>`)
-            .join("");
-        return `<div><h4>${escapeHtml(label)}</h4><ul class="tag-list">${items}</ul></div>`;
-    };
-    return `<section class="card bias">
+  const metrics = analysis.bias_metrics;
+  const listLoadedTerms = (label: string, entries: Record<string, number>): string => {
+    if (!entries || !Object.keys(entries).length)
+      return `<p class="muted">${escapeHtml(label)}: n/a</p>`;
+    const items = Object.entries(entries)
+      .map(([term, count]) => `<li>${escapeHtml(term)} <span>${count}</span></li>`)
+      .join('');
+    return `<div><h4>${escapeHtml(label)}</h4><ul class="tag-list">${items}</ul></div>`;
+  };
+  return `<section class="card bias">
       <div class="card-title">Bias metrics</div>
       <div class="bias-grid">
         <div>
@@ -285,127 +320,135 @@ const renderBiasPanel = (analysis: StructuredAnalysisReport): string => {
         </div>
       </div>
       <div class="bias-tags">
-        ${listLoadedTerms("Grokipedia loaded terms", metrics.loaded_terms_grok)}
-        ${listLoadedTerms("Wikipedia loaded terms", metrics.loaded_terms_wiki)}
+        ${listLoadedTerms('Grokipedia loaded terms', metrics.loaded_terms_grok)}
+        ${listLoadedTerms('Wikipedia loaded terms', metrics.loaded_terms_wiki)}
       </div>
     </section>`;
 };
 
 const renderDiffSample = (analysis: StructuredAnalysisReport): string => {
-    const diffLines = analysis.attachments.diff_sample ?? [];
-    if (!diffLines.length) return "";
-    return `<section class="card">
+  const diffLines = analysis.attachments.diff_sample ?? [];
+  if (!diffLines.length) return '';
+  return `<section class="card">
       <div class="card-title">Diff sample</div>
-      <pre>${escapeHtml(diffLines.slice(0, 40).join("\n"))}</pre>
+      <pre>${escapeHtml(diffLines.slice(0, 40).join('\n'))}</pre>
     </section>`;
 };
 
 const renderVerifications = (analysis: StructuredAnalysisReport): string => {
-    const citationChecks = analysis.attachments.citation_verifications ?? [];
-    const biasChecks = analysis.attachments.bias_verifications ?? [];
-    const blocks: string[] = [];
-    if (citationChecks.length) {
-        const list = citationChecks
-            .map(
-                (entry) => `<li>
-            <strong>[${escapeHtml(entry.status)}]</strong> ${escapeHtml(entry.sentence ?? "")}
-            ${entry.supporting_url ? `<div class="evidence">${escapeHtml(entry.supporting_url)}</div>` : ""}
-            ${entry.message ? `<div class="evidence">${escapeHtml(entry.message)}</div>` : ""}
-          </li>`
-            )
-            .join("");
-        blocks.push(
-            `<section class="card">
+  const citationChecks = analysis.attachments.citation_verifications ?? [];
+  const biasChecks = analysis.attachments.bias_verifications ?? [];
+  const blocks: string[] = [];
+  if (citationChecks.length) {
+    const list = citationChecks
+      .map(
+        (entry) => `<li>
+            <strong>[${escapeHtml(entry.status)}]</strong> ${escapeHtml(entry.sentence ?? '')}
+            ${entry.supporting_url ? `<div class="evidence">${escapeHtml(entry.supporting_url)}</div>` : ''}
+            ${entry.message ? `<div class="evidence">${escapeHtml(entry.message)}</div>` : ''}
+          </li>`,
+      )
+      .join('');
+    blocks.push(
+      `<section class="card">
           <div class="card-title">Citation verification</div>
           <ul>${list}</ul>
-        </section>`
-        );
-    }
-    if (biasChecks.length) {
-        const list = biasChecks
-            .map(
-                (entry) => `<li>
+        </section>`,
+    );
+  }
+  if (biasChecks.length) {
+    const list = biasChecks
+      .map(
+        (entry) => `<li>
             <strong>${escapeHtml(entry.provider)}</strong> · ${escapeHtml(entry.verdict)}
-            ${entry.confidence ? `<span class="muted">(confidence ${escapeHtml(String(entry.confidence))})</span>` : ""}
-            ${entry.rationale ? `<div class="evidence">${escapeHtml(entry.rationale)}</div>` : ""}
-          </li>`
-            )
-            .join("");
-        blocks.push(
-            `<section class="card">
+            ${entry.confidence ? `<span class="muted">(confidence ${escapeHtml(String(entry.confidence))})</span>` : ''}
+            ${entry.rationale ? `<div class="evidence">${escapeHtml(entry.rationale)}</div>` : ''}
+          </li>`,
+      )
+      .join('');
+    blocks.push(
+      `<section class="card">
           <div class="card-title">Bias verification</div>
           <ul>${list}</ul>
-        </section>`
-        );
-    }
-    return blocks.join("");
+        </section>`,
+    );
+  }
+  return blocks.join('');
 };
 
 const renderNoteCard = (notePayload: NotePayload | undefined): string => {
-    const entry = notePayload?.entry;
-    const note = notePayload?.note;
-    if (!entry || !note) {
-        return `<section class="card">
+  const entry = notePayload?.entry;
+  const note = notePayload?.note;
+  if (!entry || !note) {
+    return `<section class="card">
       <div class="card-title">Community Note</div>
       <p class="muted">No draft registered in notes/index.json yet.</p>
     </section>`;
-    }
-    const summary = ((note["reviewRating"] as Record<string, unknown>)?.["ratingExplanation"] as string) ?? "n/a";
-    return `<section class="card">
-      <div class="card-title">Community Note (${escapeHtml(entry.status ?? "draft")})</div>
+  }
+  const summary =
+    ((note['reviewRating'] as Record<string, unknown>)?.['ratingExplanation'] as string) ?? 'n/a';
+  return `<section class="card">
+      <div class="card-title">Community Note (${escapeHtml(entry.status ?? 'draft')})</div>
       <p>${escapeHtml(summary)}</p>
-      <p class="muted">File: ${escapeHtml(entry.file)} • UAL: ${escapeHtml(entry.ual ?? "unpublished")}</p>
+      <p class="muted">File: ${escapeHtml(entry.file)} • UAL: ${escapeHtml(entry.ual ?? 'unpublished')}</p>
     </section>`;
 };
 
 const renderHtmlReport = (
-    analysis: StructuredAnalysisReport,
-    notePayload: NotePayload,
-    notesIndexUpdatedAt: string | null
+  analysis: StructuredAnalysisReport,
+  notePayload: NotePayload,
+  notesIndexUpdatedAt: string | null,
 ): string => {
-    const {topic, summary, comparison, discrepancies} = analysis;
-    const totalSentences = summary.sentences_reviewed;
-    const statsCards = [
-        {
-            label: "Similarity",
-            value: formatPercent(summary.similarity_ratio),
-            detail: "Aligned content",
-            progress: summary.similarity_ratio
-        },
-        {
-            label: "N-gram overlap",
-            value: formatPercent(summary.ngram_overlap),
-            detail: "Shared phrasing",
-            progress: summary.ngram_overlap
-        },
-        {
-            label: "Sentences reviewed",
-            value: String(totalSentences),
-            detail: `Wiki ${summary.wiki_sentence_count} • Grok ${summary.grok_sentence_count}`,
-            progress: totalSentences > 0 ? Math.min(1, totalSentences / Math.max(summary.wiki_sentence_count, summary.grok_sentence_count, 1)) : 0
-        },
-        {
-            label: "Confidence",
-            value: summary.confidence.label.replace(/_/g, " "),
-            detail: `${summary.confidence.score.toFixed(2)} score`,
-            progress: Math.min(1, Math.max(0, summary.confidence.score))
-        }
-    ]
-        .map(
-            (card) => `<div class="kpi-card">
+  const { topic, summary, comparison, discrepancies } = analysis;
+  const totalSentences = summary.sentences_reviewed;
+  const statsCards = [
+    {
+      label: 'Similarity',
+      value: formatPercent(summary.similarity_ratio),
+      detail: 'Aligned content',
+      progress: summary.similarity_ratio,
+    },
+    {
+      label: 'N-gram overlap',
+      value: formatPercent(summary.ngram_overlap),
+      detail: 'Shared phrasing',
+      progress: summary.ngram_overlap,
+    },
+    {
+      label: 'Sentences reviewed',
+      value: String(totalSentences),
+      detail: `Wiki ${summary.wiki_sentence_count} • Grok ${summary.grok_sentence_count}`,
+      progress:
+        totalSentences > 0
+          ? Math.min(
+              1,
+              totalSentences /
+                Math.max(summary.wiki_sentence_count, summary.grok_sentence_count, 1),
+            )
+          : 0,
+    },
+    {
+      label: 'Confidence',
+      value: summary.confidence.label.replace(/_/g, ' '),
+      detail: `${summary.confidence.score.toFixed(2)} score`,
+      progress: Math.min(1, Math.max(0, summary.confidence.score)),
+    },
+  ]
+    .map(
+      (card) => `<div class="kpi-card">
       <p>${escapeHtml(card.label)}</p>
       <strong>${escapeHtml(card.value)}</strong>
       <div class="subtext">${escapeHtml(card.detail)}</div>
       <div class="progress"><span style="width:${(Math.min(1, Math.max(0, card.progress ?? 0)) * 100).toFixed(1)}%"></span></div>
-    </div>`
-        )
-        .join("");
+    </div>`,
+    )
+    .join('');
 
-    const footer = notesIndexUpdatedAt
-        ? `<footer>Notes index last updated at: ${escapeHtml(notesIndexUpdatedAt)}</footer>`
-        : "<footer>CivicLens CLI report</footer>";
+  const footer = notesIndexUpdatedAt
+    ? `<footer>Notes index last updated at: ${escapeHtml(notesIndexUpdatedAt)}</footer>`
+    : '<footer>CivicLens CLI report</footer>';
 
-    return `<!DOCTYPE html>
+  return `<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -593,19 +636,19 @@ const renderHtmlReport = (
         <section class="kpi-grid">${statsCards}</section>
         <section class="dashboard-grid">
           ${renderList(
-              `Missing snippets (Wikipedia, total ${summary.missing_sentence_count})`,
-              comparison.sentences.missing,
-              "missing"
+            `Missing snippets (Wikipedia, total ${summary.missing_sentence_count})`,
+            comparison.sentences.missing,
+            'missing',
           )}
           ${renderList(
-              `Extra snippets (Grokipedia, total ${summary.extra_sentence_count})`,
-              comparison.sentences.extra,
-              "extra"
+            `Extra snippets (Grokipedia, total ${summary.extra_sentence_count})`,
+            comparison.sentences.extra,
+            'extra',
           )}
           ${renderAlignmentTable(analysis)}
-          ${renderDiscrepancyList("Core discrepancies", discrepancies.primary, "neutral")}
+          ${renderDiscrepancyList('Core discrepancies', discrepancies.primary, 'neutral')}
           ${renderBiasPanel(analysis)}
-          ${renderDiscrepancyList("Hallucination cues", discrepancies.hallucinations, "alert")}
+          ${renderDiscrepancyList('Hallucination cues', discrepancies.hallucinations, 'alert')}
           ${renderDiffSample(analysis)}
           ${renderVerifications(analysis)}
           ${renderNoteCard(notePayload)}
@@ -618,70 +661,72 @@ const renderHtmlReport = (
 };
 
 const writeHtmlReport = (topicId: string, html: string): string => {
-    paths.ensureDir(paths.ANALYSIS_DIR);
-    const target = path.join(paths.ANALYSIS_DIR, `${topicId}-report.html`);
-    fs.writeFileSync(target, html, "utf8");
-    return target;
+  paths.ensureDir(paths.ANALYSIS_DIR);
+  const target = path.join(paths.ANALYSIS_DIR, `${topicId}-report.html`);
+  fs.writeFileSync(target, html, 'utf8');
+  return target;
 };
 
 const openInBrowser = (filePath: string): Promise<void> =>
-    new Promise((resolve, reject) => {
-        let command: string;
-        let args: string[];
-        if (process.platform === "darwin") {
-            command = "open";
-            args = [filePath];
-        } else if (process.platform === "win32") {
-            command = "cmd";
-            args = ["/c", "start", "", filePath];
-        } else {
-            command = "xdg-open";
-            args = [filePath];
-        }
-        try {
-            const child = spawn(command, args, {detached: true, stdio: "ignore"});
-            child.once("spawn", () => resolve());
-            child.on("error", (error) => reject(new Error(`Failed to open browser for ${filePath}: ${(error as Error).message}`)));
-            child.unref();
-        } catch (error) {
-            reject(new Error(`Failed to open browser for ${filePath}: ${(error as Error).message}`));
-        }
-    });
+  new Promise((resolve, reject) => {
+    let command: string;
+    let args: string[];
+    if (process.platform === 'darwin') {
+      command = 'open';
+      args = [filePath];
+    } else if (process.platform === 'win32') {
+      command = 'cmd';
+      args = ['/c', 'start', '', filePath];
+    } else {
+      command = 'xdg-open';
+      args = [filePath];
+    }
+    try {
+      const child = spawn(command, args, { detached: true, stdio: 'ignore' });
+      child.once('spawn', () => resolve());
+      child.on('error', (error) =>
+        reject(new Error(`Failed to open browser for ${filePath}: ${(error as Error).message}`)),
+      );
+      child.unref();
+    } catch (error) {
+      reject(new Error(`Failed to open browser for ${filePath}: ${(error as Error).message}`));
+    }
+  });
 
 interface ShowOptions {
-    topic: string;
-    openHtml?: boolean;
+  topic: string;
+  openHtml?: boolean;
 }
 
-const showCommand = new Command("show")
-    .description("Display analysis + community note for a topic")
-    .requiredOption("-t, --topic <id>", "Topic identifier")
-    .option("--open-html", "Render an HTML report and open it in your browser")
-    .action(async (options: ShowOptions) => {
-        const topics = loadTopics();
-        const topic = topics[options.topic];
-        if (!topic) {
-            throw new Error(`Unknown topic '${options.topic}'.`);
-        }
-        const analysis = loadAnalysis(topic);
-        const notePayload = loadNoteEntry(topic.id);
-        const notesIndex = loadNotesIndex();
-        printAnalysis(analysis);
-        printNote(topic.id, notePayload);
-        if (notesIndex?.updated_at) {
-            console.log(`\nNotes index last updated at: ${notesIndex.updated_at}`);
-        }
-        if (options.openHtml) {
-            const html = renderHtmlReport(analysis, notePayload, notesIndex?.updated_at ?? null);
-            const target = writeHtmlReport(topic.id, html);
-            try {
-                await openInBrowser(target);
-                console.log(chalk.green(`\nOpened HTML report at ${target}`));
-            } catch (error) {
-                console.error(chalk.red(`Failed to open browser: ${(error as Error).message}`));
-                console.log(`HTML report saved at ${target}`);
-            }
-        }
-    });
+const showCommand = new Command('show')
+  .description('Display analysis + community note for a topic')
+  .requiredOption('-t, --topic <id>', 'Topic identifier')
+  .option('--open-html', 'Render an HTML report and open it in your browser')
+  .action(async (options: ShowOptions) => {
+    const topics = loadTopics();
+    const topic = topics[options.topic];
+    if (!topic) {
+      throw new Error(`Unknown topic '${options.topic}'.`);
+    }
+    const analysis = loadAnalysis(topic);
+    const notePayload = loadNoteEntry(topic.id);
+    const notesIndex = loadNotesIndex();
+    printAnalysis(analysis);
+    printNote(topic.id, notePayload);
+    if (notesIndex?.updated_at) {
+      console.log(`\nNotes index last updated at: ${notesIndex.updated_at}`);
+    }
+    if (options.openHtml) {
+      const html = renderHtmlReport(analysis, notePayload, notesIndex?.updated_at ?? null);
+      const target = writeHtmlReport(topic.id, html);
+      try {
+        await openInBrowser(target);
+        console.log(chalk.green(`\nOpened HTML report at ${target}`));
+      } catch (error) {
+        console.error(chalk.red(`Failed to open browser: ${(error as Error).message}`));
+        console.log(`HTML report saved at ${target}`);
+      }
+    }
+  });
 
 export default showCommand;
