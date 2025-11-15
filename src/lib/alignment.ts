@@ -48,13 +48,13 @@ export const alignSections = (
     if (matched && matched.similarity >= SECTION_THRESHOLD) {
       usedGrok.add(matched.id);
       results.push({
-        wikipedia: { section_id: section.section_id, heading: heading },
+        wikipedia: { section_id: section.section_id, heading },
         grokipedia: { section_id: matched.id, heading: matched.heading },
         similarity: Number(matched.similarity.toFixed(3)),
       });
     } else {
       results.push({
-        wikipedia: { section_id: section.section_id, heading: heading },
+        wikipedia: { section_id: section.section_id, heading },
         grokipedia: undefined,
         similarity: matched?.similarity ?? 0,
       });
