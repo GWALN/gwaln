@@ -236,6 +236,7 @@ const resolveGeminiSummaryOptions = (options: AnalyseCliOptions): GeminiSummaryC
 };
 
 const analyseCommand = new Command('analyse')
+  .alias('analyze')
   .description('Generate comparison JSON between Grokipedia and Wikipedia content')
   .option('-t, --topic <id>', 'Topic identifier (default: all topics)')
   .option('-f, --force', 'Ignore cached analysis results and recompute')
