@@ -40,7 +40,7 @@
   "bugs": {
     "url": "https://github.com/doguabaris/civiclens-cli/issues"
   },
-  "homepage": "https://civiclens.dev",
+  "homepage": "https://github.com/doguabaris/civiclens-cli",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.22.0",
     "ajv": "^8.17.1",

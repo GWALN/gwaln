@@ -10,4 +10,3 @@ export const createToolLogger = (): Pick<Console, 'log' | 'warn' | 'error'> => (
   warn: (...args) => console.warn('[MCP]', ...args),
   error: (...args) => console.error('[MCP]', ...args),
 });
-
