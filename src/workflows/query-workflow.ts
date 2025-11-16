@@ -12,7 +12,8 @@ import { loadNoteEntry } from '../shared/notes';
 import { paths } from '../shared/paths';
 import { loadTopics } from '../shared/topics';
 
-export interface QueryWorkflowOptions extends Omit<PublishConfigOverrides, 'rpcUrl' | 'frequencySeconds'> {
+export interface QueryWorkflowOptions
+  extends Omit<PublishConfigOverrides, 'rpcUrl' | 'frequencySeconds'> {
   topic?: string;
   ual?: string;
   rpc?: string;
@@ -47,20 +48,16 @@ const resolveTopicToUal = async (
     const availableTitles = Object.values(topics)
       .map((t) => t.title)
       .join(', ');
-    throw new Error(
-      `Topic '${topicTitle}' not found. Available topics: ${availableTitles}`,
-    );
+    throw new Error(`Topic '${topicTitle}' not found. Available topics: ${availableTitles}`);
   }
 
   const topicId = topicEntry.id;
   const { entry } = loadNoteEntry(topicId);
 
-  // Check local cache first
   if (entry && entry.status === 'published' && entry.ual) {
     return entry.ual;
   }
 
-  // Search DKG for the topic
   const foundUal = await searchDkgAssetsByTopic(topicId, {
     endpoint: config.endpoint,
     port: config.port,
@@ -183,4 +180,3 @@ export const runQueryWorkflow = async (
     savedPath,
   };
 };
-

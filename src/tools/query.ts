@@ -41,20 +41,31 @@ export const queryTool = {
 };
 
 export const queryHandler = async (input: z.infer<typeof QueryInputSchema>) => {
-  const result = await runQueryWorkflow(input);
+  try {
+    const result = await runQueryWorkflow(input);
 
-  const message = result.savedPath
-    ? `[query] Successfully retrieved${result.topicTitle ? ` ${result.topicTitle}` : ' asset'} from DKG. Saved to ${result.savedPath}`
-    : `[query] Successfully retrieved${result.topicTitle ? ` ${result.topicTitle}` : ' asset'} from DKG`;
+    const message = result.savedPath
+      ? `[query] Successfully retrieved${result.topicTitle ? ` ${result.topicTitle}` : ' asset'} from DKG. Saved to ${result.savedPath}`
+      : `[query] Successfully retrieved${result.topicTitle ? ` ${result.topicTitle}` : ' asset'} from DKG`;
 
-  return {
-    content: textContent(message),
-    structuredContent: {
-      ual: result.ual,
-      topicTitle: result.topicTitle ?? null,
-      assertion: result.assertion,
-      metadata: result.metadata ?? null,
-      savedPath: result.savedPath ?? null,
-    },
-  };
+    return {
+      content: textContent(message),
+      structuredContent: {
+        ual: result.ual,
+        topicTitle: result.topicTitle ?? null,
+        assertion: result.assertion,
+        metadata: result.metadata ?? null,
+        savedPath: result.savedPath ?? null,
+      },
+    };
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : typeof error === 'string'
+          ? error
+          : 'Unknown error occurred while querying DKG';
+
+    throw new Error(`[query] Failed to retrieve asset from DKG: ${errorMessage}`);
+  }
 };
