@@ -128,6 +128,66 @@ You should have:
 
 4. Record the printed UAL for reporting.
 
+### Use the MCP server
+
+The same workflows are also available to AI agents via the Model Context
+Protocol (see the [official docs](https://modelcontextprotocol.io/docs/getting-started/intro)).
+This lets tools such as Claude Code, Cursor, and MCP Inspector call
+`fetch`, `analyze`, `notes`, `publish`, `query` and `show` without duplicating
+logic.
+
+1. Start the stdio server:
+
+   ```bash
+   npm run mcp
+   ```
+
+   The process stays attached to your terminal so you can connect via an
+   MCP-aware client (Claude Code, Cursor MCP configuration, or Inspector).
+
+2. Register the server with your MCP client. For example, in MCP
+   Inspector run `npx @modelcontextprotocol/inspector` and point it to
+   the stdio process, or in Cursor add a “custom MCP server” that runs
+   `npm run mcp`.
+
+3. Typical agent flow:
+
+   1. `fetch` with `source="both"` (or specify `wiki` / `grok`) to grab
+      the on-disk snapshots for a topic.
+   2. `analyze` with `topicId` (optionally `force`, `verifyCitations`,
+      or Gemini settings) to produce/refresh `analysis/<topic>.json`.
+   3. `show` with `topicId` (+ `renderHtml=true` if you want an HTML
+      file path) to summarize the structured analysis + note draft.
+   4. `notes` with `action="build"` to regenerate the Community Note for
+      that topic; once reviewed, call `notes` with `action="publish"`
+      and either supply `ual` or let it hit the DKG node.
+   5. If you need to publish arbitrary JSON-LD assets (outside the note
+      flow), call `publish` with either a `filePath` or inline `payload`.
+
+Each MCP tool mirrors the CLI flags:
+
+- `fetch`: `{ source?, topicId? }`
+- `analyze`: `{ topicId?, force?, biasVerifier?, geminiKey?, geminiModel?, geminiSummary?, verifyCitations? }`
+- `notes`: discriminated union for `build`, `publish`, or `status`
+- `publish`: `{ filePath? , payload?, privacy?, endpoint?, environment?, ... }`
+- `show`: `{ topicId, renderHtml? }`
+
+Because the MCP server calls the same workflow modules as the CLI,
+cached files, Gemini credentials, and `.civiclensrc.json` are honored
+automatically.
+
+The server reads DKG credentials and defaults from `.civiclensrc.json`
+via the same `resolvePublishConfig` helper used by the CLI, so you never
+have to expose secrets through the MCP request itself. Just keep the
+config file up to date with `civiclens init`.
+
+When you run `npm run mcp` the process spins up a single endpoint
+(`POST /mcp`, default URL `http://127.0.0.1:3233/mcp`). MCP clients must
+first call `initialize`; the server then creates a dedicated session
+using the Model Context Protocol’s session headers and reuses it for the
+subsequent `tools/list`, `tools/call`, etc. There are no extra discovery
+routes—just point your MCP client at that one URL.
+
 ## Troubleshooting
 
 `Analysis not found for topic`  
