@@ -97,9 +97,9 @@ export const publishJsonLdViaSdk = async (
 
   console.log(`[dkg] Publishing to ${options.endpoint}:${options.port ?? 8900}`);
   console.log(`[dkg] Blockchain: ${options.blockchain.name}`);
-  console.log(`[dkg] RPC: ${blockchainConfig.rpc || 'SDK default'}`);
-  console.log(`[dkg] Max polling retries: ${options.maxNumberOfRetries}`);
-  console.log(`[dkg] Epochs: ${options.epochsNum ?? 6}`);
+  // console.log(`[dkg] RPC: ${blockchainConfig.rpc || 'SDK default'}`);
+  // console.log(`[dkg] Max polling retries: ${options.maxNumberOfRetries}`);
+  // console.log(`[dkg] Epochs: ${options.epochsNum ?? 6}`);
 
   try {
     const response = await client.asset.create(payload, {
@@ -109,7 +109,7 @@ export const publishJsonLdViaSdk = async (
     });
 
     const ual = typeof response.UAL === 'string' ? response.UAL : null;
-    console.log(`[dkg] ✓ Success! Response:`, JSON.stringify(response, null, 2));
+    // console.log(`[dkg] ✓ Success! Response:`, JSON.stringify(response, null, 2));
 
     return {
       ual,
