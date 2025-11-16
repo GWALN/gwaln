@@ -31,8 +31,7 @@ export const PublishInputSchema = z
 
 export const publishTool = {
   title: 'Publish arbitrary JSON-LD',
-  description:
-    'Publishes any JSON-LD Knowledge Asset via the DKG SDK (same as `civiclens publish`).',
+  description: 'Publishes any JSON-LD Knowledge Asset via the DKG SDK.',
   inputSchema: PublishInputSchema,
 };
 

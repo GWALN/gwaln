@@ -14,8 +14,7 @@ export const ShowInputSchema = z.object({
 
 export const showTool = {
   title: 'Show CivicLens analysis',
-  description:
-    'Loads structured analysis, note drafts, and optionally renders the HTML report (same as `civiclens show`).',
+  description: 'Loads structured analysis, note drafts, and optionally renders the HTML report.',
   inputSchema: ShowInputSchema,
 };
 
@@ -40,4 +39,3 @@ export const showHandler = async (input: z.infer<typeof ShowInputSchema>) => {
     },
   };
 };
-

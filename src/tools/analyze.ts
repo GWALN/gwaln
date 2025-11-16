@@ -23,8 +23,7 @@ export const AnalyzeInputSchema = z.object({
 
 export const analyzeTool = {
   title: 'Run CivicLens analysis',
-  description:
-    'Reuses or regenerates Grokipedia vs Wikipedia comparisons (same as `civiclens analyse`).',
+  description: 'Reuses or regenerates Grokipedia vs Wikipedia comparisons.',
   inputSchema: AnalyzeInputSchema,
 };
 

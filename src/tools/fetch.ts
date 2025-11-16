@@ -14,16 +14,14 @@ export const FetchInputSchema = z.object({
 
 export const fetchTool = {
   title: 'Fetch structured snapshots',
-  description:
-    'Downloads Grokipedia and/or Wikipedia content for a topic (same as `civiclens fetch`).',
+  description: 'Downloads Grokipedia and/or Wikipedia content for a topic.',
   inputSchema: FetchInputSchema,
 };
 
 export const fetchHandler = async (input: z.infer<typeof FetchInputSchema>) => {
   const { source, topicId } = input;
   const selectedSource = source ?? 'both';
-  const sources: FetchSource[] =
-    selectedSource === 'both' ? ['wiki', 'grok'] : [selectedSource];
+  const sources: FetchSource[] = selectedSource === 'both' ? ['wiki', 'grok'] : [selectedSource];
   const payload = [];
   for (const selected of sources) {
     const results = await runFetchWorkflow(selected, topicId);
@@ -36,4 +34,3 @@ export const fetchHandler = async (input: z.infer<typeof FetchInputSchema>) => {
     structuredContent: { topicId: topicId ?? null, sources: payload },
   };
 };
-
