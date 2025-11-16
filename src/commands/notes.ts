@@ -6,16 +6,13 @@
  */
 
 import { Command } from 'commander';
-import fs from 'node:fs';
-import path from 'node:path';
 import ora from 'ora';
-import { publishJsonLdViaSdk } from '../lib/dkg';
-import { buildCommunityNote, BuildNoteOptions } from '../lib/notes';
-import { coerceStructuredAnalysisReport, StructuredAnalysisReport } from '../lib/structured-report';
-import { resolvePublishConfig } from '../shared/config';
-import { loadNoteEntry, upsertNoteIndexEntry } from '../shared/notes';
-import { paths } from '../shared/paths';
-import { loadTopics, Topic } from '../shared/topics';
+import {
+  buildNoteDraft,
+  publishNoteDraft,
+  type BuildNoteInput,
+  type PublishNoteInput,
+} from '../workflows/notes-workflow';
 
 interface BuildCLIOptions {
   topic: string;
@@ -29,24 +26,21 @@ interface BuildCLIOptions {
   reviewerId?: string;
 }
 
-const readAnalysis = (topic: Topic): StructuredAnalysisReport => {
-  const filePath = path.join(paths.ANALYSIS_DIR, `${topic.id}.json`);
-  if (!fs.existsSync(filePath)) {
-    throw new Error(
-      `Missing analysis file ${filePath}. Run 'civiclens analyse --topic ${topic.id}' first.`,
-    );
-  }
-  const raw = fs.readFileSync(filePath, 'utf8');
-  const parsed = JSON.parse(raw) as StructuredAnalysisReport | Record<string, unknown>;
-  return coerceStructuredAnalysisReport(topic, parsed as StructuredAnalysisReport);
-};
-
-const writeNoteFile = (topic: Topic, payload: Record<string, unknown>): string => {
-  fs.mkdirSync(paths.NOTES_DIR, { recursive: true });
-  const target = path.join(paths.NOTES_DIR, `${topic.id}.json`);
-  fs.writeFileSync(target, JSON.stringify(payload, null, 2), 'utf8');
-  return target;
-};
+interface PublishCLIOptions {
+  topic: string;
+  ual?: string;
+  endpoint?: string;
+  environment?: string;
+  port?: number;
+  blockchain?: string;
+  privateKey?: string;
+  publicKey?: string;
+  rpc?: string;
+  epochs?: number;
+  maxRetries?: number;
+  pollFrequency?: number;
+  dryRun?: boolean;
+}
 
 const parseNumber = (value?: string): number | undefined => {
   if (value === undefined) return undefined;
@@ -69,13 +63,8 @@ notesCommand
   .option('--reviewer-name <string>', 'Reviewer/organization name', 'CivicLens')
   .option('--reviewer-id <string>', 'Reviewer DID/identifier')
   .action((options: BuildCLIOptions) => {
-    const topics = loadTopics();
-    const topic = topics[options.topic];
-    if (!topic) {
-      throw new Error(`Unknown topic '${options.topic}'.`);
-    }
-    const analysis = readAnalysis(topic);
-    const note = buildCommunityNote(topic, analysis, {
+    const input: BuildNoteInput = {
+      topicId: options.topic,
       summary: options.summary,
       accuracy: parseNumber(options.accuracy),
       completeness: parseNumber(options.completeness),
@@ -84,25 +73,9 @@ notesCommand
       stakeAmount: parseNumber(options.stakeAmount),
       reviewerName: options.reviewerName,
       reviewerId: options.reviewerId,
-    } as BuildNoteOptions);
-
-    const filePath = writeNoteFile(topic, note);
-    upsertNoteIndexEntry(topic.id, (existing) => ({
-      topic_id: topic.id,
-      topic_title: topic.title,
-      file: path.basename(filePath),
-      status: existing?.status === 'published' ? 'published' : 'draft',
-      analysis_file: `../analysis/${topic.id}.json`,
-      generated_at: new Date().toISOString(),
-      published_at: existing?.published_at ?? null,
-      ual: existing?.ual ?? null,
-      stake: {
-        token: options.stakeToken || 'TRAC',
-        amount: parseNumber(options.stakeAmount) ?? 0,
-      },
-    }));
-
-    console.log(`[notes] Built Community Note for ${topic.id} at ${filePath}`);
+    };
+    const result = buildNoteDraft(input);
+    console.log(`[notes] Built Community Note for ${result.topicId} at ${result.filePath}`);
   });
 
 notesCommand
@@ -123,133 +96,43 @@ notesCommand
     Number(value),
   )
   .option('--dry-run', 'Skip publish and print payload')
-  .action(
-    async (options: {
-      topic: string;
-      ual?: string;
-      endpoint?: string;
-      environment?: string;
-      port?: number;
-      blockchain?: string;
-      privateKey?: string;
-      publicKey?: string;
-      rpc?: string;
-      epochs?: number;
-      maxRetries?: number;
-      pollFrequency?: number;
-      dryRun?: boolean;
-    }) => {
-      const { entry, note } = loadNoteEntry(options.topic);
-      if (!entry) {
-        console.error(
-          `[notes] No note entry found for '${options.topic}'. Run 'civiclens notes build' first.`,
+  .action(async (options: PublishCLIOptions) => {
+    let spinner: ora.Ora | undefined;
+    const shouldSpin = !options.ual && !options.dryRun;
+    try {
+      if (options.ual) {
+        console.log(`[notes] Recording provided UAL for ${options.topic}: ${options.ual}`);
+      } else if (shouldSpin) {
+        spinner = ora(`[notes] Publishing ${options.topic} via configured DKG node`).start();
+      }
+      const input: PublishNoteInput = {
+        ...options,
+        topicId: options.topic,
+        rpcUrl: options.rpc,
+        epochsNum: options.epochs,
+        frequencySeconds: options.pollFrequency,
+      };
+      const result = await publishNoteDraft(input);
+      if (!options.ual && result.dryRun) {
+        spinner?.stop();
+        console.log(`[notes] Dry-run enabled for ${options.topic}. Payload:`);
+        console.log(JSON.stringify(result.note, null, 2));
+      } else if (spinner) {
+        spinner.succeed(
+          result.ual
+            ? `[notes] DKG publish completed. UAL: ${result.ual}`
+            : '[notes] DKG publish completed. UAL not included in response.',
         );
-        process.exitCode = 1;
-        return;
       }
-      if (!note) {
-        console.error(
-          `[notes] Note file '${entry.file}' is missing. Re-run 'civiclens notes build'.`,
-        );
-        process.exitCode = 1;
-        return;
+      if (result.logPath) {
+        console.log(`[notes] Saved DKG response to ${result.logPath}`);
       }
-      let spinner: ora.Ora | undefined;
-
-      try {
-        let ual: string | null = options.ual ?? null;
-        let rawResponse: unknown;
-
-        if (!ual) {
-          const publishConfig = resolvePublishConfig({
-            endpoint: options.endpoint,
-            environment: options.environment,
-            port: options.port,
-            blockchain: options.blockchain,
-            privateKey: options.privateKey,
-            publicKey: options.publicKey,
-            rpcUrl: options.rpc,
-            epochsNum: options.epochs,
-            maxRetries: options.maxRetries,
-            frequencySeconds: options.pollFrequency,
-            dryRun: options.dryRun,
-          });
-
-          const dryRun = options.dryRun ?? publishConfig.dryRun;
-          if (dryRun) {
-            console.log(`[notes] Dry-run enabled for ${options.topic}. Payload:`);
-            console.log(JSON.stringify(note, null, 2));
-          } else {
-            const maxSeconds = publishConfig.maxRetries * publishConfig.frequencySeconds;
-            spinner = ora(
-              `[notes] Publishing via ${publishConfig.endpoint}:${publishConfig.port} (polling up to ${maxSeconds}s)`,
-            ).start();
-            const result = await publishJsonLdViaSdk(note as Record<string, unknown>, {
-              endpoint: publishConfig.endpoint,
-              port: publishConfig.port,
-              blockchain: {
-                name: publishConfig.blockchain,
-                privateKey: publishConfig.privateKey,
-                rpc: publishConfig.rpcUrl,
-              },
-              epochsNum: publishConfig.epochsNum,
-              maxNumberOfRetries: publishConfig.maxRetries,
-              frequencySeconds: publishConfig.frequencySeconds,
-              privacy: 'private',
-            });
-
-            ual = result.ual;
-            rawResponse = result.raw;
-            const publishStatus = (
-              rawResponse as {
-                operation?: { publish?: { status?: string; errorMessage?: string } };
-              }
-            ).operation?.publish;
-            const statusLabel = publishStatus?.status?.toUpperCase();
-            const publishCompleted =
-              statusLabel === 'COMPLETED' ||
-              statusLabel === 'PUBLISH_REPLICATE_END' ||
-              (!!ual && !statusLabel);
-
-            if (!publishCompleted) {
-              const reason =
-                publishStatus?.errorMessage ??
-                publishStatus?.status ??
-                'DKG publish did not complete.';
-              spinner?.fail(`[notes] DKG publish failed: ${reason}`);
-              process.exitCode = 1;
-              return;
-            }
-
-            spinner?.succeed(
-              ual
-                ? `[notes] DKG publish completed. UAL: ${ual}`
-                : '[notes] DKG publish completed. UAL not included in response.',
-            );
-          }
-        } else {
-          console.log(`[notes] Recording provided UAL for ${options.topic}: ${ual}`);
-        }
-
-        upsertNoteIndexEntry(options.topic, () => ({
-          ...entry,
-          status: 'published',
-          ual,
-          published_at: new Date().toISOString(),
-        }));
-
-        if (rawResponse) {
-          const logPath = path.join(paths.NOTES_DIR, `${options.topic}.publish.log.json`);
-          fs.writeFileSync(logPath, JSON.stringify(rawResponse, null, 2), 'utf8');
-          console.log(`[notes] Saved DKG response to ${logPath}`);
-        }
-      } catch (error) {
-        const message = (error as Error).message?.trim() || 'Unknown error';
-        spinner?.fail(`[notes] DKG publish failed: ${message}`);
-        console.error(`[notes] Publish failed: ${message}`);
-        process.exitCode = 1;
-      }
-    },
-  );
+    } catch (error) {
+      const message = (error as Error).message?.trim() || 'Unknown error';
+      spinner?.fail(`[notes] DKG publish failed: ${message}`);
+      console.error(`[notes] Publish failed: ${message}`);
+      process.exitCode = 1;
+    }
+  });
 
 export default notesCommand;

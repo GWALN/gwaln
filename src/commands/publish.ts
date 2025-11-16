@@ -7,13 +7,10 @@
 
 import chalk from 'chalk';
 import { Command } from 'commander';
-import fs from 'node:fs';
-import path from 'node:path';
 import ora from 'ora';
 
 import pkg from '../../package.json';
-import { publishJsonLdViaSdk } from '../lib/dkg';
-import { resolvePublishConfig } from '../shared/config';
+import { loadJsonLdFromFile, publishJsonLdAsset } from '../workflows/publish-workflow';
 
 type PublishCLIOptions = {
   privacy?: string;
@@ -28,36 +25,6 @@ type PublishCLIOptions = {
   maxRetries?: number;
   pollFrequency?: number;
   dryRun?: boolean;
-};
-
-const loadJsonLdFile = (filePath: string) => {
-  const absolute = path.resolve(filePath);
-  if (!fs.existsSync(absolute)) {
-    throw new Error(`File not found at '${absolute}'.`);
-  }
-  const raw = fs.readFileSync(absolute, 'utf8');
-  try {
-    return JSON.parse(raw);
-  } catch (error) {
-    throw new Error(`Invalid JSON in '${absolute}': ${(error as Error).message}`);
-  }
-};
-
-type JsonRecord = Record<string, unknown>;
-
-const toJsonLdPayload = (parsed: unknown): unknown => {
-  if (parsed && typeof parsed === 'object') {
-    const record = parsed as JsonRecord;
-    const assetCandidate = record.asset;
-    if (assetCandidate && typeof assetCandidate === 'object') {
-      return assetCandidate;
-    }
-    const jsonldCandidate = record.jsonld;
-    if (jsonldCandidate && typeof jsonldCandidate === 'object') {
-      return jsonldCandidate;
-    }
-  }
-  return parsed;
 };
 
 const publishCommand = new Command('publish')
@@ -81,96 +48,46 @@ const publishCommand = new Command('publish')
   )
   .option('--dry-run', 'Print payload instead of publishing')
   .action(async (filePath: string, options: PublishCLIOptions) => {
-    const config = resolvePublishConfig({
-      endpoint: options.endpoint,
-      environment: options.environment,
-      port: options.port,
-      blockchain: options.blockchain,
-      publicKey: options.publicKey,
-      privateKey: options.privateKey,
-      rpcUrl: options.rpc,
-      epochsNum: options.epochs,
-      maxRetries: options.maxRetries,
-      frequencySeconds: options.pollFrequency,
-      dryRun: options.dryRun,
-    });
-
-    const rawJson = loadJsonLdFile(filePath);
-    const jsonld = toJsonLdPayload(rawJson);
-    if (!jsonld || typeof jsonld !== 'object') {
-      throw new Error('The provided file does not contain a valid JSON-LD object.');
-    }
-
-    const privacy = (options.privacy ?? 'private').toLowerCase();
-    if (!['public', 'private'].includes(privacy)) {
-      throw new Error("Privacy must be either 'public' or 'private'.");
-    }
-
+    const jsonld = loadJsonLdFromFile(filePath);
     console.log(
       chalk.cyan(
-        `Publishing Knowledge Asset from '${filePath}' via DKG SDK (${config.endpoint}:${config.port}) (privacy: ${privacy})...`,
+        `Publishing Knowledge Asset from '${filePath}' (privacy: ${options.privacy ?? 'private'})...`,
       ),
     );
-
-    const dryRun = options.dryRun ?? config.dryRun;
-    if (dryRun) {
-      console.log(chalk.yellow('Dry-run enabled. Payload below:'));
-      console.log(JSON.stringify(jsonld, null, 2));
-      return;
+    const spinnerLabel = `Publishing via configured DKG node (privacy: ${options.privacy ?? 'private'})`;
+    const shouldSpin = !(options.dryRun ?? false);
+    let spinner: ora.Ora | undefined;
+    if (shouldSpin) {
+      spinner = ora(spinnerLabel).start();
     }
 
-    const maxSeconds = config.maxRetries * config.frequencySeconds;
-    const spinner = ora(
-      `Publishing via ${config.endpoint}:${config.port} (polling up to ${maxSeconds}s)`,
-    ).start();
-
     try {
-      const result = await publishJsonLdViaSdk(jsonld as Record<string, unknown>, {
-        endpoint: config.endpoint,
-        port: config.port,
-        environment: config.environment,
-        blockchain: {
-          name: config.blockchain,
-          publicKey: config.publicKey,
-          privateKey: config.privateKey,
-          rpc: config.rpcUrl,
-        },
-        epochsNum: config.epochsNum,
-        maxNumberOfRetries: config.maxRetries,
-        frequencySeconds: config.frequencySeconds,
-        privacy: privacy as 'public' | 'private',
+      const result = await publishJsonLdAsset({
+        ...options,
+        payload: jsonld as Record<string, unknown>,
+        privacy: (options.privacy as 'public' | 'private' | undefined) ?? 'private',
+        rpcUrl: options.rpc,
+        epochsNum: options.epochs,
+        frequencySeconds: options.pollFrequency,
       });
 
-      const publishStatus = (
-        result.raw as {
-          operation?: { publish?: { status?: string; errorMessage?: string } };
-        }
-      ).operation?.publish;
-      const statusLabel = publishStatus?.status?.toUpperCase();
-      const publishCompleted =
-        statusLabel === 'COMPLETED' ||
-        statusLabel === 'PUBLISH_REPLICATE_END' ||
-        (!!result.ual && !statusLabel);
-
-      if (!publishCompleted) {
-        const reason =
-          publishStatus?.errorMessage ?? publishStatus?.status ?? 'DKG publish did not complete.';
-        spinner.fail(`DKG publish failed: ${reason}`);
-        process.exitCode = 1;
+      if (result.dryRun) {
+        spinner?.stop();
+        console.log(chalk.yellow('Dry-run enabled. Payload below:'));
+        console.log(JSON.stringify(result.payload, null, 2));
         return;
       }
 
-      spinner.succeed('Knowledge Asset published successfully.');
+      spinner?.succeed('Knowledge Asset published successfully.');
       if (result.ual) {
         console.log(chalk.bold(`UAL: ${result.ual}`));
       }
-      const datasetRoot = (result.raw as { datasetRoot?: unknown }).datasetRoot;
-      if (typeof datasetRoot === 'string') {
-        console.log(chalk.gray(`datasetRoot: ${datasetRoot}`));
+      if (result.datasetRoot) {
+        console.log(chalk.gray(`datasetRoot: ${result.datasetRoot}`));
       }
       console.log(chalk.gray(`CLI: civiclens-cli@${pkg.version}`));
     } catch (error) {
-      spinner.fail('DKG publish failed.');
+      spinner?.fail('DKG publish failed.');
       console.error(chalk.red('Error publishing asset:'), (error as Error).message);
       process.exitCode = 1;
     }

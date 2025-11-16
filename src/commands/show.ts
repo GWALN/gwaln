@@ -8,27 +8,15 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
 import { spawn } from 'node:child_process';
-import fs from 'node:fs';
-import path from 'node:path';
-import { coerceStructuredAnalysisReport, StructuredAnalysisReport } from '../lib/structured-report';
-import { renderHtmlReport } from '../lib/html-renderer';
-import { loadNoteEntry, loadNotesIndex, NoteIndexEntry } from '../shared/notes';
-import { paths } from '../shared/paths';
-import { loadTopics, Topic } from '../shared/topics';
+import { StructuredAnalysisReport } from '../lib/structured-report';
+import { NoteIndexEntry } from '../shared/notes';
+import {
+  loadShowContext,
+  renderAndWriteHtmlReport,
+  type ShowContext,
+} from '../workflows/show-workflow';
 
 type NotePayload = { entry: NoteIndexEntry | null; note: Record<string, unknown> | null };
-
-const loadAnalysis = (topic: Topic): StructuredAnalysisReport => {
-  const target = path.join(paths.ANALYSIS_DIR, `${topic.id}.json`);
-  if (!fs.existsSync(target)) {
-    throw new Error(
-      `Analysis not found for topic '${topic.id}'. Run 'civiclens analyse --topic ${topic.id}' first.`,
-    );
-  }
-  const raw = fs.readFileSync(target, 'utf8');
-  const parsed = JSON.parse(raw) as StructuredAnalysisReport | Record<string, unknown>;
-  return coerceStructuredAnalysisReport(topic, parsed as StructuredAnalysisReport);
-};
 
 const formatPercent = (ratio: number): string => `${(ratio * 100).toFixed(1)}%`;
 
@@ -191,9 +179,9 @@ const printAnalysis = (analysis: StructuredAnalysisReport): void => {
   }
 };
 
-const printNote = (topicId: string, payload?: NotePayload): void => {
+const printNote = (topicId: string, payload: NotePayload): void => {
   console.log(chalk.bold('\n# Community Note'));
-  const { entry, note } = payload ?? loadNoteEntry(topicId);
+  const { entry, note } = payload;
   if (!entry) {
     console.log('No draft registered in notes/index.json yet.');
     return;
@@ -238,13 +226,6 @@ const printNote = (topicId: string, payload?: NotePayload): void => {
   });
 };
 
-const writeHtmlReport = (topicId: string, html: string): string => {
-  paths.ensureDir(paths.ANALYSIS_DIR);
-  const target = path.join(paths.ANALYSIS_DIR, `${topicId}-report.html`);
-  fs.writeFileSync(target, html, 'utf8');
-  return target;
-};
-
 const openInBrowser = (filePath: string): Promise<void> =>
   new Promise((resolve, reject) => {
     let command: string;
@@ -281,22 +262,16 @@ const showCommand = new Command('show')
   .requiredOption('-t, --topic <id>', 'Topic identifier')
   .option('--open-html', 'Render an HTML report and open it in your browser')
   .action(async (options: ShowOptions) => {
-    const topics = loadTopics();
-    const topic = topics[options.topic];
-    if (!topic) {
-      throw new Error(`Unknown topic '${options.topic}'.`);
-    }
-    const analysis = loadAnalysis(topic);
-    const notePayload = loadNoteEntry(topic.id);
-    const notesIndex = loadNotesIndex();
-    printAnalysis(analysis);
-    printNote(topic.id, notePayload);
+    const context: ShowContext = loadShowContext(options.topic);
+    const notePayload = context.noteEntry;
+    const notesIndex = context.notesIndex;
+    printAnalysis(context.analysis);
+    printNote(context.topic.id, notePayload);
     if (notesIndex?.updated_at) {
       console.log(`\nNotes index last updated at: ${notesIndex.updated_at}`);
     }
     if (options.openHtml) {
-      const html = renderHtmlReport(analysis, notePayload, notesIndex?.updated_at ?? null);
-      const target = writeHtmlReport(topic.id, html);
+      const { filePath: target } = renderAndWriteHtmlReport(context.topic.id, context);
       try {
         await openInBrowser(target);
         console.log(chalk.green(`\nOpened HTML report at ${target}`));
