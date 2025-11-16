@@ -47,8 +47,46 @@ content scientific.
 2. Hash sets determine which sentences appear in only one source.
 3. The analyzer records total missing and extra sentences, while showing
    only the first five snippets for readability.
-4. Similarity ratio comes from token overlap; n-gram overlap uses
-   shingle size 4 to capture contiguous matches.
+4. **Similarity metrics:**
+   - **Word similarity:** Token overlap ratio between the two texts,
+     measuring vocabulary overlap. This calculates how many words are
+     shared between Wikipedia and Grokipedia regardless of sentence
+     structure.
+   - **Sentence similarity:** Proportion of matching sentences,
+     combining identical sentences (full weight) and reworded
+     sentences (50% weight). This measures structural alignment at the
+     sentence level.
+   - **N-gram overlap:** Uses shingle size 4 to capture contiguous
+     phrase matches.
+
+### Understanding similarity metrics
+
+The analyzer computes two distinct similarity measurements to provide
+comprehensive content comparison:
+
+**Word similarity** measures lexical overlap—the proportion of shared
+vocabulary between the two texts. A high word similarity (e.g., 81%)
+indicates that both sources discuss the same topic using similar
+terminology, even if the information is organized differently or
+phrased distinctly.
+
+**Sentence similarity** measures structural alignment—how many complete
+sentences match between sources. This metric counts:
+- Identical sentences at full weight (1.0)
+- Reworded sentences at half weight (0.5)
+
+A low sentence similarity (e.g., 0.2%) despite high word similarity
+reveals that sources cover the same topic but express information
+through different sentence structures. This distinction is critical:
+two articles about the Moon may share 81% of their vocabulary (word
+similarity) yet have nearly zero identical sentences (sentence
+similarity 0.2%), indicating substantial editorial differences despite
+topical overlap.
+
+The HTML report displays both metrics in separate cards, with sentence
+similarity positioned first to emphasize structural alignment. Users
+can click the sentence similarity card to view identical and reworded
+sentence pairs.
 
 ### Alignment helpers (`src/lib/alignment.ts`)
 
@@ -88,13 +126,15 @@ HTML views.
 
 Analyzer results land in the `civiclens.analysis/2` schema. Each JSON file includes:
 
-- Stats: character counts, sentence totals, similarity ratios, and
-  missing/extra counts.
+- **Stats:** character counts, sentence totals, and missing/extra counts.
+- **Similarity ratios:** structured as an object containing:
+  - `word`: vocabulary overlap ratio (0.0 to 1.0)
+  - `sentence`: sentence-level match ratio (0.0 to 1.0)
 - Alignment arrays for sections and claims with similarity scores.
 - Numeric and entity discrepancy lists.
 - Bias metrics, bias/hallucination events, diff samples, and optional
   verifier responses.
-- Confidence labels derived from similarity and discrepancy density.
+- Confidence labels derived from word similarity and discrepancy density.
 
 ### Caching
 

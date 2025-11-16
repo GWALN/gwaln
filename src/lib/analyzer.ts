@@ -112,7 +112,10 @@ export interface AnalysisPayload {
   stats: {
     wiki_char_count: number;
     grok_char_count: number;
-    similarity_ratio: number;
+    similarity_ratio: {
+      word: number;
+      sentence: number;
+    };
     wiki_sentence_count: number;
     grok_sentence_count: number;
     missing_sentence_total: number;
@@ -201,7 +204,7 @@ const tokenize = (text: string): string[] =>
     .split(/\s+/)
     .filter(Boolean);
 
-const similarityRatio = (a: string, b: string): number => {
+const wordSimilarityRatio = (a: string, b: string): number => {
   const tokensA = tokenize(a);
   const tokensB = tokenize(b);
   if (!tokensA.length && !tokensB.length) {
@@ -220,6 +223,21 @@ const similarityRatio = (a: string, b: string): number => {
     }
   });
   return Number((overlap / Math.max(tokensA.length, tokensB.length)).toFixed(4));
+};
+
+const sentenceSimilarityRatio = (
+  wikiSentences: string[],
+  grokSentences: string[],
+  agreedCount: number,
+  rewordedCount: number,
+): number => {
+  const totalSentences = Math.max(wikiSentences.length, grokSentences.length);
+  if (totalSentences === 0) {
+    return 1;
+  }
+
+  const matchScore = agreedCount + rewordedCount * 0.5;
+  return Number((matchScore / totalSentences).toFixed(4));
 };
 
 const diffSample = (wiki: string, grok: string, topicId: string): string[] => {
@@ -776,7 +794,6 @@ export const analyzeContent = (
   const wikiText = wiki.text;
   const grokText = grok.text;
 
-  const ratio = similarityRatio(wikiText, grokText);
   const ngramScore = shingleOverlap(wikiText, grokText);
   const wikiSentences = wiki.content.sentences;
   const grokSentences = grok.content.sentences;
@@ -791,6 +808,14 @@ export const analyzeContent = (
 
   const agreedSentences = detectAgreedSentences(wikiSentences, grokSentences);
   const rewordedPairs = detectRewordedSentences(missingAll, grokSentences);
+
+  const wordSimilarity = wordSimilarityRatio(wikiText, grokText);
+  const sentenceSimilarity = sentenceSimilarityRatio(
+    wikiSentences,
+    grokSentences,
+    agreedSentences.length,
+    rewordedPairs.length,
+  );
   const rewordedWikiSentences = new Set(rewordedPairs.map((pair) => pair.wikipedia));
   const trulyMissingAll = missingAll.filter((sentence) => !rewordedWikiSentences.has(sentence));
 
@@ -822,7 +847,7 @@ export const analyzeContent = (
   );
 
   const confidence = classifyDocument(
-    ratio,
+    wordSimilarity,
     ngramScore,
     trulyMissingAll.length,
     extraAll.length,
@@ -862,7 +887,10 @@ export const analyzeContent = (
     stats: {
       wiki_char_count: wikiText.length,
       grok_char_count: grokText.length,
-      similarity_ratio: ratio,
+      similarity_ratio: {
+        word: wordSimilarity,
+        sentence: sentenceSimilarity,
+      },
       wiki_sentence_count: wikiSentenceCount,
       grok_sentence_count: grokSentenceCount,
       missing_sentence_total: missingAll.length,

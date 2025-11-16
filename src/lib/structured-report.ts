@@ -25,7 +25,10 @@ import type { EntityDiscrepancy, NumericDiscrepancy } from './discrepancies';
 export const STRUCTURED_ANALYSIS_SCHEMA = 'civiclens.analysis/2';
 
 export interface StructuredAnalysisSummary {
-  similarity_ratio: number;
+  similarity_ratio: {
+    word: number;
+    sentence: number;
+  };
   ngram_overlap: number;
   wiki_char_count: number;
   grok_char_count: number;

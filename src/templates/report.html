@@ -177,6 +177,17 @@
             border-radius: 6px;
             padding: 0.75rem;
             text-align: center;
+            transition: all 0.2s;
+        }
+
+        .kpi-card-clickable {
+            cursor: pointer;
+        }
+
+        .kpi-card-clickable:hover {
+            border-color: var(--color-purple);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
         }
 
         .kpi-label {
@@ -186,6 +197,20 @@
             color: var(--color-text-muted);
             font-weight: 600;
             margin-bottom: 0.375rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+        }
+
+        .kpi-arrow {
+            font-weight: 700;
+            color: var(--color-purple);
+            transition: transform 0.2s;
+        }
+
+        .kpi-card-clickable:hover .kpi-arrow {
+            transform: translateX(3px);
         }
 
         .kpi-value {
@@ -664,6 +689,8 @@
     {{footer}}
 
 </div>
+
+{{similarSentencesModal}}
 
 <script>
 	function openModal(id) {

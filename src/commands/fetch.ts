@@ -126,8 +126,9 @@ const normalizeMarkdown = (markdown: string): string => {
   output = output.replace(/Portals:\n(?:-.*\n)+/g, '');
   output = output.replace(/\s+\n/g, '\n');
   output = output.replace(/\n{3,}/g, '\n\n');
-
-  output = output.replace(/\[([^\]]+)\]\(([^)\s]+(?:\s"[^"]+")?)\)/g, (_, text) => text);
+  output = output.replace(/\[([^\]]+)]\(([^)\s]+(?:\s"[^"]+")?)\)/g, (_, text) => text);
+  output = output.replace(/\\\[(\d+)\\\]/g, '');
+  output = output.replace(/\[(\d+)\]/g, '');
 
   return output.trim();
 };
@@ -289,8 +290,7 @@ const fetchGrokCitations = async (topic: Topic): Promise<ExternalCitation[]> => 
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.warn(`[grok] unable to load citations for ${topic.id}: ${message}`);
-    const fallback = readLocalGrokCitations(topic);
-    return fallback;
+    return readLocalGrokCitations(topic);
   }
 };
 
@@ -309,8 +309,7 @@ export const stripGrokBanner = (markdown: string): string => {
     const normalized = line.trim().toLowerCase();
     if (!normalized) return false;
     if (normalized.includes('fact-checked by grok')) return false;
-    if (normalized.includes('search ⌘k') || normalized.includes('search cmd+k')) return false;
-    return true;
+    return !(normalized.includes('search ⌘k') || normalized.includes('search cmd+k'));
   });
   return lines.join('\n').trim();
 };

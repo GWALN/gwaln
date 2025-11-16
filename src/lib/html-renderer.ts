@@ -277,6 +277,70 @@ export const renderVerifications = (analysis: StructuredAnalysisReport): string 
   return blocks.join('');
 };
 
+export const renderSimilarSentencesModal = (analysis: StructuredAnalysisReport): string => {
+  const reworded = analysis.comparison.sentences.reworded;
+  const agreed = analysis.comparison.sentences.agreed;
+
+  if (!reworded.length && !agreed.length) return '';
+
+  const rewordedItems = reworded
+    .slice(0, 20)
+    .map(
+      (
+        item,
+      ) => `<li style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--color-border);">
+  <div style="margin-bottom: 0.5rem;">
+    <strong style="color: var(--color-purple); font-size: 0.7rem;">Wikipedia:</strong>
+    <div style="font-size: 0.75rem; color: var(--color-text); margin-top: 0.25rem;">${escapeHtml(item.wikipedia)}</div>
+  </div>
+  <div style="margin-bottom: 0.5rem;">
+    <strong style="color: var(--color-purple); font-size: 0.7rem;">Grokipedia:</strong>
+    <div style="font-size: 0.75rem; color: var(--color-text); margin-top: 0.25rem;">${escapeHtml(item.grokipedia)}</div>
+  </div>
+  <div style="font-size: 0.65rem; color: var(--color-text-muted);">
+    Similarity: ${formatPercent(item.similarity)}
+  </div>
+</li>`,
+    )
+    .join('');
+
+  const agreedItems = agreed
+    .map(
+      (sentence) =>
+        `<li style="padding: 0.75rem; margin-bottom: 0.5rem; background: linear-gradient(90deg, rgba(204, 243, 129, 0.3) 0%, rgba(204, 243, 129, 0.1) 100%); border-left: 3px solid var(--color-green); border-radius: 4px; font-size: 0.8rem; line-height: 1.5; color: var(--color-text);">${escapeHtml(sentence)}</li>`,
+    )
+    .join('');
+
+  return `
+<div id="modal-similar-sentences" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Similar & Aligned Content</h3>
+      <button class="close-btn" onclick="closeModal('modal-similar-sentences')">&times;</button>
+    </div>
+    <div class="modal-body">
+      ${
+        reworded.length
+          ? `
+        <h4 style="font-size: 0.85rem; color: var(--color-purple); margin-bottom: 0.75rem; font-weight: 600;">Reworded Sentences (${reworded.length})</h4>
+        <ul style="list-style: none; padding: 0; margin-bottom: 2rem;">${rewordedItems}</ul>
+      `
+          : ''
+      }
+      ${
+        agreed.length
+          ? `
+        <h4 style="font-size: 0.85rem; color: var(--color-purple); margin-bottom: 0.75rem; font-weight: 600;">Identical Sentences (${agreed.length})</h4>
+        <p style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 1rem;">These sentences appear exactly the same in both Wikipedia and Grokipedia:</p>
+        <ul style="list-style: none; padding: 0;">${agreedItems}</ul>
+      `
+          : ''
+      }
+    </div>
+  </div>
+</div>`;
+};
+
 export const renderNoteInfo = (notePayload: {
   entry: { status?: string; file: string; ual?: string | null } | null;
   note: Record<string, unknown> | null;
@@ -302,12 +366,23 @@ export const renderHtmlReport = (
   const { topic, summary, comparison, discrepancies, meta } = analysis;
   const totalSentences = summary.sentences_reviewed;
 
+  const hasSimilarContent =
+    comparison.sentences.reworded.length > 0 || comparison.sentences.agreed.length > 0;
+
   const statsCards = [
     {
-      label: 'Similarity',
-      value: formatPercent(summary.similarity_ratio),
-      detail: 'Content alignment',
-      progress: summary.similarity_ratio,
+      label: 'Sentence Similarity',
+      value: formatPercent(summary.similarity_ratio.sentence),
+      detail: 'Matching sentences',
+      progress: summary.similarity_ratio.sentence,
+      clickable: hasSimilarContent,
+      modalId: 'modal-similar-sentences',
+    },
+    {
+      label: 'Word Similarity',
+      value: formatPercent(summary.similarity_ratio.word),
+      detail: 'Vocabulary overlap',
+      progress: summary.similarity_ratio.word,
     },
     {
       label: 'N-gram Overlap',
@@ -341,14 +416,18 @@ export const renderHtmlReport = (
       progress: 0.5,
     },
   ]
-    .map(
-      (card) => `<div class="kpi-card">
-  <p class="kpi-label">${escapeHtml(card.label)}</p>
+    .map((card) => {
+      const clickableClass = card.clickable ? ' kpi-card-clickable' : '';
+      const clickHandler = card.clickable ? ` onclick="openModal('${card.modalId}')"` : '';
+      const arrow = card.clickable ? '<span class="kpi-arrow">›</span>' : '';
+
+      return `<div class="kpi-card${clickableClass}"${clickHandler}>
+  <p class="kpi-label">${escapeHtml(card.label)}${arrow}</p>
   <strong class="kpi-value">${card.value}</strong>
   <div class="kpi-detail">${escapeHtml(card.detail)}</div>
   <div class="progress-bar"><span style="width:${(Math.min(1, Math.max(0, card.progress ?? 0)) * 100).toFixed(1)}%;"></span></div>
-</div>`,
-    )
+</div>`;
+    })
     .join('');
 
   const versionBox = `<div class="version-box">
@@ -447,5 +526,6 @@ export const renderHtmlReport = (
     verifications: renderVerifications(analysis),
     metadataCard,
     footer,
+    similarSentencesModal: renderSimilarSentencesModal(analysis),
   });
 };

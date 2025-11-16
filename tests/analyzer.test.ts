@@ -45,7 +45,8 @@ describe('analyzeContent', () => {
       '# Moon The Moon is the only natural satellite orbiting Earth. It orbits at an average distance of 384,399 kilometres and remains tidally locked to Earth.';
     const source = prepareAnalyzerSource(toStructured(text));
     const result = analyzeContent(topic, source, source);
-    expect(result.stats.similarity_ratio).toBe(1);
+    expect(result.stats.similarity_ratio.word).toBe(1);
+    expect(result.stats.similarity_ratio.sentence).toBe(1);
     expect(result.discrepancies).toHaveLength(0);
     expect(result.confidence.label).toBe('aligned');
     expect(result.highlights.missing).toHaveLength(0);
@@ -62,7 +63,7 @@ describe('analyzeContent', () => {
       prepareAnalyzerSource(toStructured(wiki, 'wikipedia')),
       prepareAnalyzerSource(toStructured(grok, 'grokipedia')),
     );
-    expect(result.stats.similarity_ratio).toBeLessThan(1);
+    expect(result.stats.similarity_ratio.word).toBeLessThan(1);
     expect(result.discrepancies.length).toBeGreaterThanOrEqual(2);
     expect(result.discrepancies.some((d) => d.type === 'reworded_claim')).toBe(true);
     expect(result.confidence.label).not.toBe('aligned');
@@ -121,7 +122,7 @@ describe('analyzeContent', () => {
       prepareAnalyzerSource(wikiStructured),
       prepareAnalyzerSource(grokStructured),
     );
-    expect(result.stats.similarity_ratio).toBeGreaterThan(0.99);
+    expect(result.stats.similarity_ratio.word).toBeGreaterThan(0.99);
     expect(result.discrepancies).toHaveLength(0);
   });
 
@@ -222,5 +223,67 @@ For more info see [NASA](https://nasa.gov/moon).`;
       prepareAnalyzerSource(toStructured(grok, 'grokipedia')),
     );
     expect(result.entity_discrepancies.length).toBeGreaterThan(0);
+  });
+
+  it('calculates sentence similarity correctly with identical, reworded, and unique sentences', () => {
+    const wiki = `# Moon
+The Moon is Earth's only natural satellite in the solar system. It orbits around our planet Earth at an average distance of 384,400 kilometers from the surface.
+The lunar surface completely lacks any form of atmosphere. The terrain is heavily covered in impact craters from meteorites.
+NASA space agency has sent many exploration missions to study the Moon.`;
+
+    const grok = `# Moon
+The Moon is Earth's only natural satellite in the solar system. It orbits around our planet Earth at an average distance of 384,400 kilometers from the surface.
+The lunar body's surface completely lacks atmosphere. The lunar terrain features numerous impact craters from space debris.
+SpaceX aerospace company plans future exploration missions to the Moon.`;
+
+    const result = analyzeContent(
+      topic,
+      prepareAnalyzerSource(toStructured(wiki, 'wikipedia')),
+      prepareAnalyzerSource(toStructured(grok, 'grokipedia')),
+    );
+
+    expect(result.stats.agreement_count).toBeGreaterThan(0);
+    expect(result.stats.similarity_ratio.sentence).toBeGreaterThan(0);
+    expect(result.stats.similarity_ratio.sentence).toBeLessThanOrEqual(1);
+    expect(result.stats.similarity_ratio.word).toBeGreaterThan(0.5);
+    expect(result.stats.similarity_ratio.sentence).toBeLessThan(result.stats.similarity_ratio.word);
+  });
+
+  it('calculates sentence similarity as zero when no sentences match', () => {
+    const wiki = `# Astronomy Article
+The first document extensively discusses astronomy and planetary science topics.
+Researchers study celestial bodies and their movements through space.
+The universe contains billions of galaxies with countless stars.`;
+
+    const grok = `# Biology Document
+This text covers completely different subjects like biology and chemistry.
+Scientists examine living organisms and their cellular structures.
+DNA molecules carry genetic information in all living things.`;
+
+    const result = analyzeContent(
+      topic,
+      prepareAnalyzerSource(toStructured(wiki, 'wikipedia')),
+      prepareAnalyzerSource(toStructured(grok, 'grokipedia')),
+    );
+
+    expect(result.stats.agreement_count).toBe(0);
+    expect(result.stats.similarity_ratio.sentence).toBeLessThan(0.5);
+  });
+
+  it('calculates sentence similarity as 1.0 when all sentences are identical', () => {
+    const text = `# Moon
+The Moon is Earth's only natural satellite orbiting our planet.
+It orbits around Earth at an average distance of 384,400 kilometers.
+The Moon has no atmosphere and its surface is covered in impact craters.`;
+
+    const result = analyzeContent(
+      topic,
+      prepareAnalyzerSource(toStructured(text, 'wikipedia')),
+      prepareAnalyzerSource(toStructured(text, 'grokipedia')),
+    );
+
+    expect(result.stats.agreement_count).toBe(3);
+    expect(result.stats.similarity_ratio.sentence).toBe(1);
+    expect(result.stats.similarity_ratio.word).toBe(1);
   });
 });

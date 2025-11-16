@@ -39,10 +39,19 @@ const imageRegex = /!\[[^\]]*]\((https?:\/\/[^\s)]+)\)/g;
 
 const normalize = (text: string): string => text.replace(/\r\n/g, '\n').trim();
 
+/**
+ * Removes Wikipedia-style citation markers like [1], [2], [1][2], etc.
+ */
+const stripCitationMarkers = (text: string): string =>
+  text
+    .replace(/\[(\d+)]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
 const sentenceTokens = (text: string): string[] =>
   text
     .split(/(?<=[.!?])\s+/)
-    .map((sentence) => sentence.trim())
+    .map((sentence) => stripCitationMarkers(sentence).trim())
     .filter((sentence) => sentence.length > 0);
 
 const collectLinks = (value: string): { links: string[]; media: string[] } => {
@@ -78,9 +87,10 @@ export const parseMarkdownArticle = (
 
   const flush = () => {
     if (!buffer.length) return;
-    const content = buffer.join('\n').trim();
+    const rawContent = buffer.join('\n').trim();
+    const content = stripCitationMarkers(rawContent);
     const sentences = sentenceTokens(content);
-    const { links, media } = collectLinks(content);
+    const { links, media } = collectLinks(rawContent);
     sections.push({
       level: currentLevel,
       title: currentTitle,

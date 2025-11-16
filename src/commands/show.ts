@@ -75,7 +75,8 @@ const printAnalysis = (analysis: StructuredAnalysisReport): void => {
   console.log(chalk.gray(summary.headline));
   console.log(
     [
-      `Similarity: ${formatPercent(summary.similarity_ratio)}`,
+      `Word similarity: ${formatPercent(summary.similarity_ratio.word)}`,
+      `Sentence similarity: ${formatPercent(summary.similarity_ratio.sentence)}`,
       `N-gram overlap: ${formatPercent(summary.ngram_overlap)}`,
       `Wiki chars: ${summary.wiki_char_count}`,
       `Grok chars: ${summary.grok_char_count}`,
