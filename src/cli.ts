@@ -23,6 +23,7 @@
  *   civiclens show --topic moon --open-html
  *   civiclens notes build --topic moon --summary "Alignment check"
  *   civiclens notes publish --topic moon
+ *   civiclens query --topic "Moon"
  *
  * @see README.md for full usage details.
  */
