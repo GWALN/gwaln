@@ -22,17 +22,9 @@
     "trust",
     "comparison",
     "knowledge graph",
-    "versioning",
-    "management",
     "json",
-    "distributed",
     "devops",
-    "typescript",
-    "project settings",
-    "environment config",
-    "orchestration",
-    "config manager",
-    "dynamic configuration management"
+    "typescript"
   ],
   "author": {
     "name": "Doğu Abaris",
