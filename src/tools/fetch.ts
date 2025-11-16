@@ -4,7 +4,7 @@
  */
 
 import { z } from 'zod';
-import { runFetchWorkflow, type FetchSource } from '../workflows/fetch-workflow';
+import { type FetchSource, runFetchWorkflow } from '../workflows/fetch-workflow';
 import { textContent } from './utils';
 
 export const FetchInputSchema = z.object({
