@@ -5,6 +5,7 @@
  */
 
 import { createTwoFilesPatch } from 'diff';
+import stringSimilarity from 'string-similarity';
 import {
   ANALYZER_VERSION,
   CACHE_TTL_HOURS,
@@ -35,12 +36,12 @@ export type DiscrepancyType =
   | 'added_claim'
   | 'section_missing'
   | 'section_extra'
-  | 'missing_media'
-  | 'added_media'
   | 'missing_citation'
   | 'added_citation'
   | 'bias_shift'
-  | 'hallucination';
+  | 'hallucination'
+  | 'factual_error'
+  | 'reworded_claim';
 
 export interface DiscrepancyRecord {
   type: DiscrepancyType;
@@ -86,6 +87,11 @@ export interface AnalysisMeta {
   generated_at: string;
   cache_ttl_hours: number;
   shingle_size: number;
+  analysis_window: {
+    wiki_analyzed_chars: number;
+    grok_analyzed_chars: number;
+    source_note: string;
+  };
 }
 
 interface AnalyzerOptions {
@@ -111,16 +117,18 @@ export interface AnalysisPayload {
     grok_sentence_count: number;
     missing_sentence_total: number;
     extra_sentence_total: number;
+    reworded_sentence_count: number;
+    truly_missing_count: number;
+    agreement_count: number;
   };
   ngram_overlap: number;
   missing_sentences: string[];
   extra_sentences: string[];
+  reworded_sentences: Array<{ wikipedia: string; grokipedia: string; similarity: number }>;
+  truly_missing_sentences: string[];
+  agreed_sentences: string[];
   sections_missing: string[];
   sections_extra: string[];
-  media: {
-    missing: string[];
-    extra: string[];
-  };
   citations: {
     missing: string[];
     extra: string[];
@@ -129,6 +137,7 @@ export interface AnalysisPayload {
   discrepancies: DiscrepancyRecord[];
   bias_events: DiscrepancyRecord[];
   hallucination_events: DiscrepancyRecord[];
+  factual_errors: DiscrepancyRecord[];
   bias_verifications?: BiasVerificationRecord[];
   citation_verifications?: CitationVerificationRecord[];
   gemini_summary?: GeminiSummary | null;
@@ -156,7 +165,6 @@ export interface CitationVerificationRecord {
 export interface ArticleContent {
   sentences: string[];
   sections: string[];
-  media: string[];
   citations: string[];
   claims: StructuredClaim[];
 }
@@ -167,13 +175,24 @@ export interface AnalyzerSource {
   article: StructuredArticle;
 }
 
+const REWORD_SIMILARITY_THRESHOLD = 0.65;
+const MIN_SENTENCE_LENGTH = 20;
+const HALLUCINATION_SIMILARITY_MIN = 0.15;
+const HALLUCINATION_SIMILARITY_MAX = 0.6;
+
 const normalizeWhitespace = (text: string): string => text.replace(/\s+/g, ' ').trim();
 
 const sentenceTokens = (text: string): string[] =>
   text
     .split(/(?<=[.!?])\s+/)
     .map((sentence) => sentence.trim())
-    .filter((sentence) => sentence.length > 40);
+    .filter((sentence) => sentence.length > MIN_SENTENCE_LENGTH);
+
+const normalizeSentence = (sentence: string): string =>
+  sentence
+    .trim()
+    .toLowerCase()
+    .replace(/[^\w\s]/g, '');
 
 const tokenize = (text: string): string[] =>
   text
@@ -253,6 +272,28 @@ const collectStructuredSentences = (paragraphs: StructuredParagraphSnapshot[]): 
       .filter((sentence) => sentence.length > 0),
   );
 
+const reconstructTextFromStructured = (article: StructuredArticle): string => {
+  const parts: string[] = [];
+
+  article.lead.paragraphs.forEach((para) => {
+    const sentences = para.sentences.map((s) => s.text).join(' ');
+    if (sentences.trim()) {
+      parts.push(sentences);
+    }
+  });
+
+  article.sections.forEach((section) => {
+    section.paragraphs.forEach((para) => {
+      const sentences = para.sentences.map((s) => s.text).join(' ');
+      if (sentences.trim()) {
+        parts.push(sentences);
+      }
+    });
+  });
+
+  return parts.join('\n');
+};
+
 const buildContentFromStructured = (
   article: StructuredArticle,
   fallbackText: string,
@@ -265,9 +306,6 @@ const buildContentFromStructured = (
   const sections = article.sections
     .map((section) => section.heading?.trim())
     .filter((heading): heading is string => Boolean(heading && heading.length));
-  const media = article.media
-    .map((entry) => entry.title?.trim() || entry.media_id || entry.caption || '')
-    .filter((entry): entry is string => entry.length > 0);
   const citations = article.references
     .map(
       (reference) =>
@@ -278,14 +316,14 @@ const buildContentFromStructured = (
   return {
     sentences: sentences.length ? sentences : sentenceTokens(fallbackText),
     sections,
-    media: uniqueList(media),
     citations: uniqueList(citations),
     claims: article.claims ?? [],
   };
 };
 
 export const prepareAnalyzerSource = (article: StructuredArticle): AnalyzerSource => {
-  const normalizedText = normalizeWhitespace(article.text ?? '');
+  const reconstructedText = reconstructTextFromStructured(article);
+  const normalizedText = normalizeWhitespace(reconstructedText);
   const content = buildContentFromStructured(article, normalizedText);
   return {
     text: normalizedText,
@@ -336,26 +374,68 @@ const detectBiasEvents = (extraSentences: string[], wikiText: string): Discrepan
   return events;
 };
 
-const detectHallucinationEvents = (extraSentences: string[]): DiscrepancyRecord[] => {
-  const keywords = [
+const detectHallucinationEvents = (
+  extraSentences: string[],
+  wikiClaims: StructuredClaim[],
+): DiscrepancyRecord[] => {
+  const speculativeKeywords = [
     'apparently',
     'reportedly',
     'rumored',
+    'rumoured',
     'supposedly',
     'allegedly',
     'unverified',
+    'unconfirmed',
     'citation needed',
+    'claimed to be',
+    'claims to be',
+    'some say',
+    'some believe',
+    'it is said',
+    'it is believed',
+    'according to rumors',
+    'according to rumours',
+    'may have',
+    'might have',
+    'possibly',
+    'perhaps',
+    'uncertain',
   ];
-  return extraSentences
-    .filter((sentence) => keywords.some((keyword) => sentence.toLowerCase().includes(keyword)))
-    .map((sentence) => ({
-      type: 'hallucination' as const,
-      description: 'Grokipedia introduces unverified or speculative claims.',
-      evidence: { grokipedia: sentence },
-      severity: 4,
-      category: 'hallucination',
-      tags: ['unverified'],
-    }));
+
+  const wikiFactsLower = wikiClaims
+    .map((claim) => normalizeSentence(claim.text))
+    .filter((text) => text.length > MIN_SENTENCE_LENGTH);
+
+  const results: DiscrepancyRecord[] = [];
+
+  extraSentences.forEach((sentence) => {
+    const hasSpeculativeWords = speculativeKeywords.some((keyword) =>
+      sentence.toLowerCase().includes(keyword),
+    );
+
+    if (!hasSpeculativeWords) {
+      return;
+    }
+
+    const hasConflict = wikiFactsLower.some((wikiFact) => {
+      const similarity = stringSimilarity.compareTwoStrings(normalizeSentence(sentence), wikiFact);
+      return similarity > HALLUCINATION_SIMILARITY_MIN && similarity < HALLUCINATION_SIMILARITY_MAX;
+    });
+
+    if (hasSpeculativeWords && (hasConflict || wikiFactsLower.length === 0)) {
+      results.push({
+        type: 'hallucination' as const,
+        description: 'Grokipedia uses speculative or unverified language.',
+        evidence: { grokipedia: sentence },
+        severity: 4,
+        category: 'hallucination',
+        tags: ['speculative_language'],
+      });
+    }
+  });
+
+  return results;
 };
 
 const shingle = (tokens: string[], size: number): Set<string> => {
@@ -393,40 +473,190 @@ const shingleOverlap = (wiki: string, grok: string): number => {
   return Number((intersect / union.size).toFixed(4));
 };
 
+interface MatchCandidate {
+  sentence: string;
+  similarity: number;
+}
+
+const detectRewordedSentences = (
+  missingSentences: string[],
+  grokSentences: string[],
+): Array<{ wikipedia: string; grokipedia: string; similarity: number }> => {
+  const reworded: Array<{ wikipedia: string; grokipedia: string; similarity: number }> = [];
+
+  const validMissing = missingSentences.filter((s) => s.length > MIN_SENTENCE_LENGTH);
+  const validGrok = grokSentences.filter((s) => s.length > MIN_SENTENCE_LENGTH);
+
+  validMissing.forEach((wikiSentence) => {
+    let bestMatch: MatchCandidate | null = null;
+
+    validGrok.forEach((grokSentence) => {
+      const similarity = stringSimilarity.compareTwoStrings(
+        normalizeSentence(wikiSentence),
+        normalizeSentence(grokSentence),
+      );
+
+      if (similarity >= REWORD_SIMILARITY_THRESHOLD && similarity < 1.0) {
+        if (!bestMatch || similarity > bestMatch.similarity) {
+          bestMatch = { sentence: grokSentence, similarity };
+        }
+      }
+    });
+
+    if (bestMatch !== null) {
+      const match: MatchCandidate = bestMatch;
+      reworded.push({
+        wikipedia: wikiSentence,
+        grokipedia: match.sentence,
+        similarity: Number(match.similarity.toFixed(3)),
+      });
+    }
+  });
+
+  return reworded;
+};
+
+const detectAgreedSentences = (wikiSentences: string[], grokSentences: string[]): string[] => {
+  const grokSet = new Set(
+    grokSentences.filter((s) => s.length > MIN_SENTENCE_LENGTH).map(normalizeSentence),
+  );
+
+  return wikiSentences.filter((wikiSentence) => {
+    if (wikiSentence.length <= MIN_SENTENCE_LENGTH) {
+      return false;
+    }
+    return grokSet.has(normalizeSentence(wikiSentence));
+  });
+};
+
+const detectFactualErrors = (
+  claimAlignment: ClaimAlignmentRecord[],
+  numericDiscrepancies: NumericDiscrepancy[],
+  entityDiscrepancies: EntityDiscrepancy[],
+): DiscrepancyRecord[] => {
+  const errors: DiscrepancyRecord[] = [];
+
+  numericDiscrepancies.forEach((discrepancy) => {
+    if (discrepancy.relative_difference >= 0.2) {
+      errors.push({
+        type: 'factual_error',
+        description: `Significant numeric discrepancy: ${discrepancy.description}`,
+        evidence: {
+          wikipedia: discrepancy.wikipedia_value?.raw,
+          grokipedia: discrepancy.grokipedia_value?.raw,
+        },
+        severity: 5,
+        category: 'factual',
+        tags: ['numeric_mismatch'],
+      });
+    }
+  });
+
+  entityDiscrepancies.forEach((discrepancy) => {
+    const missingEntities = discrepancy.wikipedia_entities.filter(
+      (entity) => !discrepancy.grokipedia_entities.includes(entity),
+    );
+    const extraEntities = discrepancy.grokipedia_entities.filter(
+      (entity) => !discrepancy.wikipedia_entities.includes(entity),
+    );
+
+    const totalDiff = missingEntities.length + extraEntities.length;
+    if (totalDiff > 1) {
+      errors.push({
+        type: 'factual_error',
+        description: `Entity discrepancy: Wikipedia mentions [${missingEntities.join(', ')}], Grokipedia adds [${extraEntities.join(', ')}]`,
+        evidence: {
+          wikipedia: missingEntities.join(', '),
+          grokipedia: extraEntities.join(', '),
+        },
+        severity: 3,
+        category: 'factual',
+        tags: ['entity_mismatch'],
+      });
+    }
+  });
+
+  claimAlignment.forEach((alignment) => {
+    if (
+      alignment.wikipedia &&
+      alignment.grokipedia &&
+      alignment.similarity < 0.3 &&
+      alignment.similarity > 0
+    ) {
+      errors.push({
+        type: 'factual_error',
+        description: 'Claims are semantically divergent despite topic alignment.',
+        evidence: {
+          wikipedia: alignment.wikipedia.text,
+          grokipedia: alignment.grokipedia.text,
+        },
+        severity: 3,
+        category: 'factual',
+        tags: ['semantic_divergence'],
+      });
+    }
+  });
+
+  return errors;
+};
+
 const clamp = (value: number): number => Math.max(0, Math.min(1, value));
 
 const classifyDocument = (
   similarity: number,
   overlap: number,
-  missingCount: number,
+  trulyMissingCount: number,
   extraCount: number,
   biasEvents: number,
   hallucinationEvents: number,
+  factualErrors: number,
+  agreementCount: number,
+  rewordedCount: number,
 ): ConfidenceSummary => {
   const rationales: string[] = [];
   let score = (similarity + overlap) / 2;
-  if (missingCount > 0) {
-    const delta = Math.min(0.25, missingCount * 0.03);
-    score -= delta;
-    rationales.push(`${missingCount} Wikipedia sentences missing on Grokipedia`);
+
+  if (agreementCount > 0) {
+    const boost = Math.min(0.1, agreementCount * 0.01);
+    score += boost;
+    rationales.push(`${agreementCount} sentences match exactly between sources`);
   }
+
+  if (rewordedCount > 0) {
+    rationales.push(`${rewordedCount} sentences reworded but semantically similar`);
+  }
+
+  if (trulyMissingCount > 0) {
+    const delta = Math.min(0.25, trulyMissingCount * 0.03);
+    score -= delta;
+    rationales.push(`${trulyMissingCount} Wikipedia sentences truly missing on Grokipedia`);
+  }
+
   if (extraCount > 0) {
     const delta = Math.min(0.2, extraCount * 0.025);
     score -= delta;
     rationales.push(`${extraCount} Grokipedia sentences not found on Wikipedia`);
   }
+
+  if (factualErrors > 0) {
+    score -= 0.15;
+    rationales.push(`${factualErrors} factual errors detected`);
+  }
+
   if (biasEvents > 0) {
     score -= 0.1;
-    rationales.push('Bias cues detected');
+    rationales.push(`${biasEvents} bias cues detected`);
   }
+
   if (hallucinationEvents > 0) {
     score -= 0.12;
-    rationales.push('Hallucination cues detected');
+    rationales.push(`${hallucinationEvents} hallucination cues detected`);
   }
 
   const label: ConfidenceLabel =
     similarity >= CLASSIFICATION_THRESHOLDS.aligned.similarity &&
-    overlap >= CLASSIFICATION_THRESHOLDS.aligned.ngram
+    overlap >= CLASSIFICATION_THRESHOLDS.aligned.ngram &&
+    factualErrors === 0
       ? 'aligned'
       : similarity >= CLASSIFICATION_THRESHOLDS.possible.similarity &&
           overlap >= CLASSIFICATION_THRESHOLDS.possible.ngram
@@ -467,22 +697,22 @@ const buildHighlights = (
   }));
 
 const buildDiscrepancies = (
-  missing: string[],
+  trulyMissing: string[],
   extra: string[],
   missingSections: string[],
   extraSections: string[],
-  missingMedia: string[],
-  extraMedia: string[],
   missingCitations: string[],
   extraCitations: string[],
+  reworded: Array<{ wikipedia: string; grokipedia: string; similarity: number }>,
   bias: DiscrepancyRecord[],
   hallucinations: DiscrepancyRecord[],
+  factualErrors: DiscrepancyRecord[],
 ): DiscrepancyRecord[] => {
   const issues: DiscrepancyRecord[] = [];
-  missing.forEach((sentence) =>
+  trulyMissing.forEach((sentence) =>
     issues.push({
       type: 'missing_context',
-      description: 'Sentence present on Wikipedia but absent on Grokipedia.',
+      description: 'Sentence present on Wikipedia but truly absent on Grokipedia.',
       evidence: { wikipedia: sentence },
     }),
   );
@@ -491,6 +721,15 @@ const buildDiscrepancies = (
       type: 'added_claim',
       description: 'Sentence present on Grokipedia but absent on Wikipedia.',
       evidence: { grokipedia: sentence },
+    }),
+  );
+  reworded.forEach((pair) =>
+    issues.push({
+      type: 'reworded_claim',
+      description: `Sentence reworded (${(pair.similarity * 100).toFixed(0)}% similar).`,
+      evidence: { wikipedia: pair.wikipedia, grokipedia: pair.grokipedia },
+      severity: 2,
+      category: 'rewording',
     }),
   );
   missingSections.forEach((section) =>
@@ -509,22 +748,6 @@ const buildDiscrepancies = (
       category: 'structure',
     }),
   );
-  missingMedia.forEach((url) =>
-    issues.push({
-      type: 'missing_media',
-      description: 'Media asset present on Wikipedia is missing on Grokipedia.',
-      evidence: { wikipedia: url },
-      category: 'media',
-    }),
-  );
-  extraMedia.forEach((url) =>
-    issues.push({
-      type: 'added_media',
-      description: 'Grokipedia includes an extra media asset not referenced on Wikipedia.',
-      evidence: { grokipedia: url },
-      category: 'media',
-    }),
-  );
   missingCitations.forEach((url) =>
     issues.push({
       type: 'missing_citation',
@@ -541,7 +764,7 @@ const buildDiscrepancies = (
       category: 'citation',
     }),
   );
-  return [...issues, ...bias, ...hallucinations];
+  return [...issues, ...bias, ...hallucinations, ...factualErrors];
 };
 
 export const analyzeContent = (
@@ -565,30 +788,49 @@ export const analyzeContent = (
 
   const missingAll = wikiSentences.filter((sentence) => !grokSet.has(sentence));
   const extraAll = grokSentences.filter((sentence) => !wikiSet.has(sentence));
+
+  const agreedSentences = detectAgreedSentences(wikiSentences, grokSentences);
+  const rewordedPairs = detectRewordedSentences(missingAll, grokSentences);
+  const rewordedWikiSentences = new Set(rewordedPairs.map((pair) => pair.wikipedia));
+  const trulyMissingAll = missingAll.filter((sentence) => !rewordedWikiSentences.has(sentence));
+
   const missing = missingAll.slice(0, 5);
   const extra = extraAll.slice(0, 5);
+  const trulyMissing = trulyMissingAll.slice(0, 5);
+  const reworded = rewordedPairs.slice(0, 5);
+  const agreed = agreedSentences.slice(0, 10);
 
   const wikiSections = wiki.content.sections;
   const grokSections = grok.content.sections;
   const missingSections = difference(wikiSections, grokSections).slice(0, 5);
   const extraSections = difference(grokSections, wikiSections).slice(0, 5);
 
-  const missingMedia = difference(wiki.content.media, grok.content.media).slice(0, 5);
-  const extraMedia = difference(grok.content.media, wiki.content.media).slice(0, 5);
-
   const missingCitations = difference(wiki.content.citations, grok.content.citations).slice(0, 5);
   const extraCitations = difference(grok.content.citations, wiki.content.citations).slice(0, 5);
 
+  const sectionAlignment = alignSections(wiki.article, grok.article);
+  const claimAlignment = alignClaims(wiki.article, grok.article);
+  const numericDiscrepancies = detectNumericDiscrepancies(claimAlignment);
+  const entityDiscrepancies = detectEntityDiscrepancies(claimAlignment);
+
   const biasEvents = detectBiasEvents(extra, wikiText);
-  const hallucinationEvents = detectHallucinationEvents(extra);
+  const hallucinationEvents = detectHallucinationEvents(extra, wiki.content.claims);
+  const factualErrors = detectFactualErrors(
+    claimAlignment,
+    numericDiscrepancies,
+    entityDiscrepancies,
+  );
 
   const confidence = classifyDocument(
     ratio,
     ngramScore,
-    missing.length,
-    extra.length,
+    trulyMissingAll.length,
+    extraAll.length,
     biasEvents.length,
     hallucinationEvents.length,
+    factualErrors.length,
+    agreedSentences.length,
+    rewordedPairs.length,
   );
 
   const missingHighlights = buildHighlights(missing, 'wikipedia', 'missing');
@@ -610,11 +852,7 @@ export const analyzeContent = (
     ),
   ];
 
-  const sectionAlignment = alignSections(wiki.article, grok.article);
-  const claimAlignment = alignClaims(wiki.article, grok.article);
-  const numericDiscrepancies = detectNumericDiscrepancies(claimAlignment);
-  const entityDiscrepancies = detectEntityDiscrepancies(claimAlignment);
-  const biasMetrics = computeBiasMetrics(wiki.article.text, grok.article.text);
+  const biasMetrics = computeBiasMetrics(wiki.text, grok.text);
   const generatedAt = new Date().toISOString();
   const contentHash = options.contentHash ?? computeContentHash(wiki.text, grok.text);
 
@@ -629,35 +867,38 @@ export const analyzeContent = (
       grok_sentence_count: grokSentenceCount,
       missing_sentence_total: missingAll.length,
       extra_sentence_total: extraAll.length,
+      reworded_sentence_count: rewordedPairs.length,
+      truly_missing_count: trulyMissingAll.length,
+      agreement_count: agreedSentences.length,
     },
     ngram_overlap: ngramScore,
     missing_sentences: missing,
     extra_sentences: extra,
+    reworded_sentences: reworded,
+    truly_missing_sentences: trulyMissing,
+    agreed_sentences: agreed,
     sections_missing: missingSections,
     sections_extra: extraSections,
-    media: {
-      missing: missingMedia,
-      extra: extraMedia,
-    },
     citations: {
       missing: missingCitations,
       extra: extraCitations,
     },
     diff_sample: diffSample(wikiText, grokText, topic.id),
     discrepancies: buildDiscrepancies(
-      missing,
+      trulyMissing,
       extra,
       missingSections,
       extraSections,
-      missingMedia,
-      extraMedia,
       missingCitations,
       extraCitations,
+      reworded,
       biasEvents,
       hallucinationEvents,
+      factualErrors,
     ),
     bias_events: biasEvents,
     hallucination_events: hallucinationEvents,
+    factual_errors: factualErrors,
     confidence,
     highlights: {
       missing: missingHighlights,
@@ -670,6 +911,11 @@ export const analyzeContent = (
       generated_at: generatedAt,
       cache_ttl_hours: CACHE_TTL_HOURS,
       shingle_size: SHINGLE_SIZE,
+      analysis_window: {
+        wiki_analyzed_chars: wiki.text.length,
+        grok_analyzed_chars: grok.text.length,
+        source_note: 'Analyzed text reconstructed from structured sections, not raw article text',
+      },
     },
     section_alignment: sectionAlignment,
     claim_alignment: claimAlignment,

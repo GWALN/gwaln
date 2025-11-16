@@ -52,7 +52,7 @@ describe('analyzeContent', () => {
     expect(result.meta.content_hash).toMatch(/[a-f0-9]{64}/);
   });
 
-  it('detects missing and added claims when texts diverge', () => {
+  it('detects reworded claims when texts diverge with substitutions', () => {
     const wiki =
       '# Moon The Moon is the only natural satellite orbiting Earth. It orbits at an average distance of 384,399 kilometres and remains tidally locked to Earth.';
     const grok =
@@ -63,11 +63,10 @@ describe('analyzeContent', () => {
       prepareAnalyzerSource(toStructured(grok, 'grokipedia')),
     );
     expect(result.stats.similarity_ratio).toBeLessThan(1);
-    expect(result.discrepancies.length).toBeGreaterThanOrEqual(4);
-    expect(result.discrepancies.some((d) => d.type === 'missing_context')).toBe(true);
-    expect(result.discrepancies.some((d) => d.type === 'added_claim')).toBe(true);
+    expect(result.discrepancies.length).toBeGreaterThanOrEqual(2);
+    expect(result.discrepancies.some((d) => d.type === 'reworded_claim')).toBe(true);
     expect(result.confidence.label).not.toBe('aligned');
-    expect(result.highlights.extra.length).toBeGreaterThan(0);
+    expect(result.reworded_sentences.length).toBeGreaterThan(0);
   });
 
   it('identifies pure missing context when Grokipedia truncates the article', () => {
@@ -117,7 +116,6 @@ describe('analyzeContent', () => {
     const grokStructured = JSON.parse(JSON.stringify(wikiStructured)) as StructuredArticle;
     grokStructured.source = 'grokipedia';
     grokStructured.page_id = `grok:${topic.id}`;
-    grokStructured.text = `   ${wikiStructured.text}   `;
     const result = analyzeContent(
       topic,
       prepareAnalyzerSource(wikiStructured),
@@ -127,7 +125,7 @@ describe('analyzeContent', () => {
     expect(result.discrepancies).toHaveLength(0);
   });
 
-  it('detects missing sections, media, and citations', () => {
+  it('detects missing sections and citations', () => {
     const wiki = `# Moon
 ## History
 ${paragraph('Historical overview of lunar exploration.')}
@@ -140,10 +138,8 @@ For more info see [NASA](https://nasa.gov/moon).`;
       prepareAnalyzerSource(toStructured(grok, 'grokipedia')),
     );
     expect(result.sections_missing).toContain('History');
-    expect(result.media.missing.length).toBeGreaterThan(0);
     expect(result.citations.missing.length).toBeGreaterThan(0);
     expect(result.discrepancies.some((d) => d.type === 'section_missing')).toBe(true);
-    expect(result.discrepancies.some((d) => d.type === 'missing_media')).toBe(true);
     expect(result.discrepancies.some((d) => d.type === 'missing_citation')).toBe(true);
     expect(result.highlights.missing.length).toBeGreaterThan(0);
     expect(result.section_alignment.some((record) => record.similarity === 0)).toBe(true);

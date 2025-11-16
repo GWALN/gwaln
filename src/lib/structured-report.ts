@@ -34,15 +34,25 @@ export interface StructuredAnalysisSummary {
   sentences_reviewed: number;
   missing_sentence_count: number;
   extra_sentence_count: number;
+  reworded_sentence_count: number;
+  truly_missing_count: number;
+  agreement_count: number;
   discrepancy_count: number;
   bias_event_count: number;
   hallucination_count: number;
+  factual_error_count: number;
   headline: string;
   confidence: ConfidenceSummary;
 }
 
 export interface StructuredComparisonBlock {
-  sentences: { missing: string[]; extra: string[] };
+  sentences: {
+    missing: string[];
+    extra: string[];
+    reworded: Array<{ wikipedia: string; grokipedia: string; similarity: number }>;
+    truly_missing: string[];
+    agreed: string[];
+  };
   sections: {
     missing: string[];
     extra: string[];
@@ -50,10 +60,6 @@ export interface StructuredComparisonBlock {
   };
   claims: {
     alignment: ClaimAlignmentRecord[];
-  };
-  media: {
-    missing: string[];
-    extra: string[];
   };
   citations: {
     missing: string[];
@@ -67,6 +73,7 @@ export interface StructuredDiscrepancyBlock {
   primary: DiscrepancyRecord[];
   bias: DiscrepancyRecord[];
   hallucinations: DiscrepancyRecord[];
+  factual_errors: DiscrepancyRecord[];
   highlights: {
     missing: HighlightSnippet[];
     extra: HighlightSnippet[];
@@ -142,9 +149,13 @@ export const buildStructuredAnalysis = (
     sentences_reviewed: payload.stats.wiki_sentence_count + payload.stats.grok_sentence_count,
     missing_sentence_count: payload.stats.missing_sentence_total,
     extra_sentence_count: payload.stats.extra_sentence_total,
+    reworded_sentence_count: payload.stats.reworded_sentence_count,
+    truly_missing_count: payload.stats.truly_missing_count,
+    agreement_count: payload.stats.agreement_count,
     discrepancy_count: payload.discrepancies.length,
     bias_event_count: payload.bias_events.length,
     hallucination_count: payload.hallucination_events.length,
+    factual_error_count: payload.factual_errors.length,
     headline: '',
     confidence: payload.confidence,
   };
@@ -154,6 +165,9 @@ export const buildStructuredAnalysis = (
     sentences: {
       missing: payload.missing_sentences,
       extra: payload.extra_sentences,
+      reworded: payload.reworded_sentences,
+      truly_missing: payload.truly_missing_sentences,
+      agreed: payload.agreed_sentences,
     },
     sections: {
       missing: payload.sections_missing,
@@ -163,7 +177,6 @@ export const buildStructuredAnalysis = (
     claims: {
       alignment: payload.claim_alignment,
     },
-    media: payload.media,
     citations: payload.citations,
     numbers: payload.numeric_discrepancies,
     entities: payload.entity_discrepancies,
@@ -173,6 +186,7 @@ export const buildStructuredAnalysis = (
     primary: payload.discrepancies,
     bias: payload.bias_events,
     hallucinations: payload.hallucination_events,
+    factual_errors: payload.factual_errors,
     highlights: payload.highlights,
   };
 

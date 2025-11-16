@@ -111,7 +111,6 @@ export interface StructuredArticle {
   title: string;
   canonical_url: string;
   revision: { id: string; timestamp: string };
-  text: string;
   lead: StructuredLead;
   sections: StructuredSection[];
   media: StructuredMedia[];
@@ -170,7 +169,7 @@ const anchorize = (value: string): string =>
     .replace(/[^\w:.-]+/g, '');
 
 const cleanWikiLinks = (text: string): string =>
-  text.replace(/\[\[([^|\]]+)\|([^\]]+)\]\]/g, '$2').replace(/\[\[([^\]]+)\]\]/g, '$1');
+  text.replace(/\[\[([^|\]]+)\|([^\]]+)]]/g, '$2').replace(/\[\[([^\]]+)]]/g, '$1');
 
 const stripTemplates = (text: string): string => {
   let result = '';
@@ -284,7 +283,7 @@ const stripInfobox = (text: string): string => {
 
 const stripMetaTemplates = (text: string): string => {
   const seen = new Set<string>();
-  const regex = /\{\{\s*([^|}]+)([^}]*)\}\}/gi;
+  const regex = /\{\{\s*([^|}]+)([^}]*)}\}/gi;
   return text
     .replace(regex, (match, name) => {
       const trimmed = name.trim();
@@ -306,7 +305,7 @@ const stripWikiMediaMarkup = (
   sectionId: string | null,
 ): { text: string; matches: MediaMatch[] } => {
   const matches: MediaMatch[] = [];
-  const regex = /\[\[(File|Image):([^|\]]+)([^]]*)\]\]/gi;
+  const regex = /\[\[(File|Image):([^|\]]+)([^]]*)]\]/gi;
   let lastIndex = 0;
   let output = '';
   let match: RegExpExecArray | null;
@@ -599,27 +598,6 @@ const buildWikiSections = (
   return sections;
 };
 
-const flattenSentenceTexts = (paragraphs: StructuredParagraph[]): string[] =>
-  paragraphs.flatMap((paragraph) =>
-    paragraph.sentences
-      .map((sentence) => sentence.text.trim())
-      .filter((sentence) => sentence.length > 0),
-  );
-
-const buildArticleText = (
-  lead: StructuredLead,
-  sections: StructuredSection[],
-  fallback: string,
-): string => {
-  const leadSentences = flattenSentenceTexts(lead.paragraphs);
-  const sectionSentences = sections.flatMap((section) => flattenSentenceTexts(section.paragraphs));
-  const combined = [...leadSentences, ...sectionSentences].filter(Boolean);
-  if (combined.length) {
-    return combined.join('\n');
-  }
-  return fallback;
-};
-
 const buildMarkdownSections = (
   text: string,
   references: ReferenceStore,
@@ -704,7 +682,7 @@ const extractEntities = (
   text: string,
 ): Array<{ label: string; type: string | null; qid: string | null }> => {
   const entities: Array<{ label: string; type: string | null; qid: string | null }> = [];
-  const regex = /\[\[([^|\]]+)(?:\|([^\]]+))?\]\]/g;
+  const regex = /\[\[([^|\]]+)(?:\|([^\]]+))?]\]/g;
   let match: RegExpExecArray | null;
   while ((match = regex.exec(text)) !== null) {
     const target = match[1].trim();
@@ -752,7 +730,7 @@ const extractNumbers = (
 ): Array<{ raw: string; value: number; unit: string | null }> => {
   const results: Array<{ raw: string; value: number; unit: string | null }> = [];
   const numberRegex =
-    /(\d[\d,.\s]*)(?:\s?(?:×|x|e)\s?10(?:\^|[-⁻])?(-?\d+))?(?:\s?(km|kilometres?|kilometers?|miles?|mi|m|meters?|metres?|kg|kilograms?|g|grams?|%|percent|degrees?\s?[cf]|°\s?[cf]|days?|years?))?/gi;
+    /(\d[\d,.\s]*)(?:\s?[×xe]\s?10(?:\^|[-⁻])?(-?\d+))?(?:\s?(km|kilometres?|kilometers?|miles?|mi|m|meters?|metres?|kg|kilograms?|g|grams?|%|percent|degrees?\s?[cf]|°\s?[cf]|days?|years?))?/gi;
   let match: RegExpExecArray | null;
   while ((match = numberRegex.exec(text)) !== null) {
     const raw = match[0].trim();
@@ -978,7 +956,7 @@ const normalizeReference = (
       doi: null,
     };
   }
-  const citeMatch = inner.match(/\{\{\s*cite\s+([^\s|}]+)([^}]*)\}\}/i);
+  const citeMatch = inner.match(/\{\{\s*cite\s+([^\s|}]+)([^}]*)}\}/i);
   if (!citeMatch) {
     return {
       type: null,
@@ -1003,7 +981,7 @@ const normalizeReference = (
     fields[key.trim().toLowerCase()] = rest.join('=').trim();
   }
   const yearValue = fields.year ?? fields.date ?? null;
-  const year = yearValue ? Number.parseInt(yearValue.replace(/[^\d]/g, ''), 10) : null;
+  const year = yearValue ? Number.parseInt(yearValue.replace(/\D/g, ''), 10) : null;
   return {
     type,
     title: fields.title ?? null,
@@ -1035,7 +1013,6 @@ export const parseWikiArticle = (
   const { lead } = buildLead(leadText, referenceStore, mediaRegistry, 'wiki');
   const sections = buildWikiSections(bodyText, referenceStore, mediaRegistry);
   const claims = buildClaims(lead, sections);
-  const articleText = buildArticleText(lead, sections, cleanSentenceText(cleaned));
   return {
     source: metadata.source,
     page_id: metadata.pageId,
@@ -1046,7 +1023,6 @@ export const parseWikiArticle = (
       id: metadata.revisionId,
       timestamp: metadata.revisionTimestamp,
     },
-    text: articleText,
     lead,
     sections,
     media: mediaRegistry.toArray(),
@@ -1088,8 +1064,7 @@ export const parseMarkdownStructuredArticle = (
         .find((paragraph) => paragraph.sentences.some((sentence) => sentence.text.length > 80)) ??
       sections[0].paragraphs[0];
     if (candidateParagraph) {
-      const sourceParagraph = candidateParagraph;
-      const clonedSentences = sourceParagraph.sentences.map((sentence, idx) => ({
+      const clonedSentences = candidateParagraph.sentences.map((sentence, idx) => ({
         ...sentence,
         sentence_id: `lead-1-${idx + 1}`,
         claim_ids: [],
@@ -1104,8 +1079,6 @@ export const parseMarkdownStructuredArticle = (
     }
   }
   const claims = buildClaims(lead, sections);
-  const fallbackText = trimmed.replace(/^#+\s+/gm, '').trim();
-  const articleText = buildArticleText(lead, sections, fallbackText);
   return {
     source: metadata.source,
     page_id: metadata.pageId,
@@ -1116,7 +1089,6 @@ export const parseMarkdownStructuredArticle = (
       id: metadata.revisionId,
       timestamp: metadata.revisionTimestamp,
     },
-    text: articleText,
     lead,
     sections,
     media: mediaRegistry.toArray(),

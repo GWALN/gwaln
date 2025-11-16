@@ -55,7 +55,7 @@ const buildTopicContext = (topic: Topic): TopicContext => {
   const grokArticle = readStructuredArticle(paths.GROK_DIR, topic, 'grok');
   const wikiSource = prepareAnalyzerSource(wikiArticle);
   const grokSource = prepareAnalyzerSource(grokArticle);
-  const contentHash = computeContentHash(wikiArticle.text, grokArticle.text);
+  const contentHash = computeContentHash(wikiSource.text, grokSource.text);
   return {
     wikiSource,
     grokSource,

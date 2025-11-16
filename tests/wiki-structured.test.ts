@@ -90,7 +90,6 @@ describe('parseWikiArticle', () => {
     expect(article.lead.text_range.end_offset).toBeGreaterThan(
       article.lead.text_range.start_offset,
     );
-    expect(article.text.length).toBeGreaterThan(4000);
     expect(article.claims.length).toBeGreaterThan(100);
   });
 
@@ -112,7 +111,9 @@ describe('parseWikiArticle', () => {
     expect(article.lead.paragraphs[0].sentences.length).toBeGreaterThan(0);
     expect(article.sections.length).toBeGreaterThan(0);
     expect(article.claims.length).toBeGreaterThan(0);
-    expect(article.text).toContain("The Moon is Earth's only natural satellite");
+    expect(article.lead.paragraphs[0].sentences[0].text).toContain(
+      "The Moon is Earth's only natural satellite",
+    );
     expect(article.references).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ citation_id: 'grokipedia_citation_1' }),
