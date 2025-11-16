@@ -103,7 +103,7 @@
     "fetch:grok": "tsx src/cli.ts fetch grok",
     "analyse": "tsx src/cli.ts analyse",
     "show": "tsx src/cli.ts show",
-    "mcp": "tsx src/mcp/server.ts",
+    "mcp": "tsx src/server.ts",
     "format": "prettier --write \"src/**/*.ts\""
   }
 }
