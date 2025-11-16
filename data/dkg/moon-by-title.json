@@ -1,0 +1,967 @@
+{
+  "ual": "did:dkg:base:8453/0xc28f310a87f7621a087a603e2ce41c22523f11d7/666506",
+  "retrieved_at": "2025-11-16T11:55:51.512Z",
+  "assertion": [
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x01606d7a3451bb8a3425e8231c2fa353a5cab02c1498207526ca1acc0a124799",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:265c3bfe-28ef-4c1f-b726-0013be04f354"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x028e39cb5635496825c2fd42e31efb19fefb57e794f839ac52cfbd5cd7518d4d",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:a0df93bd-a0a9-43e4-8558-6aa00565526c"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x031aff2247e37fe16d11cc8edcc3b8067ff781e2240d7cae023b463278dbcbe4",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:7072b826-c6f8-4cfb-8615-1a8539ca58e3"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x0660a30fd715dab74ba94c11bfc1451246de0756dc2284eee495446b95f3a4f3",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:a366bd4b-a333-4faf-9681-b23c8e099823"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x098c1262069de37c7fbb760889348aa5c164809eb069a322af255db65eddd7f7",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:d7fef274-9f99-4550-8fba-997a043768a9"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x09f220dba8babf1bfe0a7374dd8d5059bd261edcbc34557862ad0c9bfe8b3d51",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:b1944b07-abf5-417d-8b69-6176bca2ccd5"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x09f77c02a6187299faba572c4911626a4857fd63dfd34b6a6cc188ea95ad0cd8",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:15a07e9e-c9a0-4678-a567-ee6d261bf353"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x0da3b8303fb14f4f6d71d29231d59234d28dec6f645eab0189cb5c25a1946e07",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:4438911f-f3ed-476d-924b-595024ea44e5"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x0e05e72b5c117e7bb6bac98fd870b3891edfdbbb367182efecdae5622727b22b",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:fe567782-8443-4b57-b0f0-4d83721e9e54"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x10697f55215873fe3965b65b130c2e066834bdb9aa74129f32e7a18e0fbd53f7",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:e465677a-f21e-4f9b-af65-d76ee6ea8f81"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x11e0cda7365b8816ac6c39f8f2d78397624abdc9d579c6d9cd015c5d62c39038",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:ea0e1761-4ede-4afb-944e-f7a41f0c3b2e"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x14033466a7932523d4c6c7dcb20619e468b2a057fcdfc62503e93820d4ab09d1",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:c1dfd451-5f91-42d4-9c54-5d9e671ba5bb"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x17109bda492156b6c3e7039f25e390711d7538b5202516dcbce11290fd132096",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:f707144d-0078-4220-9bdb-a8432573dc31"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x187bd8498eb66097e58fa0a3965a86a5c3745ec037173bf838ed49d4df450783",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:b8d2b095-00d5-4036-9081-bfc336b00a91"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x19575a4aa43819c83b8643c5216ebf0043e63fb48526e36ef3db58529c27a30e",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:22225ffb-ef73-484b-bfd3-ab689655837f"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x2012a21b43e34a4ce9d727bc674265e0b90882c82c0642ce606bef5d5157a441",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:c90cce08-ac7b-4bf8-87f1-336f62526950"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x205ccb67c26761053f82d8628eb6584a5e2434b172379133dff49930884749f2",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:00334f95-a38c-40b5-a842-e79b92b3d9e6"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x2129546cd59231798e470874f75ceb4ba7e03bca7b8ac0452a0d3a1983019d60",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:4c899ce9-c10c-4439-9099-a6aea9892e5b"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x215849c11073ae9100293a984698ec032ee533cfca7d5dbea760e47ae33e8f31",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:b7c8f45b-4893-44a8-b459-0caa68342bf5"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x221682b4dfe6fe9587085c380c4a1f6fb7c6d4727d98630553e1016fbd4d3791",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:5bcd469d-1fbb-4cc2-b308-edd4fc3d8109"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x2370e7c4111c43b4005cc2077a0c73c17d88d5fde8c0cafbd063bd1e5269edd1",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:4cf8ab16-e117-45fc-803f-dbec98dcefa6"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x252b1a73681d0c6ca2ca8e1c3de20e75d2702b763921ae2bbc849ccc8d884b9b",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:c1c19295-05a0-492e-9ece-21f112817141"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x2d2d7d2a1223d186f03805eb7e509009ef25e16e1695fb48263b684deef3270c",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:da329277-394b-4e9e-b9d4-6a149dd2f2a4"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x2dff0a5d8a3a73816cd18a2baaca4636c7de99cb56f9d49339650827a74bbf91",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:1d16bd29-465e-4119-927d-02b18a759054"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x2f5ca930b7baa66b8a4b7f40887dc01b1ddd49091171a01222e049b80e82eed4",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:0de5eef6-10e2-42f0-bf0d-f65498f41f83"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x2fcdce4b779b2a6d95618c8b4255623d6aa6758ea723873d03faf18232dc248b",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:9d46a86b-9fa6-4af0-aaa5-a5f47e73ca54"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x31165f2e055455d07e8d59708a84883fb6bd8c134fd821b0da8b4810c4c3b2d2",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:78d5eefa-9881-426c-a9a3-729658e064c3"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x3388752c7e7a9dc015760fd543b630c80b359a786637f9c9c7b0f4d3e0619563",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:3ade0bc3-27f1-48b8-b481-7bede4630846"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x376c3d9256812dbc621b88cb65b68e5c37f9ce202cb33de82aeed68de9977d22",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:7544b230-e4bf-4b7f-894f-6ba1061be019"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x3840f16f74a55fff1c18e7531f1bfae2206510a7e9c8250873c8929da419c070",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:5e708717-c0e8-4327-8355-4b6d950ea980"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x3ace72389f14b2ea6ae8df539297411e768480e901a7d193448d4c7a13a968b9",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:90853022-5dfc-4094-aeb6-1777731ceee4"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x3b19ae6a29e51fc212c2ad70291ce4d8de931e320683430aa9dd5ae964587e58",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:077aa4ea-e352-484a-901b-5eea12b47987"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x3c699c10d57556365a322b41a41c0edc792449c1445d71e5b7a12617c573dfb1",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:9c3a0d0e-6b1a-4792-9a3d-bbd79e90d2f4"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x3dbceda235ac97afeb353508ac08535a086c86a6d9138275cd1397a33d2a5389",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:b3896251-8f5f-40af-a905-516a565ff926"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x42bbfa50c8fa73601fd89fc9dbca8a22859ba1bc6c47ff3d12277664f5786c3a",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:3cc02338-daa1-42b0-b61e-7878ec433137"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x43736c26720fed99ff390ec0d6ba57f581fd2f83e520987c6803f275b03cddf2",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:af269062-6694-466a-b8b2-3cb4923272de"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x4567f92a4c2ed990eec9e639f58c08bc88115c3b454591f9f05e213419b1d094",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:193cecf6-fe18-4a27-a21d-b768ff97d7d3"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x479a93f1877ea5e4a33a40b4de32968857864b2978435204cce918473a29745d",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:2c2de6d2-2d50-43db-bebf-fed140325233"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x485b0e1d842e70f9fd3b0539df1de9ef3f7a58b4a80a81f68a05fa5cb727991c",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:9302ce2d-fea3-425c-aea9-8c2c76766929"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x4ac39472593ba49eff5e7cfda4c9650b71d191545b5590513fe4ccefba992c98",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:77c4149a-22d5-4caa-b305-f9543cd7d2dd"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x4af53ca1a4bbb26301535819f71936aae1c7d13ed444a37ed077a4e20127768c",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:06d83be1-8733-4788-9dc4-f1aebb192554"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x4ec69d87a91956fc883b31e5e9d31149bea6fd2d2ec037b66cfb6d27aef394da",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:0875cf08-1f03-47f2-9875-b35cae6ba138"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x4f827900102a99ec6cc3806de673b648872b64f6bd44a61e16d78cc7e7a238d2",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:fe3d7bc1-c52d-46e8-89b2-d995f1a2209e"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x53ad9ac307efad58c2b1e352dae5fd20ae068ac044d1cc705e16069a7bf73098",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:126b2077-6c83-40e2-ad20-c63ab73a8aa4"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x53cd8685633412a1ed20e82a1a209accd099bf6f2c08ad8da5ad699b1bd07b3e",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:354ce4c0-d55a-4bd2-8c93-6bf4dc46f452"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x5590382cc7aed2bc637d050acd60ef8ffad3a5e6812caf6b967861e63de01be8",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:596242cd-d63f-49ec-96f0-8f23785f9cca"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x56a86ce121942c0d7587ad03ea82b0b5c863f247d60dd5d16c1dd05bbf0683ea",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:e812be14-7f40-4a70-903b-458f27d8a37d"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x56dfe3f0d6bbfd0bee14cf8c4724ef33c2e8cb115335306e5cf312bcb92c2d3f",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:bc7a8ec1-9012-420a-96e9-34b74d0e06b2"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x5ae36a2c9f7bd3d1d75f609f23eaa848180f810f22d2ffdaebb788873aa2bd8f",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:5ab5dedd-b2fb-486d-a87a-f8e73c454a9b"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x5c19b59421f5831604d7e8df7b2182dffe8b994965d4a751cea62bebc7486249",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:4d3b31b7-4482-4470-a349-557d268efd80"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x5edd329054330270125f4440fad529067d18a363ad2d338cd212153ce5922b95",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:99991f58-018f-46f3-a31b-e3f41bb86e4a"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x60509a3162fd4ad03a1d512864fca7b0635118eb2a101317b6e0df74153e4b85",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:2c76a532-bb25-4457-aefd-5d114e3acee8"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x61671afee4f0ca3f442133c36b7c08e00ab3749c5d6fc9414bfb73de3891f5dc",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:05928292-c8a8-48e7-a14a-7509468278dc"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x67b08a0bcc2b576a4cb4827b4df280ea3467ec43da1252dca72a9ee64c7e5049",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:e808daee-5f08-420d-a289-d7718628c76d"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x68cdd90095d6d2ff2e5b03d559c9e8b6cefd50dc12efb46c470fa42a6eab3ea6",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:0c60ef63-8957-4bd2-86df-4f3934ea4776"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x6908528e97279bfe66f007fc1060f91499936a95076fc961534642c261481d0c",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:a533642f-36be-4f48-be26-edcdb2920439"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x695fa4d0dd7ac2c68f77fd288c5b908fb922bc20d39ce6270c13388eda7b4aa6",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:fb55c21b-ba12-40b7-8e5e-7c0d74653703"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x6a827e65be854e10e2dfbbc7f5293f1536cd76401546dec0e818ee2c54e8f4df",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:2428d996-b518-43f6-a13a-9a34bf5472dd"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x6d7a2ff9597971bb2eab04c5e49f40c28f1d3e2370d50d5a623972595f6b2b8a",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:9a3811f5-b18b-4cb1-a8e3-bb2e104e7929"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x6fc83c99c9a10b2dd4c88c6957f1581f49f90d50f882ab8ecc103d391dfc9a18",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:a005480d-91cf-468d-a4d8-09211b14737a"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x7086e9102ec359dd1a2cee8f76121eeb3bfa0e6bc559c8fc3871187de3f0ce17",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:5762234e-dd98-4e04-a84b-378235f4b9b5"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x76d6bd85254ac5086fedefa21b22b632462c297bcd0ac45d3690908d3624d509",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:2b0401b4-31e8-4ba5-aa22-f234a8ebdb95"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x7dac4e301d3f5b7c9ff5450e761d4afe788f73fc85502f73365aaf7d1f56b98f",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:779a2903-8231-4dd9-9a0b-7e64a945b4b0"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x7e17c68a622502ee437ae444c7b87b71a13b22a668e18ca98d96fe9ad5b4784e",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:486e133c-f273-448c-a698-c751ed439955"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x7e7cc776532bb75ccbd6935193831a7dff798792d212f0a5c55462c2b43aa760",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:d7d21de3-21cc-4361-ab91-8a72ed2d3d73"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x859ac0ab92987ff2c10548bb34b817588ebbcb9950089c1a2bb127ad26654e84",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:871f2fce-135d-4d4a-a972-2d46689815a3"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x875506d1c3440a88141e537897bfadd698a649a617905da88f0a412165526c4b",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:9b7cd655-0b8f-4347-ab07-8fb661281fd2"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x89c3574f50af0f1725a0358444d67810fefe4868882f439dcef8aa1dd8b56ba6",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:06928315-bdef-488f-99b2-a6bfca80a614"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x8c17fb95110f2d0f8c2c30556c54547c3ad9f586e8464689703c9abb16daae5a",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:8a2eee9b-6825-4100-85ea-68310ca7d2b0"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x8cb379264d798dfbb7a9e00ac2f8fe7e2a6a480df0ab7a2310dd4dce5ecf71f7",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:5e11a3ca-1e36-45d8-b252-72ea8d352536"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x8cb486661e70ad63642df508f980762c7cd5104383adfb1aa4b9e1ca13094e88",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:1cf0a588-7b67-4bf8-8c7d-b375e277fcf7"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x8cea37308fe784b8cb41da62bb4a46e31f5d8c348fd796791eb802415a1208c9",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:d09c709f-1631-4a86-8456-894360124274"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x902b631b9dc4ca460aca07a41d998bd478e21f4b0f291a711f19b23f6f373201",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:ca217376-154c-43c3-a05c-bc5362899cd5"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x92de6df4264596e4b2435ee0572221c8ad5f3694c43e5415852d746377392686",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:ba6f9679-c9d4-497b-8a13-e9da3b19badb"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x97018a8d3e27a381290daba87e7661f0334ad2b46f71e47faea5efa40ef60522",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:60268d3c-cb1a-47db-9fdb-1716749d6a0b"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x977efdff9f4bb34424d5bc679b10442517fee7334c96c8cf7cf7b6cabf0d785f",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:946f6d7c-7dfe-49ff-917d-12a6442b758c"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x9831cd506006a11d06626ce191ab24d203f876ea8236bd8898ba61a51a7fc177",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:50298c69-b0e6-491e-8d90-68ee0cbe2511"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x985f909fe155d17fc172e44b78c36f8a31f95bd1ec7eedcf3840d6043f876aeb",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:ec713b57-3b14-475b-9447-82dd5c773d7b"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x9bad7cf2481271e693e15168f1fc1ca0dd987c1cd97d4a2028c00b9f07e838c5",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:d8441075-293c-4f69-b798-54d59af9e561"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x9c25f29f649b12039eaaf1092002c9e5037898ad95aa73edb27ca9fe5da955e3",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:4a524df9-d703-49b4-bbb4-c388f0539cf1"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0x9ebf81a3230255df165493fbeb83d02f735a2630a62158b62b622e30670b58cc",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:3227014b-2e16-4477-a3a5-e4c6e9b8e027"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xa0bf684da4b860ab3602c13d78a61defde5063be153d5068f7a769e8e2e20b95",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:f2a5745c-7d2c-4144-8ed6-2a4b566299e1"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xa1c3faf8da3623943c341756a5b861e79a226258e31470755c999ae367f6971b",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:ccfc96bf-48cf-4cc5-8bbf-6ab3eb2b229e"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xa4780fd2963c0bd46cd9d05bcb6ef49fb3559cdd51bcfb8f96b614f795d10585",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:1575e82a-0da5-4986-9c36-8730564f1d20"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xa7b3b6d98e03ec81b0007a7426a82602f9d24112b5bfd482f38373cc59f77090",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:af2f045a-19bc-409c-8b70-a4a2346cd4f9"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xa87b3e88764f0a9f8ac4eb81a52abec18a43ee71c28534e3c33ad1e754c7438e",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:5ecedc4f-a1d4-4fe0-bf46-66ecb8fa96b3"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xa8d65c6e73fd1af2969b1a4ad34712aeb20da5e5d59cae286e7ef6e82b6411d6",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:909a7d15-d0b0-42b4-a55c-046b6538dd4a"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xa96597335a985483f943c50436d301dab8ce0cd354b97f648bda896cd05034de",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:aa9d6387-5451-4dd4-95d6-a85d0b3847fc"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xabc25da7a6a259ad53ae034d789357e4c39f5582da9fc597dd9320cb531e90fa",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:510f4c34-4235-4a33-ae11-4a594146947c"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xb410037c0f32c6766257113e3bc0b5a9a442daf6dcbe0d6fe4e061c2c8105dad",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:07533f6b-30ef-40b6-9d47-14ec13caacf4"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xb8bd5610b4e8173db6e650defa477eb8eaf5edb1342cce597ec8171634001063",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:5eb90fcb-60d4-4aa6-b5a2-459b1a58680b"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xb8ca6011a19f9c5cc8376fa5917462d48671f78f2593eafb5d82533e14e348c4",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:c4e66dd5-d24d-4c03-a83e-febb8b64d5e5"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xb8cedc78494c53976b5866cc05a87c6d5c3499d4051260b8ba2a5f7d5b955d14",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:4181ff43-a2d9-467f-bfad-9e1df2e2dd28"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xb99205825d03a45bb7f9f39f6f09a057fd96416fefd91fa6704c0344eaf27700",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:dc268273-1602-4538-b736-17ee80e000cd"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xc0025919bafd7e41c7a13545bc8eaa95e4a26e889b7cf86d32913fd861a59729",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:780ec980-c66c-4127-8ee6-98c68e951bc5"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xc44965dce374c060fb557789975a0c3aa95330400dbdf04634831f9bd1154240",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:0b4e8a3c-507d-4c2d-a78e-59bebaccecd1"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xc480e7200e02798ca47dbe16a714db8351005de08cb899d697e897f18892ff0e",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:5b7691ea-3964-44b5-87b9-cea2a8c2459d"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xcd8638d48a21d265375e0be7f7540d9ebcd56cb97994217be1d6fc6f3a060f2c",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:6dd6f954-72f7-450b-a266-df08d2978ca7"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xd20e3cbee990fd73bb2813b328fd5be66bd3fc32ecdc089a97d50834e70aae4b",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:b068a650-5ad0-4d9b-a91a-0df386a76760"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xd29fb329539532d2381454cb19631551b6c4a0cf897b96150e9473e76dc2dd76",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:37fab8f9-600a-41e7-86af-2113eafd08f4"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xd595ac51ec4e8540ed2c33b36af748d6bac39a7246f19c0b40fce7bc16799438",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:2df49f56-cb6b-42da-b7f4-8700da2d1153"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xd6a9911b64e56a079b2b9aab7174aeadbb9be988ee2b9a4e4fdec528ae5842c1",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:9b905d42-3b5d-4983-8ade-09d0bd59f9ac"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xda1057911c9b0896d440f8af4fd5e4e617cee08cc91ca505a1e83bcd10dddb5f",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:cef292c1-6c42-46da-80be-af75b96a1286"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xdc22806aaa135e792728357a95f6a91a25416506bb1b173d907f5f6fa161ea9a",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:32247041-53f2-4200-9026-5bbc7c31a2ce"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xe059e871d950ec4b140e8fe1f4fb0e70ea123c48f08b9e2810f9654b9331f840",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:884f15d3-764e-42e6-9248-024fb520c8a9"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xe44e3a90c3a5b3064854b6a61917ae809a85c73022ff0c9b9eb85ad89479cc07",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:1d11fe54-c35c-4b64-a490-8f4d6658a6af"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xe79cd2886479f517173963738dc8efc20cc48a295980b13e1fcc363fa9d86a91",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:56ca2e5b-540f-498b-a662-7761d040b069"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xea57d709463930285c19e28ad2b150fa1df6fdd8f1bd60109262c18d275050c3",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:4bf95840-ca86-49c4-a301-cd5ed225ab4e"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xea7e56cec8685ce10e3d1e55903961b82d2b78935a914cc6d881f6225f762572",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:4fdd2484-ad8a-462e-bcd4-f2a28d181a81"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xeea26815ab8a164431092d212569a4ce451beb3b65abac5f4ac5ddc9c5bf4b97",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:881e4ac0-640b-4452-b95b-f1d1f5a85a67"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xef29a8116a7b295ff70f777459005496ca35dc49206dec55090a218fb5079177",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:712d8b09-93d6-4195-a06e-5625b12796a1"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xef64ecb0944089bff4b7fb14bccc69344d118157130e5d6bfda707772c154930",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:b25f1d6d-fc67-46cd-8717-626a94bcf091"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xf19a1fd255040628549de20e33449608fc6e3af9d17c8c230dbc6f605584047f",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:5be0683a-5c19-4399-b6f9-83dd85a76d5b"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xf236cba4692a343f59a97b1102be1c61a1b7302c6aae15eb17bf6247f0d892bc",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:bd399a5e-f8e7-42b0-a690-3eed7b98c395"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xf31424bbb9af56eb17b56571500e8312abe983c2c6492e8639cb7b0dd8d7b8c0",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:48f510b6-ffee-468d-93bc-ff04ca67db2b"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xf6cd90e5aebb31ebf949156da9e8ff2848d43c77fc19991b748ee71630d09573",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:16c194b0-c1f0-4924-8d16-8e0fbb61c776"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xf83e03955c699a17d1124fba2c7d5bc99be5e83c7f0c744f87ebc61eeab3c44a",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:cdb1f9fa-fa6a-49ca-9a5b-b58c743bc177"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xfc29e2cca651fe4c671a11c8676aa96e5c20b4d71996f42c4edf081947e83a10",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:0f50b64d-33cb-4bd0-b880-b323ae9e0df8"
+        }
+      ]
+    },
+    {
+      "@id": "https://ontology.origintrail.io/dkg/1.0#metadata-hash:0xfd6b5e1097d655f4eba117a5a4d7f50ccd37239189d33bea3dda62c6a9eae3d2",
+      "https://ontology.origintrail.io/dkg/1.0#representsPrivateResource": [
+        {
+          "@id": "uuid:e2b94503-416b-49bb-bc72-5a99c6406fe3"
+        }
+      ]
+    },
+    {
+      "@id": "uuid:d2a8d93b-a1eb-4360-bc80-e49090107a25",
+      "https://ontology.origintrail.io/dkg/1.0#privateMerkleRoot": [
+        {
+          "@value": "0x709c74b5fa841b4c2b24aad29da0509845700ddbe0a90607e94e79663ac11a95"
+        }
+      ]
+    }
+  ],
+  "topic": "Moon"
+}

@@ -14,6 +14,7 @@
  *   - `show`: render the analysis in the terminal or as an HTML report.
  *   - `notes`: build/publish JSON-LD Community Notes derived from the analysis.
  *   - `publish`: push arbitrary JSON-LD files to the DKG.
+ *   - `query`: retrieve published Knowledge Assets from the DKG by UAL.
  *
  * @example
  *   civiclens init
@@ -36,6 +37,7 @@ import fetchCommand from './commands/fetch';
 import initCommand from './commands/init';
 import notesCommand from './commands/notes';
 import publishCommand from './commands/publish';
+import queryCommand from './commands/query';
 import showCommand from './commands/show';
 import topicsCommand from './commands/topics';
 
@@ -54,6 +56,7 @@ program.addCommand(showCommand);
 program.addCommand(notesCommand);
 program.addCommand(topicsCommand);
 program.addCommand(publishCommand);
+program.addCommand(queryCommand);
 
 const args = process.argv.slice(2);
 

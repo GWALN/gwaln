@@ -188,6 +188,24 @@ using the Model Context Protocol’s session headers and reuses it for the
 subsequent `tools/list`, `tools/call`, etc. There are no extra discovery
 routes—just point your MCP client at that one URL.
 
+### Query a published Knowledge Asset
+
+Retrieve previously published Community Notes from the DKG by topic title:
+
+```bash
+civiclens query --topic "Moon" --save moon-retrieved
+```
+
+The query command uses the DKG as the source of truth. It first checks for a local UAL cache, and if not found, searches the DKG directly using SPARQL to find the most recent published Community Note for the topic.
+
+You can also query by UAL directly for advanced use cases:
+
+```bash
+civiclens query --ual "did:dkg:base:8453/0xc28f310a87f7621a087a603e2ce41c22523f11d7/666506" --save moon-retrieved
+```
+
+This retrieves the assertion and optional metadata, displays them in the terminal, and optionally saves the result to `data/dkg/moon-retrieved.json`. You can override connection settings with flags like `--endpoint`, `--blockchain`, or `--private-key`.
+
 ## Troubleshooting
 
 `Analysis not found for topic`  
@@ -229,7 +247,7 @@ run citation checks against Grokipedia references.
 ### Code structure
 
 - `src/commands/`: CLI entry points (`init`, `fetch`, `analyse`, `show`,
-  `notes`, `topics`, `publish`).
+  `notes`, `topics`, `publish`, `query`).
 - `src/lib/`: reusable modules including the parser, analyzer,
   discrepancies, bias metrics, and DKG helpers.
 - `data/`: cached structured snapshots per topic.

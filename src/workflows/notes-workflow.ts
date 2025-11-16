@@ -8,11 +8,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { publishJsonLdViaSdk } from '../lib/dkg';
 import { buildCommunityNote, BuildNoteOptions } from '../lib/notes';
-import {
-  coerceStructuredAnalysisReport,
-  StructuredAnalysisReport,
-} from '../lib/structured-report';
-import { resolvePublishConfig, type PublishConfigOverrides } from '../shared/config';
+import { coerceStructuredAnalysisReport, StructuredAnalysisReport } from '../lib/structured-report';
+import { type PublishConfigOverrides, resolvePublishConfig } from '../shared/config';
 import { loadNoteEntry, NoteIndexEntry, upsertNoteIndexEntry } from '../shared/notes';
 import { paths } from '../shared/paths';
 import { loadTopics, Topic } from '../shared/topics';
@@ -180,7 +177,7 @@ export const publishNoteDraft = async ({
     entry: nextEntry,
     ual,
     rawResponse,
-  logPath: effectiveDryRun ? undefined : logPath,
+    logPath: effectiveDryRun ? undefined : logPath,
     noteFile: entry.file,
     note,
     dryRun: effectiveDryRun,

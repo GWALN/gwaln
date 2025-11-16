@@ -15,7 +15,7 @@ import {
   resolveGeminiSummaryOptions,
   runAnalyzeWorkflow,
 } from '../workflows/analyze-workflow';
-import { runFetchWorkflow, type FetchSource } from '../workflows/fetch-workflow';
+import { type FetchSource, runFetchWorkflow } from '../workflows/fetch-workflow';
 import { buildNoteDraft, publishNoteDraft } from '../workflows/notes-workflow';
 import { loadJsonLdFromFile, publishJsonLdAsset } from '../workflows/publish-workflow';
 import { loadShowContext, renderAndWriteHtmlReport } from '../workflows/show-workflow';

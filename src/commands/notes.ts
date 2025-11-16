@@ -9,8 +9,8 @@ import { Command } from 'commander';
 import ora from 'ora';
 import {
   buildNoteDraft,
-  publishNoteDraft,
   type BuildNoteInput,
+  publishNoteDraft,
   type PublishNoteInput,
 } from '../workflows/notes-workflow';
 

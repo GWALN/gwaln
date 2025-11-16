@@ -8,12 +8,12 @@ import ora from 'ora';
 import { GEMINI_DEFAULT_MODEL } from '../lib/bias-verifier';
 import type { AnalyzeTopicResult } from '../workflows/analyze-workflow';
 import {
-  runAnalyzeWorkflow,
-  resolveBiasVerifierOptions,
-  resolveGeminiSummaryOptions,
   type AnalyzeWorkflowHooks,
   type BiasVerifierOptionInput,
   type GeminiSummaryOptionInput,
+  resolveBiasVerifierOptions,
+  resolveGeminiSummaryOptions,
+  runAnalyzeWorkflow,
 } from '../workflows/analyze-workflow';
 
 interface AnalyseCliOptions extends BiasVerifierOptionInput, GeminiSummaryOptionInput {
@@ -76,4 +76,3 @@ const analyseCommand = new Command('analyse')
   });
 
 export default analyseCommand;
-

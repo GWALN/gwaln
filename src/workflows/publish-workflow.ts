@@ -6,10 +6,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { publishJsonLdViaSdk } from '../lib/dkg';
-import {
-  resolvePublishConfig,
-  type PublishConfigOverrides,
-} from '../shared/config';
+import { type PublishConfigOverrides, resolvePublishConfig } from '../shared/config';
 
 export const loadJsonFile = (filePath: string): unknown => {
   const absolute = path.resolve(filePath);
@@ -111,4 +108,3 @@ export const publishJsonLdAsset = async ({
     payload,
   };
 };
-

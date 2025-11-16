@@ -6,10 +6,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { renderHtmlReport } from '../lib/html-renderer';
-import {
-  coerceStructuredAnalysisReport,
-  StructuredAnalysisReport,
-} from '../lib/structured-report';
+import { coerceStructuredAnalysisReport, StructuredAnalysisReport } from '../lib/structured-report';
 import { loadNoteEntry, loadNotesIndex, type NotesIndex } from '../shared/notes';
 import { paths } from '../shared/paths';
 import { loadTopics, Topic } from '../shared/topics';
@@ -75,4 +72,3 @@ export const renderAndWriteHtmlReport = (
   const filePath = writeHtmlAnalysisReport(topicId, html);
   return { html, filePath };
 };
-
