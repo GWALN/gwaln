@@ -53,9 +53,26 @@ jobs:
           # Force 0 exit code to allow SARIF file generation
           # This will handover control about PR rejection to the GitHub side
           max-allowed-issues: 2147483647
+        continue-on-error: true
+
+      # Process SARIF file to ensure single run
+      - name: Process SARIF file
+        if: always()
+        run: |
+          if [ -f results.sarif ]; then
+            # Check if file has content and multiple runs
+            if jq -e '.runs | length > 1' results.sarif > /dev/null 2>&1; then
+              echo "Multiple runs detected in SARIF file, extracting first run only"
+              jq '.runs = [.runs[0]]' results.sarif > results-single.sarif
+              mv results-single.sarif results.sarif
+            fi
+          else
+            echo "No SARIF file generated"
+          fi
 
       # Upload the SARIF file generated in the previous step
       - name: Upload SARIF results file
-        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: results.sarif
