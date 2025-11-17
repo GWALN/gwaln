@@ -22,7 +22,7 @@ import type {
 import type { BiasMetrics } from './bias-metrics';
 import type { EntityDiscrepancy, NumericDiscrepancy } from './discrepancies';
 
-export const STRUCTURED_ANALYSIS_SCHEMA = 'civiclens.analysis/2';
+export const STRUCTURED_ANALYSIS_SCHEMA = 'gwaln.analysis/2';
 
 export interface StructuredAnalysisSummary {
   similarity_ratio: {

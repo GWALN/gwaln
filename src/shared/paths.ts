@@ -1,6 +1,6 @@
 /**
  * @file src/shared/paths.ts
- * @description Helper for resolving canonical directories used by the CivicLens CLI.
+ * @description Helper for resolving canonical directories used by the GWALN CLI.
  * @author Doğu Abaris <abaris@null.net>
  */
 

@@ -60,7 +60,7 @@ notesCommand
   .option('--tone-bias <score>', 'Tone/bias score 0-5')
   .option('--stake-token <symbol>', 'Token symbol for trust stake', 'TRAC')
   .option('--stake-amount <number>', 'Stake amount', '0')
-  .option('--reviewer-name <string>', 'Reviewer/organization name', 'CivicLens')
+  .option('--reviewer-name <string>', 'Reviewer/organization name', 'GWALN')
   .option('--reviewer-id <string>', 'Reviewer DID/identifier')
   .action((options: BuildCLIOptions) => {
     const input: BuildNoteInput = {

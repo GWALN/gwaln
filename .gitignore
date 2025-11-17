@@ -11,7 +11,7 @@ node_modules
 dist/
 temp/
 *.local
-.civiclensrc.json
+.gwalnrc.json
 .env
 analysis/
 analysis/*.json

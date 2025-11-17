@@ -5,7 +5,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { stripGrokBanner } from '../src/commands/fetch';
+import { stripGrokBanner } from '../src/workflows/fetch-workflow';
 
 describe('stripGrokBanner', () => {
   it('removes fact-check header rows while preserving prose', () => {

@@ -2,7 +2,7 @@
  * @file src/workflows/fetch-workflow.ts
  * @description Downloads Grokipedia and Wikipedia articles, normalizes them into structured JSON,
  *              and stores the snapshots under `data/wiki|grok/<topic>.parsed.json`. These files
- *              become the canonical inputs for `civiclens analyse`.
+ *              become the canonical inputs for `gwaln analyse`.
  * @author Doğu Abaris <abaris@null.net>
  */
 
@@ -26,7 +26,7 @@ const WIKI_BASE_URL = 'https://en.wikipedia.org';
 const WIKI_API = `${WIKI_BASE_URL}/w/api.php`;
 const GROK_ENDPOINT = 'https://grokipedia.com/{slug}';
 const GROK_API_ENDPOINT = 'https://grokipedia.com/api/page';
-const USER_AGENT = 'CivicLens-MVP/0.2 (+https://origintrail.io)';
+const USER_AGENT = 'GWALN-MVP/0.2 (+https://origintrail.io)';
 const turndown = new TurndownService({
   headingStyle: 'atx',
   bulletListMarker: '-',

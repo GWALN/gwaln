@@ -1,6 +1,6 @@
 /**
  * @file tests/wiki-structured.test.ts
- * @description Unit tests for the Wikipedia wikitext parser used by `civiclens fetch wiki`.
+ * @description Unit tests for the Wikipedia wikitext parser used by `gwaln fetch wiki`.
  *              The parser never hits the network; it converts the raw Moon wikitext blob into the
  *              structured JSON snapshot consumed by downstream tooling. The fixture mirrors the
  *              full `?action=raw` output to ensure we catch regressions in heading/paragraph

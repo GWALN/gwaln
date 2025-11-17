@@ -11,8 +11,8 @@ COPY . .
 
 RUN npm install --include=dev && npm install -g .
 
-LABEL org.opencontainers.image.source="https://github.com/doguabaris/civiclens-cli"
-LABEL org.opencontainers.image.description="A CLI for comparing and annotating Grokipedia vs. Wikipedia articles."
-LABEL org.opencontainers.image.licenses="Proprietary"
+LABEL org.opencontainers.image.source="https://github.com/GWALN/cli"
+LABEL org.opencontainers.image.description="An open-source CLI for comparing and annotating Grokipedia vs. Wikipedia articles."
+LABEL org.opencontainers.image.licenses="MIT"
 
-ENTRYPOINT ["civiclens-cli"]
+ENTRYPOINT ["gwaln-cli"]

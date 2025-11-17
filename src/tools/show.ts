@@ -1,6 +1,6 @@
 /**
  * @file src/tools/show.ts
- * @description MCP tool for showing CivicLens analysis.
+ * @description MCP tool for showing GWALN analysis.
  */
 
 import { z } from 'zod';
@@ -13,7 +13,7 @@ export const ShowInputSchema = z.object({
 });
 
 export const showTool = {
-  title: 'Show CivicLens analysis',
+  title: 'Show GWALN analysis',
   description: 'Loads structured analysis, note drafts, and optionally renders the HTML report.',
   inputSchema: ShowInputSchema,
 };

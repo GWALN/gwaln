@@ -1,6 +1,6 @@
 /**
  * @file src/commands/show.ts
- * @description Displays structured CivicLens analysis summaries and optionally renders a polished HTML report.
+ * @description Displays structured GWALN analysis summaries and optionally renders a polished HTML report.
  *              The CLI view stays concise while the HTML export uses a richer layout suitable for sharing.
  * @author Doğu Abaris <abaris@null.net>
  */
@@ -195,7 +195,7 @@ const printNote = (topicId: string, payload: NotePayload): void => {
   }
   const rating = (note['reviewRating'] as Record<string, unknown>) ?? {};
   console.log(`Summary: ${(rating['ratingExplanation'] as string) ?? 'n/a'}`);
-  const trust = (note['civicLensTrust'] as Record<string, unknown>) ?? {};
+  const trust = (note['gwalnTrust'] as Record<string, unknown>) ?? {};
   const scores = {
     accuracy: trust['accuracy'],
     completeness: trust['completeness'],

@@ -1,6 +1,6 @@
 /**
  * @file src/lib/wiki-structured.ts
- * @description Parses Wikipedia wikitext and Grokipedia Markdown into the structured CivicLens JSON
+ * @description Parses Wikipedia wikitext and Grokipedia Markdown into the structured GWALN JSON
  *              snapshots consumed by downstream tooling (`data/{wiki,grok}/<topic>.parsed.json`).
  *              The parser focuses on metadata required by the analyzer flow: lead/section sentences,
  *              media usage, references, and lead-derived claims, while staying dependency-light so

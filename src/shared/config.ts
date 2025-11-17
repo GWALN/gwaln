@@ -1,6 +1,6 @@
 /**
  * @file src/shared/config.ts
- * @description Handles persistent CivicLens CLI configuration (.civiclensrc.json).
+ * @description Handles persistent GWALN CLI configuration (.gwalnrc.json).
  * @author Doğu Abaris <abaris@null.net>
  */
 
@@ -9,7 +9,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { paths } from './paths';
 
-export type CivicLensConfig = {
+export type GWALNConfig = {
   dkgEdgeNodeUrl?: string;
   dkgEnvironment?: string;
   dkgGraphId?: string;
@@ -26,7 +26,7 @@ export type CivicLensConfig = {
   geminiModel?: string;
 };
 
-export const CONFIG_PATH = path.join(paths.ROOT, '.civiclensrc.json');
+export const CONFIG_PATH = path.join(paths.ROOT, '.gwalnrc.json');
 
 const cleanUrl = (value?: string | null): string | undefined => {
   if (!value) return undefined;
@@ -88,23 +88,23 @@ const normalizeKey = (value?: string | null): string | undefined => {
   return trimmed.length ? trimmed : undefined;
 };
 
-const readFile = (): CivicLensConfig => {
+const readFile = (): GWALNConfig => {
   if (!fs.existsSync(CONFIG_PATH)) {
     return {};
   }
   try {
     const raw = fs.readFileSync(CONFIG_PATH, 'utf8');
-    return JSON.parse(raw) as CivicLensConfig;
+    return JSON.parse(raw) as GWALNConfig;
   } catch {
     return {};
   }
 };
 
-export const readConfig = (): CivicLensConfig => readFile();
+export const readConfig = (): GWALNConfig => readFile();
 
-export const writeConfig = (update: Partial<CivicLensConfig>): CivicLensConfig => {
+export const writeConfig = (update: Partial<GWALNConfig>): GWALNConfig => {
   const current = readFile();
-  const next: CivicLensConfig = {
+  const next: GWALNConfig = {
     ...current,
     ...update,
   };
@@ -146,9 +146,7 @@ export const resolvePublishConfig = (
   const endpoint = cleanUrl(overrides.endpoint) ?? cleanUrl(cfg.dkgEdgeNodeUrl);
 
   if (!endpoint) {
-    throw new Error(
-      "No DKG endpoint configured. Run 'civiclens init' or pass --endpoint explicitly.",
-    );
+    throw new Error("No DKG endpoint configured. Run 'gwaln init' or pass --endpoint explicitly.");
   }
 
   const environment = (
@@ -172,9 +170,7 @@ export const resolvePublishConfig = (
     FALLBACK_PUBLISH_POLL_FREQUENCY;
 
   if (!privateKey) {
-    throw new Error(
-      'No private key configured. Provide --private-key or update .civiclensrc.json.',
-    );
+    throw new Error('No private key configured. Provide --private-key or update .gwalnrc.json.');
   }
 
   return {

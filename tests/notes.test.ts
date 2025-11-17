@@ -81,7 +81,7 @@ const baseAnalysis: AnalysisPayload = {
   },
   updated_at: '2025-11-13T15:00:00Z',
   meta: {
-    analyzer_version: 'civiclens-analyzer@test',
+    analyzer_version: 'gwaln-analyzer@test',
     content_hash: 'abc123',
     generated_at: '2025-11-13T15:00:00Z',
     cache_ttl_hours: 72,
@@ -102,7 +102,7 @@ describe('buildCommunityNote', () => {
     expect(note['topic_id']).toBe('moon');
     expect(note['reviewRating']).toBeDefined();
     expect(note['hasPart'] as unknown[]).toHaveLength(2);
-    expect(note['civicLensTrust']).toMatchObject({
+    expect(note['gwalnTrust']).toMatchObject({
       accuracy: 2.5,
       stake: { token: 'TRAC', amount: 10 },
     });
@@ -110,7 +110,7 @@ describe('buildCommunityNote', () => {
 
   it('defaults summary when none provided and caps scores', () => {
     const note = buildCommunityNote(topic, structuredAnalysis, { accuracy: 42 });
-    const trust = note['civicLensTrust'] as Record<string, unknown>;
+    const trust = note['gwalnTrust'] as Record<string, unknown>;
     expect(trust.accuracy).toBe(5);
     const rating = note['reviewRating'] as Record<string, unknown>;
     expect(typeof rating.ratingExplanation).toBe('string');

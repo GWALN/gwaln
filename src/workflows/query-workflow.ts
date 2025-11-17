@@ -74,7 +74,7 @@ const resolveTopicToUal = async (
 
   if (!foundUal) {
     throw new Error(
-      `No published Community Note found for topic '${topicEntry.title}' on DKG. Publish a Community Note first with 'civiclens notes publish --topic ${topicId}'.`,
+      `No published Community Note found for topic '${topicEntry.title}' on DKG. Publish a Community Note first with 'gwaln notes publish --topic ${topicId}'.`,
     );
   }
 

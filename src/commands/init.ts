@@ -1,7 +1,7 @@
 /**
  * @file src/commands/init.ts
  * @description Interactive/non-interactive configuration. Captures DKG endpoint, blockchain keys,
- *              graph IDs, publish defaults, and Gemini credentials in `.civiclensrc.json`.
+ *              graph IDs, publish defaults, and Gemini credentials in `.gwalnrc.json`.
  * @author Doğu Abaris <abaris@null.net>
  */
 
@@ -231,7 +231,7 @@ const initCommand = new Command('init')
       publishDryRun,
     });
 
-    console.log(chalk.green('CivicLens CLI configured successfully.'));
+    console.log(chalk.green('GWALN CLI configured successfully.'));
     console.log(chalk.gray(`   Saved to ${CONFIG_PATH}`));
     console.log(
       [

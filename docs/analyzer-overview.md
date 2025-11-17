@@ -1,6 +1,6 @@
-## CivicLens analyzer overview
+## GWALN analyzer overview
 
-This page explains how the CivicLens CLI ingests Wikipedia and
+This page explains how the GWALN CLI ingests Wikipedia and
 Grokipedia content, aligns claims, detects discrepancies, and prepares
 reports for human review. Use this document when you need to understand
 the internals or explain them to other contributors.
@@ -9,10 +9,10 @@ the internals or explain them to other contributors.
 
 ### Snapshot fetchers
 
-- `civiclens fetch wiki` downloads the wikitext of a topic using
+- `gwaln fetch wiki` downloads the wikitext of a topic using
   `?action=raw` and records revision metadata, canonical URLs, and page
   languages.
-- `civiclens fetch grok` requests the Grokipedia article, converts HTML
+- `gwaln fetch grok` requests the Grokipedia article, converts HTML
   to Markdown with Turndown, removes Grok-specific header banners, and
   retrieves citation metadata through
   `https://grokipedia.com/api/page`.
@@ -124,7 +124,7 @@ HTML views.
 
 ### Structured output (`src/lib/structured-report.ts`)
 
-Analyzer results land in the `civiclens.analysis/2` schema. Each JSON file includes:
+Analyzer results land in the `gwaln.analysis/2` schema. Each JSON file includes:
 
 - **Stats:** character counts, sentence totals, and missing/extra counts.
 - **Similarity ratios:** structured as an object containing:
@@ -150,22 +150,22 @@ When either condition fails, the analyzer recomputes the report.
 
 ## Presentation and publishing
 
-- `civiclens show` prints a terminal summary and can open an HTML
+- `gwaln show` prints a terminal summary and can open an HTML
   dashboard that surfaces the same metrics in a flat layout.
-- `civiclens notes build` generates JSON-LD ClaimReviews with annotation
+- `gwaln notes build` generates JSON-LD ClaimReviews with annotation
   targets referencing both sources.
-- `civiclens notes publish` signs and uploads the ClaimReview to the
+- `gwaln notes publish` signs and uploads the ClaimReview to the
   OriginTrail DKG, records the returned UAL, and logs publish details.
 
 ## Typical workflow
 
 ```bash
-civiclens fetch wiki --topic moon
-civiclens fetch grok --topic moon
-civiclens analyse --topic moon --force
-civiclens show --topic moon --open-html
-civiclens notes build --topic moon
-civiclens notes publish --topic moon
+gwaln fetch wiki --topic moon
+gwaln fetch grok --topic moon
+gwaln analyse --topic moon --force
+gwaln show --topic moon --open-html
+gwaln notes build --topic moon
+gwaln notes publish --topic moon
 ```
 
 Following these steps reproduces the entire pipeline from snapshot

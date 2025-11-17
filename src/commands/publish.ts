@@ -85,7 +85,7 @@ const publishCommand = new Command('publish')
       if (result.datasetRoot) {
         console.log(chalk.gray(`datasetRoot: ${result.datasetRoot}`));
       }
-      console.log(chalk.gray(`CLI: civiclens-cli@${pkg.version}`));
+      console.log(chalk.gray(`CLI: gwaln-cli@${pkg.version}`));
     } catch (error) {
       spinner?.fail('DKG publish failed.');
       console.error(chalk.red('Error publishing asset:'), (error as Error).message);

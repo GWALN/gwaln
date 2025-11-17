@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
  * @file src/cli.ts
- * @description Bootstraps the CivicLens CLI, a workflow that fetches Grokipedia/Wikipedia content,
+ * @description Bootstraps the GWALN CLI, a workflow that fetches Grokipedia/Wikipedia content,
  *              analyzes structured snapshots, renders the analysis, and prepares Community Notes
  *              for publication on the OriginTrail DKG.
  * @author Doğu Abaris <abaris@null.net>
  *
  * Commands exposed by the entry point:
- *   - `init`: capture DKG node + blockchain defaults in `.civiclensrc.json`.
+ *   - `init`: capture DKG node + blockchain defaults in `.gwalnrc.json`.
  *   - `topics`: sync or inspect the bundled topic catalog.
  *   - `fetch`: download and normalize snapshots from both sources.
  *   - `analyse`: compute the analysis JSON (with optional Gemini + citation verification).
@@ -17,13 +17,13 @@
  *   - `query`: retrieve published Knowledge Assets from the DKG by UAL.
  *
  * @example
- *   civiclens init
- *   civiclens fetch wiki --topic moon
- *   civiclens analyse --topic moon --verify-citations --bias-verifier gemini
- *   civiclens show --topic moon --open-html
- *   civiclens notes build --topic moon --summary "Alignment check"
- *   civiclens notes publish --topic moon
- *   civiclens query --topic "Moon"
+ *   gwaln init
+ *   gwaln fetch wiki --topic moon
+ *   gwaln analyse --topic moon --verify-citations --bias-verifier gemini
+ *   gwaln show --topic moon --open-html
+ *   gwaln notes build --topic moon --summary "Alignment check"
+ *   gwaln notes publish --topic moon
+ *   gwaln query --topic "Moon"
  *
  * @see README.md for full usage details.
  */
@@ -46,7 +46,7 @@ const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../package.json'
 
 const program = new Command();
 program
-  .name('civiclens')
+  .name('gwaln')
   .description('CLI for comparing Grokipedia and Wikipedia topics + drafting trust annotations')
   .version(pkg.version, '-v, --version', 'Display CLI version');
 
@@ -62,7 +62,7 @@ program.addCommand(queryCommand);
 const args = process.argv.slice(2);
 
 if (!args.length) {
-  const banner = figlet.textSync('CIVICLENS', { font: 'Standard' });
+  const banner = figlet.textSync('GWALN', { font: 'Standard' });
   console.log(chalk.hex('#9be2ff')(banner));
   program.outputHelp();
   process.exit(0);

@@ -1,6 +1,6 @@
 {
-  "name": "@civiclens/cli",
-  "description": "A CLI for comparing and annotating Grokipedia vs. Wikipedia articles.",
+  "name": "@gwaln/cli",
+  "description": "An open-source CLI for comparing and annotating Grokipedia vs. Wikipedia articles.",
   "version": "0.1.0-alpha.1",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
@@ -8,13 +8,13 @@
   "main": "dist/cli.js",
   "type": "commonjs",
   "bin": {
-    "civiclens": "dist/cli.js"
+    "gwaln": "dist/cli.js"
   },
   "engines": {
     "node": ">=20.18.1"
   },
   "keywords": [
-    "civiclens",
+    "gwaln",
     "cli",
     "command-line",
     "tools",
@@ -32,15 +32,15 @@
     "url": "https://doguabaris.bio"
   },
   "private": true,
-  "license": "SEE LICENSE IN LICENSE",
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/doguabaris/civiclens-cli.git"
+    "url": "git+https://github.com/GWALN/cli.git"
   },
   "bugs": {
-    "url": "https://github.com/doguabaris/civiclens-cli/issues"
+    "url": "https://github.com/GWALN/cli/issues"
   },
-  "homepage": "https://github.com/doguabaris/civiclens-cli",
+  "homepage": "https://github.com/GWALN/cli",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.22.0",
     "ajv": "^8.17.1",

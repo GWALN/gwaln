@@ -27,7 +27,7 @@ const readAnalysis = (topic: Topic): StructuredAnalysisReport => {
   const filePath = path.join(paths.ANALYSIS_DIR, `${topic.id}.json`);
   if (!fs.existsSync(filePath)) {
     throw new Error(
-      `Missing analysis file ${filePath}. Run 'civiclens analyse --topic ${topic.id}' first.`,
+      `Missing analysis file ${filePath}. Run 'gwaln analyse --topic ${topic.id}' first.`,
     );
   }
   const raw = fs.readFileSync(filePath, 'utf8');
@@ -119,12 +119,12 @@ export const publishNoteDraft = async ({
   const { entry, note } = loadNoteEntry(topicId);
   if (!entry) {
     throw new Error(
-      `No note entry found for '${topicId}'. Run 'civiclens notes build --topic ${topicId}' first.`,
+      `No note entry found for '${topicId}'. Run 'gwaln notes build --topic ${topicId}' first.`,
     );
   }
   if (!note) {
     throw new Error(
-      `Note file '${entry.file}' is missing for topic '${topicId}'. Re-run 'civiclens notes build'.`,
+      `Note file '${entry.file}' is missing for topic '${topicId}'. Re-run 'gwaln notes build'.`,
     );
   }
 

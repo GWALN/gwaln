@@ -199,7 +199,7 @@ For more info see [NASA](https://nasa.gov/moon).`;
     );
     expect(result.ngram_overlap).toBeGreaterThan(0);
     expect(result.ngram_overlap).toBeLessThanOrEqual(1);
-    expect(result.meta.analyzer_version).toContain('civiclens-analyzer');
+    expect(result.meta.analyzer_version).toContain('gwaln-analyzer');
     expect(result.meta.cache_ttl_hours).toBeGreaterThan(0);
   });
 

@@ -36,7 +36,7 @@ export const NotesInputSchema = z.object({
 export const notesTool = {
   title: 'Manage Community Notes',
   description:
-    'Builds, publishes, or inspects Community Notes derived from analysis (maps to `civiclens notes`).',
+    'Builds, publishes, or inspects Community Notes derived from analysis (maps to `gwaln notes`).',
   inputSchema: NotesInputSchema,
 };
 

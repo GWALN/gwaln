@@ -1,4 +1,9 @@
-## CivicLens CLI
+![Image](https://github.com/user-attachments/assets/3152cf8b-b683-4acf-ab9d-e3bfd5dc0390)
+
+> [!NOTE]  
+> Originally built for the **DKGcon2025 Hackathon** powered by OriginTrail.
+
+## GWALN CLI
 
 This tool helps you compare Grokipedia and Wikipedia topics. It parses
 structured snapshots, computes discrepancies, and drafts Community Notes
@@ -8,19 +13,19 @@ Project status: actively maintained.
 
 ### Basic functionality
 
-CivicLens CLI is intended for analysts and contributors who review
+GWALN CLI is intended for analysts and contributors who review
 AI-generated encyclopedia content. It is meant to help them fetch topic
 snapshots, analyze alignment gaps, and package Community Notes for
 publication.
 
-CivicLens CLI reads wikitext and Grokipedia HTML, normalizes both into a
+GWALN CLI reads wikitext and Grokipedia HTML, normalizes both into a
 shared JSON schema, and runs an analyzer that aligns sections, claims,
 and citations. The CLI then outputs structured analysis files, an HTML
 report, and JSON-LD Community Notes. For more details about the
 technical implementation, see [the developer
 documentation](#developer-documentation).
 
-### What CivicLens CLI does not do
+### What GWALN CLI does not do
 
 This tool cannot edit Grokipedia or Wikipedia. It does not have content
 moderation powers and cannot publish to the OriginTrail DKG without
@@ -42,7 +47,7 @@ You should have:
 - Optional: a Google Gemini API key if you use automated bias
   verification.
 
-## How to use CivicLens CLI
+## How to use GWALN CLI
 
 ### Configure the CLI
 
@@ -57,14 +62,14 @@ You should have:
 2. Run the setup wizard:
 
    ```bash
-   civiclens init
+   gwaln init
    ```
 
    1. Provide your DKG endpoint, environment, and port.
    2. Supply blockchain identifiers and signing keys.
    3. Set publish defaults such as epochs, retries, and dry-run mode.
 
-3. Confirm that `.civiclensrc.json` contains the expected values.
+3. Confirm that `.gwalnrc.json` contains the expected values.
 
 ### Fetch topic snapshots
 
@@ -72,13 +77,13 @@ You should have:
 2. Download raw Wikipedia data:
 
    ```bash
-   civiclens fetch wiki --topic moon
+   gwaln fetch wiki --topic moon
    ```
 
 3. Download the Grokipedia counterpart:
 
    ```bash
-   civiclens fetch grok --topic moon
+   gwaln fetch grok --topic moon
    ```
 
 4. Verify that `data/wiki/<topic>.parsed.json` and
@@ -89,19 +94,19 @@ You should have:
 1. Run the analyzer:
 
    ```bash
-   civiclens analyse --topic moon --force
+   gwaln analyse --topic moon --force
    ```
 
 2. Review the terminal summary:
 
    ```bash
-   civiclens show --topic moon
+   gwaln show --topic moon
    ```
 
 3. Generate an HTML dashboard for presentations:
 
    ```bash
-   civiclens show --topic moon --open-html
+   gwaln show --topic moon --open-html
    ```
 
 4. Open `analysis/moon-report.html` in a browser to explore section
@@ -112,7 +117,7 @@ You should have:
 1. Create a ClaimReview draft:
 
    ```bash
-   civiclens notes build \
+   gwaln notes build \
      --topic moon \
      --summary "Grok omits the NASA mission context and adds speculative claims." \
      --accuracy 3 --completeness 3 --tone-bias 3 \
@@ -123,7 +128,7 @@ You should have:
 3. Publish to OriginTrail (ensure your config has live signing keys):
 
    ```bash
-   civiclens notes publish --topic moon
+   gwaln notes publish --topic moon
    ```
 
 4. Record the printed UAL for reporting.
@@ -173,13 +178,13 @@ Each MCP tool mirrors the CLI flags:
 - `show`: `{ topicId, renderHtml? }`
 
 Because the MCP server calls the same workflow modules as the CLI,
-cached files, Gemini credentials, and `.civiclensrc.json` are honored
+cached files, Gemini credentials, and `.gwalnrc.json` are honored
 automatically.
 
-The server reads DKG credentials and defaults from `.civiclensrc.json`
+The server reads DKG credentials and defaults from `.gwalnrc.json`
 via the same `resolvePublishConfig` helper used by the CLI, so you never
 have to expose secrets through the MCP request itself. Just keep the
-config file up to date with `civiclens init`.
+config file up to date with `gwaln init`.
 
 When you run `npm run mcp` the process spins up a single endpoint
 (`POST /mcp`, default URL `http://127.0.0.1:3233/mcp`). MCP clients must
@@ -193,7 +198,7 @@ routes—just point your MCP client at that one URL.
 Retrieve previously published Community Notes from the DKG by topic title:
 
 ```bash
-civiclens query --topic "Moon" --save moon-retrieved
+gwaln query --topic "Moon" --save moon-retrieved
 ```
 
 The query command uses the DKG as the source of truth. It first checks for a local UAL cache, and if not found, searches the DKG directly using SPARQL to find the most recent published Community Note for the topic.
@@ -201,18 +206,18 @@ The query command uses the DKG as the source of truth. It first checks for a loc
 You can also query by UAL directly for advanced use cases:
 
 ```bash
-civiclens query --ual "did:dkg:base:8453/0xc28f310a87f7621a087a603e2ce41c22523f11d7/666506" --save moon-retrieved
+gwaln query --ual "did:dkg:base:8453/0xc28f310a87f7621a087a603e2ce41c22523f11d7/666506" --save moon-retrieved
 ```
 
 This retrieves the assertion and optional metadata, displays them in the terminal, and optionally saves the result to `data/dkg/moon-retrieved.json`. You can override connection settings with flags like `--endpoint`, `--blockchain`, or `--private-key`.
 
 ## Troubleshooting
 
-`Analysis not found for topic`  
-- Run both `civiclens fetch wiki --topic <id>` and `civiclens fetch grok --topic <id>` before analyzing.
+`Analysis not found for topic`
+- Run both `gwaln fetch wiki --topic <id>` and `gwaln fetch grok --topic <id>` before analyzing.
 
-`DKG publish failed: UNAUTHORIZED`  
-- Ensure `.civiclensrc.json` contains valid `dkgPrivateKey`, `dkgPublicKey`, and endpoint values; confirm the key has sufficient balance on the target chain.
+`DKG publish failed: UNAUTHORIZED`
+- Ensure `.gwalnrc.json` contains valid `dkgPrivateKey`, `dkgPublicKey`, and endpoint values; confirm the key has sufficient balance on the target chain.
 
 ## How to get help and report issues
 
@@ -258,7 +263,7 @@ run citation checks against Grokipedia references.
 
 #### Set up
 
-1. Clone the repository and move into `civiclens/cli`.
+1. Clone the repository and move into `gwaln/cli`.
 2. Install dependencies with `npm install`.
 
 #### Install
@@ -277,8 +282,8 @@ run citation checks against Grokipedia references.
 
 #### Configure
 
-1. Copy or create `.civiclensrc.json`.
-2. Run `civiclens init` to populate node, blockchain, and publish
+1. Copy or create `.gwalnrc.json`.
+2. Run `gwaln init` to populate node, blockchain, and publish
    defaults.
 
 #### Build and test
@@ -298,26 +303,14 @@ run citation checks against Grokipedia references.
 #### Debugging
 
 - `Analysis not found`: check `data/wiki` and `data/grok` for missing
-  snapshots; rerun `civiclens fetch`.
+  snapshots; rerun `gwaln fetch`.
 - `Publish timeout`: increase `publishMaxRetries` or verify the DKG node
   endpoint is reachable; use `--dry-run` to ensure the payload is valid
   before retrying.
 
 ## How to contribute
 
-The CivicLens CLI maintainers welcome contributions.
-
-- Bug fixes and documentation improvements.
-- Enhancements to the parser, analyzer, or HTML report.
-
-### Contribution process
-
-1. Read the repository’s Code of Conduct and follow the coding
-   conventions (TypeScript + ESLint).
-2. Fork the repository, create a feature branch, and commit changes.
-3. Run `npm test` and `npm run build`.
-4. Open a pull request describing the change and linking to any relevant
-   issues.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
 
 ## Credits
 
@@ -326,4 +319,4 @@ OriginTrail ecosystem and open-source libraries noted in `package.json`.
 
 ## License
 
-See the [LICENSE](LICENSE) file for details.
+Corev-CLI is released under the [MIT License](LICENSE).

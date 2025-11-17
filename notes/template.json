@@ -12,11 +12,11 @@
     "source": { "@id": "anno:source" },
     "selector": { "@id": "anno:selector" },
     "exact": { "@id": "anno:exact" },
-    "classification": "https://civiclens.dev/ontology/classification",
+    "classification": "https://gwaln.dev/ontology/classification",
     "topic_id": "identifier",
     "topic_title": "alternateName",
-    "civicLensTrust": "https://civiclens.dev/ontology/trustScores",
-    "tone_bias": "https://civiclens.dev/ontology/toneBias",
+    "gwalnTrust": "https://gwaln.dev/ontology/trustScores",
+    "tone_bias": "https://gwaln.dev/ontology/toneBias",
     "stake": "MonetaryAmount",
     "token": "currency",
     "amount": "value",
@@ -29,8 +29,8 @@
   "dateCreated": "2025-11-13T15:00:00Z",
   "author": {
     "@type": "Organization",
-    "name": "CivicLens",
-    "identifier": "did:civiclens:team"
+    "name": "GWALN",
+    "identifier": "did:gwaln:team"
   },
   "itemReviewed": {
     "@type": "CreativeWork",
@@ -44,7 +44,7 @@
     "ratingValue": 3,
     "ratingExplanation": "One or two sentences describing overall alignment."
   },
-  "civicLensTrust": {
+  "gwalnTrust": {
     "accuracy": 3,
     "completeness": 2,
     "tone_bias": 4,

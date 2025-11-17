@@ -1,6 +1,6 @@
 /**
  * @file src/workflows/show-workflow.ts
- * @description Shared helpers for loading CivicLens analysis + note data.
+ * @description Shared helpers for loading GWALN analysis + note data.
  */
 
 import fs from 'node:fs';
@@ -25,7 +25,7 @@ export const loadAnalysisReport = (topicId: string): StructuredAnalysisReport =>
   const target = path.join(paths.ANALYSIS_DIR, `${topic.id}.json`);
   if (!fs.existsSync(target)) {
     throw new Error(
-      `Analysis not found for topic '${topic.id}'. Run 'civiclens analyse --topic ${topic.id}' first.`,
+      `Analysis not found for topic '${topic.id}'. Run 'gwaln analyse --topic ${topic.id}' first.`,
     );
   }
   const raw = fs.readFileSync(target, 'utf8');

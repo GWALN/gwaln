@@ -1,6 +1,6 @@
 /**
  * @file src/server.ts
- * @description Session-aware MCP server that mirrors the CivicLens CLI workflows.
+ * @description Session-aware MCP server that mirrors the GWALN CLI workflows.
  */
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp';
@@ -42,8 +42,8 @@ const registerWorkflowTools = (
   register('show', showTool, async (input) => await showHandler(input));
 };
 
-const PORT = Number(process.env.CIVICLENS_MCP_PORT ?? process.env.PORT ?? 3233);
-const HOST = process.env.CIVICLENS_MCP_HOST ?? '127.0.0.1';
+const PORT = Number(process.env.GWALN_MCP_PORT ?? process.env.PORT ?? 3233);
+const HOST = process.env.GWALN_MCP_HOST ?? '127.0.0.1';
 
 const createServerSession = async (): Promise<McpSession> => {
   const transport = new StreamableHTTPServerTransport({
@@ -58,7 +58,7 @@ const createServerSession = async (): Promise<McpSession> => {
   };
 
   const server = new McpServer({
-    name: 'civiclens-mcp',
+    name: 'gwaln-mcp',
     version: pkg.version,
   });
 

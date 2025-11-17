@@ -4,14 +4,14 @@
     "https://www.w3.org/ns/anno.jsonld"
   ],
   "@type": "ClaimReview",
-  "@id": "urn:civiclens:note:moon:2025-11-15T01:52:05.891Z",
+  "@id": "urn:gwaln:note:moon:2025-11-15T01:52:05.891Z",
   "topic_id": "moon",
   "topic_title": "Moon",
   "claimReviewed": "Comparison of Moon entries on Grokipedia and Wikipedia",
   "dateCreated": "2025-11-15T10:41:46.745Z",
   "author": {
     "@type": "Organization",
-    "name": "CivicLens"
+    "name": "GWALN"
   },
   "itemReviewed": {
     "@type": "CreativeWork",
@@ -25,7 +25,7 @@
     "ratingValue": "-25",
     "ratingExplanation": "Grok omits the NASA mission context and adds speculative claims."
   },
-  "civicLensTrust": {
+  "gwalnTrust": {
     "accuracy": 3,
     "completeness": 3,
     "tone_bias": 3,
@@ -37,7 +37,7 @@
   "hasPart": [
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:0",
+      "@id": "urn:gwaln:annotation:moon:0",
       "classification": "missing_context",
       "motivation": "commenting",
       "body": {
@@ -56,7 +56,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:1",
+      "@id": "urn:gwaln:annotation:moon:1",
       "classification": "missing_context",
       "motivation": "commenting",
       "body": {
@@ -75,7 +75,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:2",
+      "@id": "urn:gwaln:annotation:moon:2",
       "classification": "missing_context",
       "motivation": "commenting",
       "body": {
@@ -94,7 +94,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:3",
+      "@id": "urn:gwaln:annotation:moon:3",
       "classification": "missing_context",
       "motivation": "commenting",
       "body": {
@@ -113,7 +113,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:4",
+      "@id": "urn:gwaln:annotation:moon:4",
       "classification": "missing_context",
       "motivation": "commenting",
       "body": {
@@ -132,7 +132,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:5",
+      "@id": "urn:gwaln:annotation:moon:5",
       "classification": "added_claim",
       "motivation": "commenting",
       "body": {
@@ -151,7 +151,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:6",
+      "@id": "urn:gwaln:annotation:moon:6",
       "classification": "added_claim",
       "motivation": "commenting",
       "body": {
@@ -170,7 +170,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:7",
+      "@id": "urn:gwaln:annotation:moon:7",
       "classification": "added_claim",
       "motivation": "commenting",
       "body": {
@@ -189,7 +189,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:8",
+      "@id": "urn:gwaln:annotation:moon:8",
       "classification": "added_claim",
       "motivation": "commenting",
       "body": {
@@ -208,7 +208,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:9",
+      "@id": "urn:gwaln:annotation:moon:9",
       "classification": "added_claim",
       "motivation": "commenting",
       "body": {
@@ -227,7 +227,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:10",
+      "@id": "urn:gwaln:annotation:moon:10",
       "classification": "section_missing",
       "motivation": "commenting",
       "body": {
@@ -242,7 +242,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:11",
+      "@id": "urn:gwaln:annotation:moon:11",
       "classification": "section_missing",
       "motivation": "commenting",
       "body": {
@@ -257,7 +257,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:12",
+      "@id": "urn:gwaln:annotation:moon:12",
       "classification": "section_missing",
       "motivation": "commenting",
       "body": {
@@ -272,7 +272,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:13",
+      "@id": "urn:gwaln:annotation:moon:13",
       "classification": "section_missing",
       "motivation": "commenting",
       "body": {
@@ -287,7 +287,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:14",
+      "@id": "urn:gwaln:annotation:moon:14",
       "classification": "section_missing",
       "motivation": "commenting",
       "body": {
@@ -302,7 +302,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:15",
+      "@id": "urn:gwaln:annotation:moon:15",
       "classification": "section_extra",
       "motivation": "commenting",
       "body": {
@@ -321,7 +321,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:16",
+      "@id": "urn:gwaln:annotation:moon:16",
       "classification": "section_extra",
       "motivation": "commenting",
       "body": {
@@ -340,7 +340,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:17",
+      "@id": "urn:gwaln:annotation:moon:17",
       "classification": "section_extra",
       "motivation": "commenting",
       "body": {
@@ -359,7 +359,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:18",
+      "@id": "urn:gwaln:annotation:moon:18",
       "classification": "section_extra",
       "motivation": "commenting",
       "body": {
@@ -378,7 +378,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:19",
+      "@id": "urn:gwaln:annotation:moon:19",
       "classification": "section_extra",
       "motivation": "commenting",
       "body": {
@@ -397,7 +397,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:20",
+      "@id": "urn:gwaln:annotation:moon:20",
       "classification": "missing_citation",
       "motivation": "commenting",
       "body": {
@@ -412,7 +412,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:21",
+      "@id": "urn:gwaln:annotation:moon:21",
       "classification": "missing_citation",
       "motivation": "commenting",
       "body": {
@@ -427,7 +427,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:22",
+      "@id": "urn:gwaln:annotation:moon:22",
       "classification": "missing_citation",
       "motivation": "commenting",
       "body": {
@@ -442,7 +442,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:23",
+      "@id": "urn:gwaln:annotation:moon:23",
       "classification": "missing_citation",
       "motivation": "commenting",
       "body": {
@@ -457,7 +457,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:24",
+      "@id": "urn:gwaln:annotation:moon:24",
       "classification": "missing_citation",
       "motivation": "commenting",
       "body": {
@@ -472,7 +472,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:25",
+      "@id": "urn:gwaln:annotation:moon:25",
       "classification": "added_citation",
       "motivation": "commenting",
       "body": {
@@ -491,7 +491,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:26",
+      "@id": "urn:gwaln:annotation:moon:26",
       "classification": "added_citation",
       "motivation": "commenting",
       "body": {
@@ -510,7 +510,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:27",
+      "@id": "urn:gwaln:annotation:moon:27",
       "classification": "added_citation",
       "motivation": "commenting",
       "body": {
@@ -529,7 +529,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:28",
+      "@id": "urn:gwaln:annotation:moon:28",
       "classification": "added_citation",
       "motivation": "commenting",
       "body": {
@@ -548,7 +548,7 @@
     },
     {
       "@type": "Annotation",
-      "@id": "urn:civiclens:annotation:moon:29",
+      "@id": "urn:gwaln:annotation:moon:29",
       "classification": "added_citation",
       "motivation": "commenting",
       "body": {
@@ -585,7 +585,7 @@
     "ngram_overlap": 0.0061,
     "confidence_label": "suspected_divergence",
     "confidence_score": 0.124,
-    "analyzer_version": "civiclens-analyzer@0.1.0-alpha.1"
+    "analyzer_version": "gwaln-analyzer@0.1.0-alpha.1"
   },
   "ual": null,
   "notes": ""

@@ -1,6 +1,6 @@
 /**
  * @file src/tools/analyze.ts
- * @description MCP tool for running CivicLens analysis.
+ * @description MCP tool for running GWALN analysis.
  */
 
 import { z } from 'zod';
@@ -22,7 +22,7 @@ export const AnalyzeInputSchema = z.object({
 });
 
 export const analyzeTool = {
-  title: 'Run CivicLens analysis',
+  title: 'Run GWALN analysis',
   description: 'Reuses or regenerates Grokipedia vs Wikipedia comparisons.',
   inputSchema: AnalyzeInputSchema,
 };

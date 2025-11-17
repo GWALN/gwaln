@@ -7,7 +7,7 @@
 
 import pkg from '../../package.json';
 
-export const ANALYZER_VERSION = `civiclens-analyzer@${pkg.version}`;
+export const ANALYZER_VERSION = `gwaln-analyzer@${pkg.version}`;
 
 /**
  * Cached JSON analyses remain valid for this many hours unless the

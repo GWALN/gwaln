@@ -43,7 +43,7 @@ const annotationFromDiscrepancy = (
   const quote = isMissing ? issue.evidence.wikipedia : issue.evidence.grokipedia;
   return {
     '@type': 'Annotation',
-    '@id': `urn:civiclens:annotation:${topicId}:${index}`,
+    '@id': `urn:gwaln:annotation:${topicId}:${index}`,
     classification: issue.type,
     motivation: 'commenting',
     body: {
@@ -87,14 +87,14 @@ export const buildCommunityNote = (
   return {
     '@context': NOTE_CONTEXT,
     '@type': 'ClaimReview',
-    '@id': `urn:civiclens:note:${topic.id}:${analysis.generated_at}`,
+    '@id': `urn:gwaln:note:${topic.id}:${analysis.generated_at}`,
     topic_id: topic.id,
     topic_title: topic.title,
     claimReviewed: `Comparison of ${topic.title} entries on Grokipedia and Wikipedia`,
     dateCreated: now,
     author: {
       '@type': 'Organization',
-      name: options.reviewerName ?? 'CivicLens',
+      name: options.reviewerName ?? 'GWALN',
       ...(options.reviewerId ? { identifier: options.reviewerId } : {}),
     },
     itemReviewed: {
@@ -109,7 +109,7 @@ export const buildCommunityNote = (
       ratingValue: Number((5 - discrepancies.length).toFixed(2)).toString(),
       ratingExplanation: summary,
     },
-    civicLensTrust: {
+    gwalnTrust: {
       accuracy,
       completeness,
       tone_bias: toneBias,

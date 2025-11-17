@@ -1,6 +1,6 @@
 /**
  * @file tests/structured-report.test.ts
- * @description Ensures analyzer payloads are reshaped into the structured CivicLens schema.
+ * @description Ensures analyzer payloads are reshaped into the structured GWALN schema.
  * @author Doğu Abaris <abaris@null.net>
  */
 

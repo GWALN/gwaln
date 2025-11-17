@@ -79,7 +79,7 @@ const readStructuredArticle = (
   if (!fs.existsSync(target)) {
     const label = source === 'wiki' ? 'wiki' : 'grok';
     throw new Error(
-      `Missing structured snapshot ${target}. Run 'civiclens fetch ${label} --topic ${topic.id}' first.`,
+      `Missing structured snapshot ${target}. Run 'gwaln fetch ${label} --topic ${topic.id}' first.`,
     );
   }
   const raw = fs.readFileSync(target, 'utf8');
@@ -275,7 +275,7 @@ export const resolveBiasVerifierOptions = (
   const apiKey = options.geminiKey ?? cfg.geminiApiKey;
   if (!apiKey) {
     throw new Error(
-      'Set --gemini-key or configure geminiApiKey in .civiclensrc.json before using --bias-verifier gemini.',
+      'Set --gemini-key or configure geminiApiKey in .gwalnrc.json before using --bias-verifier gemini.',
     );
   }
   return {
@@ -297,7 +297,7 @@ export const resolveGeminiSummaryOptions = (
   const apiKey = options.geminiKey ?? cfg.geminiApiKey;
   if (!apiKey) {
     throw new Error(
-      'Set --gemini-key or configure geminiApiKey in .civiclensrc.json before enabling --gemini-summary.',
+      'Set --gemini-key or configure geminiApiKey in .gwalnrc.json before enabling --gemini-summary.',
     );
   }
   return {
