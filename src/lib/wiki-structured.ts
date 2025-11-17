@@ -201,7 +201,7 @@ const cleanSentenceText = (text: string): string => {
   cleaned = cleaned.replace(/''+/g, '');
   cleaned = cleaned.replace(/&nbsp;/g, ' ');
   cleaned = cleaned.replace(/<[^>]+>/g, '');
-  cleaned = cleaned.replace(/\[(\d+)\]/g, '');
+  cleaned = cleaned.replace(/\[(\d+)]/g, '');
   cleaned = cleaned.replace(/\s+/g, ' ');
   return cleaned.trim();
 };
@@ -238,7 +238,15 @@ const getTemplateBlock = (
   return null;
 };
 
-const stripHtmlComments = (text: string): string => text.replace(/<!--[\s\S]*?-->/g, '').trim();
+const stripHtmlComments = (text: string): string => {
+  let previous: string;
+  let result = text;
+  do {
+    previous = result;
+    result = result.replace(/<!--[\s\S]*?-->/g, '');
+  } while (result !== previous);
+  return result.trim();
+};
 
 const splitMarkdownLead = (markdown: string): { leadText: string; bodyText: string } => {
   const headingRegex = /^#{1,6}\s+.*$/m;
@@ -284,7 +292,7 @@ const stripInfobox = (text: string): string => {
 
 const stripMetaTemplates = (text: string): string => {
   const seen = new Set<string>();
-  const regex = /\{\{\s*([^|}]+)([^}]*)}\}/gi;
+  const regex = /\{\{\s*([^|}]+)([^}]*)}/gi;
   return text
     .replace(regex, (match, name) => {
       const trimmed = name.trim();
@@ -298,7 +306,7 @@ const stripMetaTemplates = (text: string): string => {
     .trimStart();
 };
 
-const stripTables = (text: string): string => text.replace(/\{\|[\s\S]*?\|\}/g, '');
+const stripTables = (text: string): string => text.replace(/\{\|[\s\S]*?\|}/g, '');
 
 const stripWikiMediaMarkup = (
   text: string,
@@ -306,7 +314,7 @@ const stripWikiMediaMarkup = (
   sectionId: string | null,
 ): { text: string; matches: MediaMatch[] } => {
   const matches: MediaMatch[] = [];
-  const regex = /\[\[(File|Image):([^|\]]+)([^]]*)]\]/gi;
+  const regex = /\[\[(File|Image):([^|]]+)([^]])]/gi;
   let lastIndex = 0;
   let output = '';
   let match: RegExpExecArray | null;
@@ -683,11 +691,11 @@ const extractEntities = (
   text: string,
 ): Array<{ label: string; type: string | null; qid: string | null }> => {
   const entities: Array<{ label: string; type: string | null; qid: string | null }> = [];
-  const regex = /\[\[([^|\]]+)(?:\|([^\]]+))?]\]/g;
+  const regex = /\[\[([^|]+)(\|([^]]+))]/g;
   let match: RegExpExecArray | null;
   while ((match = regex.exec(text)) !== null) {
     const target = match[1].trim();
-    const label = match[2]?.trim() ?? target;
+    const label = match[3]?.trim() ?? target;
     entities.push({ label, type: null, qid: null });
   }
   if (!entities.length) {
@@ -957,7 +965,7 @@ const normalizeReference = (
       doi: null,
     };
   }
-  const citeMatch = inner.match(/\{\{\s*cite\s+([^\s|}]+)([^}]*)}\}/i);
+  const citeMatch = inner.match(/\{\{\s*cite\s+([^\s|}]+)([^}]*)}/i);
   if (!citeMatch) {
     return {
       type: null,

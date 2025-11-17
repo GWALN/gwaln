@@ -136,6 +136,18 @@ export const parseMarkdownArticle = (
     sections,
     links: allLinks,
     media: allMedia,
-    references: allLinks.filter((href) => href.includes('wikipedia.org') || href.includes('wiki')),
+    references: allLinks.filter((href) => {
+      try {
+        const url = new URL(href);
+        const hostname = url.hostname.toLowerCase();
+        return (
+          hostname.endsWith('wikipedia.org') ||
+          hostname.endsWith('.wikipedia.org') ||
+          hostname.includes('wiki.')
+        );
+      } catch {
+        return href.includes('wikipedia.org');
+      }
+    }),
   };
 };

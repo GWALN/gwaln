@@ -8,6 +8,8 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
 import { spawn } from 'node:child_process';
+import { resolve as resolvePath, isAbsolute } from 'node:path';
+import { existsSync } from 'node:fs';
 import { StructuredAnalysisReport } from '../lib/structured-report';
 import { NoteIndexEntry } from '../shared/notes';
 import {
@@ -179,7 +181,7 @@ const printAnalysis = (analysis: StructuredAnalysisReport): void => {
   }
 };
 
-const printNote = (topicId: string, payload: NotePayload): void => {
+const printNote = (_topicId: string, payload: NotePayload): void => {
   console.log(chalk.bold('\n# Community Note'));
   const { entry, note } = payload;
   if (!entry) {
@@ -228,27 +230,41 @@ const printNote = (topicId: string, payload: NotePayload): void => {
 
 const openInBrowser = (filePath: string): Promise<void> =>
   new Promise((resolve, reject) => {
+    const resolvedPath = isAbsolute(filePath) ? filePath : resolvePath(filePath);
+
+    if (!existsSync(resolvedPath)) {
+      reject(new Error(`File does not exist: ${resolvedPath}`));
+      return;
+    }
+
+    if (/[;&|`$(){}[\]<>]/.test(resolvedPath)) {
+      reject(new Error(`File path contains unsafe characters: ${resolvedPath}`));
+      return;
+    }
+
     let command: string;
     let args: string[];
     if (process.platform === 'darwin') {
       command = 'open';
-      args = [filePath];
+      args = [resolvedPath];
     } else if (process.platform === 'win32') {
       command = 'cmd';
-      args = ['/c', 'start', '', filePath];
+      args = ['/c', 'start', '', resolvedPath];
     } else {
       command = 'xdg-open';
-      args = [filePath];
+      args = [resolvedPath];
     }
     try {
       const child = spawn(command, args, { detached: true, stdio: 'ignore' });
       child.once('spawn', () => resolve());
       child.on('error', (error) =>
-        reject(new Error(`Failed to open browser for ${filePath}: ${(error as Error).message}`)),
+        reject(
+          new Error(`Failed to open browser for ${resolvedPath}: ${(error as Error).message}`),
+        ),
       );
       child.unref();
     } catch (error) {
-      reject(new Error(`Failed to open browser for ${filePath}: ${(error as Error).message}`));
+      reject(new Error(`Failed to open browser for ${resolvedPath}: ${(error as Error).message}`));
     }
   });
 
