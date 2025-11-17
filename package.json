@@ -26,11 +26,18 @@
     "devops",
     "typescript"
   ],
-  "author": {
-    "name": "Doğu Abaris",
-    "email": "abaris@null.net",
-    "url": "https://doguabaris.bio"
-  },
+  "author": [
+    {
+      "name": "Doğu Abaris",
+      "email": "abaris@null.net",
+      "url": "https://doguabaris.bio"
+    },
+    {
+      "name": "Damjan Dimitrov",
+      "email": "hi@damjand.tech",
+      "url": "https://damjand.tech"
+    }
+  ],
   "private": true,
   "license": "MIT",
   "repository": {

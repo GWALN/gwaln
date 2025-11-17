@@ -314,7 +314,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
 
 ## Credits
 
-Developed by Doğu Abaris and contributors. The project builds on the
+Developed by Doğu Abaris, Damjan Dimitrov and contributors. The project builds on the
 OriginTrail ecosystem and open-source libraries noted in `package.json`.
 
 ## License
