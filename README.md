@@ -1,9 +1,9 @@
 ![Image](https://github.com/user-attachments/assets/3152cf8b-b683-4acf-ab9d-e3bfd5dc0390)
 
-> [!NOTE]  
+> \[!NOTE]\
 > Originally built for the **DKGcon2025 Hackathon** powered by OriginTrail.
 
-## GWALN CLI
+## GWALN
 
 This tool helps you compare Grokipedia and Wikipedia topics. It parses
 structured snapshots, computes discrepancies, and drafts Community Notes
@@ -36,15 +36,15 @@ whether to publish.
 
 Before using this tool, you should be familiar with:
 
-- Basic command-line usage and Node.js tooling.
-- OriginTrail concepts, including DKG nodes and Knowledge Assets.
+* Basic command-line usage and Node.js tooling.
+* OriginTrail concepts, including DKG nodes and Knowledge Assets.
 
 You should have:
 
-- Node.js 18 or later on macOS, Linux, or Windows.
-- Network access to a DKG edge node and sufficient blockchain funds if
+* Node.js 18 or later on macOS, Linux, or Windows.
+* Network access to a DKG edge node and sufficient blockchain funds if
   you plan to publish.
-- Optional: a Google Gemini API key if you use automated bias
+* Optional: a Google Gemini API key if you use automated bias
   verification.
 
 ## How to use GWALN CLI
@@ -74,6 +74,7 @@ You should have:
 ### Fetch topic snapshots
 
 1. Select a topic ID from `topics.json` (for example, `moon`).
+
 2. Download raw Wikipedia data:
 
    ```bash
@@ -125,6 +126,7 @@ You should have:
    ```
 
 2. Inspect the output in `notes/moon.json` and `notes/index.json`.
+
 3. Publish to OriginTrail (ensure your config has live signing keys):
 
    ```bash
@@ -171,11 +173,11 @@ logic.
 
 Each MCP tool mirrors the CLI flags:
 
-- `fetch`: `{ source?, topicId? }`
-- `analyze`: `{ topicId?, force?, biasVerifier?, geminiKey?, geminiModel?, geminiSummary?, verifyCitations? }`
-- `notes`: discriminated union for `build`, `publish`, or `status`
-- `publish`: `{ filePath? , payload?, privacy?, endpoint?, environment?, ... }`
-- `show`: `{ topicId, renderHtml? }`
+* `fetch`: `{ source?, topicId? }`
+* `analyze`: `{ topicId?, force?, biasVerifier?, geminiKey?, geminiModel?, geminiSummary?, verifyCitations? }`
+* `notes`: discriminated union for `build`, `publish`, or `status`
+* `publish`: `{ filePath? , payload?, privacy?, endpoint?, environment?, ... }`
+* `show`: `{ topicId, renderHtml? }`
 
 Because the MCP server calls the same workflow modules as the CLI,
 cached files, Gemini credentials, and `.gwalnrc.json` are honored
@@ -214,15 +216,17 @@ This retrieves the assertion and optional metadata, displays them in the termina
 ## Troubleshooting
 
 `Analysis not found for topic`
-- Run both `gwaln fetch wiki --topic <id>` and `gwaln fetch grok --topic <id>` before analyzing.
+
+* Run both `gwaln fetch wiki --topic <id>` and `gwaln fetch grok --topic <id>` before analyzing.
 
 `DKG publish failed: UNAUTHORIZED`
-- Ensure `.gwalnrc.json` contains valid `dkgPrivateKey`, `dkgPublicKey`, and endpoint values; confirm the key has sufficient balance on the target chain.
+
+* Ensure `.gwalnrc.json` contains valid `dkgPrivateKey`, `dkgPublicKey`, and endpoint values; confirm the key has sufficient balance on the target chain.
 
 ## How to get help and report issues
 
-- Report issues at the GitHub issue tracker for this repository.
-- Ask questions by opening a discussion or contacting the maintainers on
+* Report issues at the GitHub issue tracker for this repository.
+* Ask questions by opening a discussion or contacting the maintainers on
   the project chat. You can expect a response within one week.
 
 ## Developer documentation
@@ -237,13 +241,13 @@ handled by a custom module that converts Wikipedia wikitext and
 Grokipedia HTML into identical structured JSON (lead/sections, sentences,
 claims, citations, media attachments). The analyzer stage:
 
-- normalizes sentences into token sets and compares them to detect
+* normalizes sentences into token sets and compares them to detect
   missing or extra context
-- aligns sections and claims using cosine similarity from the
+* aligns sections and claims using cosine similarity from the
   `string-similarity` library
-- computes numeric discrepancies via relative-difference heuristics and
+* computes numeric discrepancies via relative-difference heuristics and
   entity discrepancies via set symmetric differences
-- flags bias/hallucination cues through lexicon scans plus
+* flags bias/hallucination cues through lexicon scans plus
   subjectivity/polarity scoring
 
 Optional verification hooks call the Gemini API for bias confirmation and
@@ -251,13 +255,13 @@ run citation checks against Grokipedia references.
 
 ### Code structure
 
-- `src/commands/`: CLI entry points (`init`, `fetch`, `analyse`, `show`,
+* `src/commands/`: CLI entry points (`init`, `fetch`, `analyse`, `show`,
   `notes`, `topics`, `publish`, `query`).
-- `src/lib/`: reusable modules including the parser, analyzer,
+* `src/lib/`: reusable modules including the parser, analyzer,
   discrepancies, bias metrics, and DKG helpers.
-- `data/`: cached structured snapshots per topic.
-- `analysis/`: analyzer outputs (JSON + HTML report).
-- `notes/`: JSON-LD Community Notes and index metadata.
+* `data/`: cached structured snapshots per topic.
+* `analysis/`: analyzer outputs (JSON + HTML report).
+* `notes/`: JSON-LD Community Notes and index metadata.
 
 ### Local development
 
@@ -288,13 +292,13 @@ run citation checks against Grokipedia references.
 
 #### Build and test
 
-- Build:
+* Build:
 
   ```bash
   npm run build
   ```
 
-- Run tests:
+* Run tests:
 
   ```bash
   npm test
@@ -302,9 +306,9 @@ run citation checks against Grokipedia references.
 
 #### Debugging
 
-- `Analysis not found`: check `data/wiki` and `data/grok` for missing
+* `Analysis not found`: check `data/wiki` and `data/grok` for missing
   snapshots; rerun `gwaln fetch`.
-- `Publish timeout`: increase `publishMaxRetries` or verify the DKG node
+* `Publish timeout`: increase `publishMaxRetries` or verify the DKG node
   endpoint is reachable; use `--dry-run` to ensure the payload is valid
   before retrying.
 
