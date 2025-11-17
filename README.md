@@ -319,4 +319,4 @@ OriginTrail ecosystem and open-source libraries noted in `package.json`.
 
 ## License
 
-Corev-CLI is released under the [MIT License](LICENSE).
+GWALN is released under the [MIT License](LICENSE).
