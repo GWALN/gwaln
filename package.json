@@ -87,8 +87,11 @@
 		"globals": "^16.0.0",
 		"prettier": "^3.6.2",
 		"remark-cli": "^12.0.1",
+		"remark-lint-list-item-indent": "^4.0.1",
+		"remark-parse": "^11.0.0",
 		"remark-preset-lint-consistent": "^6.0.1",
 		"remark-preset-lint-recommended": "^7.0.1",
+		"remark-stringify": "^11.0.0",
 		"tsx": "^4.19.3",
 		"typescript-eslint": "^8.29.1",
 		"vitest": "^3.1.1"
@@ -108,11 +111,5 @@
 		"format": "prettier --write \"src/**/*.ts\"",
 		"lint:md": "remark . --quiet --frail",
 		"format:md": "remark . --output --quiet"
-	},
-	"remarkConfig": {
-		"plugins": [
-			"remark-preset-lint-consistent",
-			"remark-preset-lint-recommended"
-		]
 	}
 }
