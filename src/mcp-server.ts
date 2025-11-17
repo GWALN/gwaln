@@ -8,6 +8,7 @@ import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/
 import express, { type Request, type Response } from 'express';
 import { randomUUID } from 'node:crypto';
 import pkg from '../package.json';
+import { initializePaymentMiddleware, PAYWALLED_TOOLS } from './lib/x402';
 import { analyzeHandler, analyzeTool } from './tools/analyze';
 import { fetchHandler, fetchTool } from './tools/fetch';
 import { notesHandler, notesTool } from './tools/notes';
@@ -137,16 +138,35 @@ const handleMcpRequest = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-app.post('/mcp', handleMcpRequest);
-app.get('/mcp', handleMcpRequest);
+const network = 'base';
 
-app
-  .listen(PORT, HOST, () => {
-    const url = `http://${HOST}:${PORT}/mcp`;
-    console.log(`[mcp] Listening on ${url}`);
-    console.log('[mcp] Use this URL in your MCP client configuration.');
+initializePaymentMiddleware({
+  host: HOST,
+  port: PORT,
+  amount: 10000, // $0.01 per request
+  asset: 'USDC',
+  network,
+  description: 'GWALN MCP tools',
+})
+  .then((paymentMiddleware) => {
+    app.post('/mcp', paymentMiddleware, handleMcpRequest);
+    app.get('/mcp', handleMcpRequest);
+
+    app
+      .listen(PORT, HOST, () => {
+        const url = `http://${HOST}:${PORT}/mcp`;
+        console.log(`[mcp] Listening on ${url}`);
+        console.log('[mcp] Use this URL in your MCP client configuration.');
+        console.log(
+          `[mcp] X402 MCP paywall enabled. Tools that require payment on network ${network}: ${PAYWALLED_TOOLS.join(', ')}.`,
+        );
+      })
+      .on('error', (error) => {
+        console.error('[mcp] Failed to start server:', error);
+        process.exit(1);
+      });
   })
-  .on('error', (error) => {
-    console.error('[mcp] Failed to start server:', error);
+  .catch((error) => {
+    console.error('[mcp] Failed to initialize payment middleware:', error);
     process.exit(1);
   });
