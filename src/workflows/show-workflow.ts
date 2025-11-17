@@ -57,6 +57,20 @@ export const writeHtmlAnalysisReport = (topicId: string, html: string): string =
   paths.ensureDir(paths.ANALYSIS_DIR);
   const target = path.join(paths.ANALYSIS_DIR, `${topicId}-report.html`);
   fs.writeFileSync(target, html, 'utf8');
+
+  const templateDir = path.join(__dirname, '../templates');
+  const logoSource = path.join(templateDir, 'gwaln-logo.svg');
+  const faviconSource = path.join(templateDir, 'favicon.svg');
+  const logoTarget = path.join(paths.ANALYSIS_DIR, 'gwaln-logo.svg');
+  const faviconTarget = path.join(paths.ANALYSIS_DIR, 'favicon.svg');
+
+  if (fs.existsSync(logoSource)) {
+    fs.copyFileSync(logoSource, logoTarget);
+  }
+  if (fs.existsSync(faviconSource)) {
+    fs.copyFileSync(faviconSource, faviconTarget);
+  }
+
   return target;
 };
 

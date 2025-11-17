@@ -4,11 +4,16 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>GWALN Analysis | {{topic.title}}</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
           rel="stylesheet">
+
+    <style>
+        @import url('https://fonts.cdnfonts.com/css/lufga');
+    </style>
 
     <style>
         :root {
@@ -18,11 +23,11 @@
             --color-text: #212529;
             --color-text-muted: #6c757d;
             --color-text-dim: #adb5bd;
-            --color-green: #CCF381;
-            --color-purple: #4831D4;
+            --color-green: #00EB5E;
+            --color-purple: #221C46;
             --color-danger: #dc3545;
             --color-warning: #ffc107;
-            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-sans: 'Lufga', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
             --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
             --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -242,8 +247,8 @@
         }
 
         .diff-button {
-            background: #4831D4;
-            color: #CCF381;
+            background: #221C46;
+            color: #00EB5E;
             border: none;
             padding: 0.7rem 0.6rem;
             border-radius: 6px;
@@ -654,16 +659,12 @@
         <div class="header-left">
             <div class="header-left-content">
                 <div class="topic-info">
-                    {{noteInfo}}
+                    {{noteInfoLogo}}
                     <div class="topic-id">#{{topic.id}}</div>
                     <h1>{{topic.title}}</h1>
 
                     <p class="headline">{{summary.headline_html}}</p>
-
-                    <div class="urls">
-                        <a href="{{topic.urls.wikipedia}}" target="_blank" rel="noopener">Wikipedia</a>
-                        <a href="{{topic.urls.grokipedia}}" target="_blank" rel="noopener">Grokipedia</a>
-                    </div>
+                    {{noteInfo}}
                 </div>
                 {{versionBox}}
             </div>

@@ -189,7 +189,7 @@ export const renderBiasPanel = (analysis: StructuredAnalysisReport): string => {
       .slice(0, 6)
       .map(
         ([term, count]) =>
-          `<span style="background: #CCF381; border: 1px solid #CCF381; color: #4831D4; padding: 0.25rem 0.5rem; border-radius: 999px; font-size: 0.65rem; font-weight: 600; display: inline-block; margin: 0.25rem;">${escapeHtml(term)} <span style="background: #4831D4; color: white; padding: 0.125rem 0.375rem; border-radius: 999px; font-size: 0.6rem; font-weight: 600; margin-left: 0.25rem;">${count}</span></span>`,
+          `<span style="background: #00EB5E; border: 1px solid #00EB5E; color: #221C46; padding: 0.25rem 0.5rem; border-radius: 999px; font-size: 0.65rem; font-weight: 600; display: inline-block; margin: 0.25rem;">${escapeHtml(term)} <span style="background: #221C46; color: white; padding: 0.125rem 0.375rem; border-radius: 999px; font-size: 0.6rem; font-weight: 600; margin-left: 0.25rem;">${count}</span></span>`,
       )
       .join('');
   };
@@ -198,15 +198,15 @@ export const renderBiasPanel = (analysis: StructuredAnalysisReport): string => {
   const wikiTerms = listLoadedTerms(metrics.loaded_terms_wiki);
 
   return `<div style="background: white; border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem;">
-  <div style="font-size: 0.75rem; font-weight: 600; color: #4831D4; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; padding-bottom: 0.375rem; border-bottom: 2px solid #CCF381;">Bias Metrics</div>
+  <div style="font-size: 0.75rem; font-weight: 600; color: #221C46; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; padding-bottom: 0.375rem; border-bottom: 2px solid #00EB5E;">Bias Metrics</div>
   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
     <div style="background: #f8f9fa; border: 1px solid #e9ecef; padding: 0.75rem; border-radius: 6px; text-align: center;">
       <p style="font-size: 0.65rem; color: #6c757d; margin-bottom: 0.375rem; text-transform: uppercase; letter-spacing: 0.05em;">Subjectivity</p>
-      <strong style="display: block; font-size: 1.25rem; color: #4831D4;">${metrics.subjectivity_delta.toFixed(3)}</strong>
+      <strong style="display: block; font-size: 1.25rem; color: #221C46;">${metrics.subjectivity_delta.toFixed(3)}</strong>
     </div>
     <div style="background: #f8f9fa; border: 1px solid #e9ecef; padding: 0.75rem; border-radius: 6px; text-align: center;">
       <p style="font-size: 0.65rem; color: #6c757d; margin-bottom: 0.375rem; text-transform: uppercase; letter-spacing: 0.05em;">Polarity</p>
-      <strong style="display: block; font-size: 1.25rem; color: #4831D4;">${metrics.polarity_delta.toFixed(3)}</strong>
+      <strong style="display: block; font-size: 1.25rem; color: #221C46;">${metrics.polarity_delta.toFixed(3)}</strong>
     </div>
   </div>
   ${grokTerms ? `<div style="margin-bottom: 0.5rem;"><p style="font-size: 0.65rem; color: #6c757d; margin-bottom: 0.375rem; text-transform: uppercase; letter-spacing: 0.05em;">Grokipedia Terms</p><div>${grokTerms}</div></div>` : ''}
@@ -341,7 +341,7 @@ export const renderSimilarSentencesModal = (analysis: StructuredAnalysisReport):
 </div>`;
 };
 
-export const renderNoteInfo = (notePayload: {
+export const renderNoteInfoLogo = (notePayload: {
   entry: { status?: string; file: string; ual?: string | null } | null;
   note: Record<string, unknown> | null;
 }): string => {
@@ -350,8 +350,32 @@ export const renderNoteInfo = (notePayload: {
   if (!entry || !note || entry.status !== 'published') {
     return '';
   }
-  return `<div style="background: #CCF381; color: #4831D4; padding: 0.5rem 0.75rem; border-radius: 6px; font-size: 0.7rem; font-weight: 600; margin-bottom: 0.5rem; display: inline-block;">
-  Community Note: ${escapeHtml(entry.status ?? 'draft')} ${entry.ual ? `| UAL: ${escapeHtml(entry.ual)}` : ''}
+    return `<div style="margin-bottom: 0.5rem;">
+  <img src="gwaln-logo.svg" alt="GWALN" style="height: 32px; width: auto;" />
+</div>`;
+};
+
+export const renderNoteInfo = (
+  notePayload: {
+    entry: { status?: string; file: string; ual?: string | null } | null;
+    note: Record<string, unknown> | null;
+  },
+  wikiUrl: string,
+  grokUrl: string,
+): string => {
+  const entry = notePayload?.entry;
+  const note = notePayload?.note;
+  if (!entry || !note || entry.status !== 'published') {
+    return '';
+  }
+  return `<div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem; flex-wrap: wrap;">
+  <div style="background: #00EB5E; color: #221C46; padding: 0.5rem 0.75rem; border-radius: 6px; font-size: 0.7rem; font-weight: 600;">
+    Published | UAL: ${entry.ual ? escapeHtml(entry.ual) : 'N/A'}
+  </div>
+  <div style="display: flex; gap: 1rem;">
+    <a href="${escapeHtml(wikiUrl)}" target="_blank" rel="noopener" style="color: #221C46; text-decoration: none; font-size: 0.75rem; font-weight: 600; transition: opacity 0.2s;">Wikipedia →</a>
+    <a href="${escapeHtml(grokUrl)}" target="_blank" rel="noopener" style="color: #221C46; text-decoration: none; font-size: 0.75rem; font-weight: 600; transition: opacity 0.2s;">Grokipedia →</a>
+  </div>
 </div>`;
 };
 
@@ -496,7 +520,8 @@ export const renderHtmlReport = (
     'topic.urls.grokipedia': escapeHtml(topic.urls.grokipedia),
     statsCards,
     versionBox: versionWithDiff,
-    noteInfo: renderNoteInfo(notePayload),
+    noteInfoLogo: renderNoteInfoLogo(notePayload),
+    noteInfo: renderNoteInfo(notePayload, topic.urls.wikipedia, topic.urls.grokipedia),
     missingSentences: renderList(
       `Missing Sentences (${summary.missing_sentence_count} from Wikipedia)`,
       comparison.sentences.missing,
