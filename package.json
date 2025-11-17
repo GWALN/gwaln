@@ -1,6 +1,6 @@
 {
   "name": "@gwaln/cli",
-  "description": "An open-source CLI for comparing and annotating Grokipedia vs. Wikipedia articles.",
+  "description": "An open-source CLI for comparing Grokipedia and Wikipedia topics, detecting discrepancies, and publishing verifiable notes to the OriginTrail DKG.",
   "version": "0.1.0-alpha.1",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"

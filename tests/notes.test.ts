@@ -23,7 +23,10 @@ const baseAnalysis: AnalysisPayload = {
   stats: {
     wiki_char_count: 100,
     grok_char_count: 95,
-    similarity_ratio: 0.95,
+    similarity_ratio: {
+      word: 0.95,
+      sentence: 0.90,
+    },
     wiki_sentence_count: 6,
     grok_sentence_count: 5,
     missing_sentence_total: 3,
@@ -86,6 +89,11 @@ const baseAnalysis: AnalysisPayload = {
     generated_at: '2025-11-13T15:00:00Z',
     cache_ttl_hours: 72,
     shingle_size: 4,
+    analysis_window: {
+      wiki_analyzed_chars: 100,
+      grok_analyzed_chars: 95,
+      source_note: 'Full articles analyzed',
+    },
   },
 };
 
