@@ -1,0 +1,63 @@
+{
+  "name": "@gwaln/mcp",
+  "version": "0.1.0-alpha.1",
+  "description": "MCP server for comparing Grokipedia and Wikipedia topics via Model Context Protocol",
+  "main": "dist/mcp-server.js",
+  "type": "commonjs",
+  "bin": {
+    "gwaln-mcp": "./dist/mcp-server.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20.18.1"
+  },
+  "keywords": [
+    "gwaln",
+    "mcp",
+    "model-context-protocol",
+    "server",
+    "tools",
+    "utility",
+    "trust",
+    "comparison",
+    "knowledge graph"
+  ],
+  "author": {
+    "name": "Doğu Abaris",
+    "email": "abaris@null.net",
+    "url": "https://doguabaris.bio"
+  },
+  "contributors": [
+    {
+      "name": "Damjan Dimitrov",
+      "email": "hi@damjand.tech",
+      "url": "https://damjand.tech"
+    }
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GWALN/cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/GWALN/cli/issues"
+  },
+  "homepage": "https://github.com/GWALN/cli",
+  "dependencies": {
+    "@gwaln/core": "*",
+    "@modelcontextprotocol/sdk": "^1.22.0",
+    "body-parser": "^2.2.0",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.5",
+    "@types/node": "^22.10.1",
+    "typescript": "^5.8.3"
+  },
+  "scripts": {
+    "build": "tsc && chmod +x dist/mcp-server.js",
+    "dev": "tsx src/mcp-server.ts"
+  }
+}

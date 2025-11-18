@@ -1,5 +1,12 @@
 [
   {
+    "id": "bitcoin",
+    "title": "Bitcoin",
+    "ual": "did:ot:dkg:topic:bitcoin",
+    "wikipedia_slug": "Bitcoin",
+    "grokipedia_slug": "page/Bitcoin"
+  },
+  {
     "id": "mars",
     "title": "Mars",
     "ual": "did:ot:dkg:topic:mars",

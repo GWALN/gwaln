@@ -1,15 +1,11 @@
 {
-  "name": "@gwaln/cli",
-  "description": "An open-source CLI for comparing Grokipedia and Wikipedia topics, detecting discrepancies, and publishing verifiable notes to the OriginTrail DKG.",
+  "name": "gwaln-monorepo",
+  "description": "Monorepo for GWALN tools - CLI and MCP server for comparing Grokipedia and Wikipedia topics",
   "version": "0.1.0-alpha.1",
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
-  },
-  "main": "dist/cli.js",
-  "type": "commonjs",
-  "bin": {
-    "gwaln": "dist/cli.js"
-  },
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "engines": {
     "node": ">=20.18.1"
   },
@@ -99,18 +95,16 @@
     "vitest": "^3.1.1"
   },
   "scripts": {
-    "build": "npx tsc && cp -r src/templates dist/ && chmod +x dist/cli.js",
-    "start": "node dist/cli.js",
+    "build": "npm run build --workspaces",
+    "build:core": "npm run build --workspace=@gwaln/core",
+    "build:cli": "npm run build --workspace=@gwaln/cli",
+    "build:mcp": "npm run build --workspace=@gwaln/mcp",
     "test": "vitest run",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
-    "dev": "tsx src/cli.ts",
-    "fetch:wiki": "tsx src/cli.ts fetch wiki",
-    "fetch:grok": "tsx src/cli.ts fetch grok",
-    "analyse": "tsx src/cli.ts analyse",
-    "show": "tsx src/cli.ts show",
-    "mcp": "tsx src/mcp-server.ts",
-    "format": "prettier --write \"src/**/*.ts\"",
+    "dev:cli": "tsx packages/cli/src/cli.ts",
+    "dev:mcp": "tsx packages/mcp/src/mcp-server.ts",
+    "format": "prettier --write \"**/*.ts\"",
     "lint:md": "remark . --quiet --frail",
     "format:md": "remark . --output --quiet"
   }
