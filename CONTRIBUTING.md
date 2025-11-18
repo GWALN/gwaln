@@ -5,7 +5,7 @@ improving documentation, or just giving feedback, it’s all welcome.
 
 ## How to Contribute
 
-* Open an [issue](https://github.com/GWALN/cli/issues) and describe what’s going on.
+* Open an [issue](https://github.com/GWALN/gwaln/issues) and describe what’s going on.
 
 * Fork the repo -> create a new branch -> commit changes -> open a PR.
   Keep commits focused and descriptive.
