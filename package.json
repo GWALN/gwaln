@@ -99,7 +99,8 @@
     "vitest": "^3.1.1"
   },
   "scripts": {
-    "build": "npx tsc && cp -r src/templates dist/ && chmod +x dist/cli.js",
+    "build": "npx tsc && cp -r src/templates dist/",
+    "postinstall": "test -f dist/cli.js && chmod +x dist/cli.js || exit 0",
     "start": "node dist/cli.js",
     "test": "vitest run",
     "lint": "eslint . --ext .ts",

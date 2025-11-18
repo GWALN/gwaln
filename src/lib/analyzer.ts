@@ -826,19 +826,19 @@ export const analyzeContent = (
   const rewordedWikiSentences = new Set(rewordedPairs.map((pair) => pair.wikipedia));
   const trulyMissingAll = missingAll.filter((sentence) => !rewordedWikiSentences.has(sentence));
 
-  const missing = missingAll.slice(0, 5);
-  const extra = extraAll.slice(0, 5);
-  const trulyMissing = trulyMissingAll.slice(0, 5);
-  const reworded = rewordedPairs.slice(0, 5);
-  const agreed = agreedSentences.slice(0, 10);
+  const missing = missingAll;
+  const extra = extraAll;
+  const trulyMissing = trulyMissingAll;
+  const reworded = rewordedPairs;
+  const agreed = agreedSentences;
 
   const wikiSections = wiki.content.sections;
   const grokSections = grok.content.sections;
-  const missingSections = difference(wikiSections, grokSections).slice(0, 5);
-  const extraSections = difference(grokSections, wikiSections).slice(0, 5);
+  const missingSections = difference(wikiSections, grokSections);
+  const extraSections = difference(grokSections, wikiSections);
 
-  const missingCitations = difference(wiki.content.citations, grok.content.citations).slice(0, 5);
-  const extraCitations = difference(grok.content.citations, wiki.content.citations).slice(0, 5);
+  const missingCitations = difference(wiki.content.citations, grok.content.citations);
+  const extraCitations = difference(grok.content.citations, wiki.content.citations);
 
   const sectionAlignment = alignSections(wiki.article, grok.article);
   const claimAlignment = alignClaims(wiki.article, grok.article);
