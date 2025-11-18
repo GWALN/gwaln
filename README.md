@@ -71,6 +71,38 @@ You should have:
 
 3. Confirm that `.gwalnrc.json` contains the expected values.
 
+### Lookup and manage topics
+
+Before fetching snapshots, you can search for topics in your local
+catalog or discover new ones using the lookup command.
+
+1. Search for a topic in the local catalog:
+
+   ```bash
+   gwaln lookup "Moon"
+   ```
+
+   This checks if the topic exists in `topics.json` by title and displays
+   its details if found.
+
+2. Search both Grokipedia and Wikipedia APIs for a new topic:
+
+   ```bash
+   gwaln lookup "Bitcoin"
+   ```
+
+   If the topic is not found locally, it automatically searches both
+   platforms and prompts you to select matching entries to add to
+   `topics.json`.
+
+3. Limit the number of search results:
+
+   ```bash
+   gwaln lookup "Blockchain" --limit 3
+   ```
+
+   The default limit is 5 results per platform.
+
 ### Fetch topic snapshots
 
 1. Select a topic ID from `topics.json` (for example, `moon`).

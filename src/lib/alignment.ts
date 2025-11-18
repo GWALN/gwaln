@@ -5,7 +5,7 @@
  */
 
 import stringSimilarity from 'string-similarity';
-import type { StructuredArticle, StructuredClaim } from './wiki-structured';
+import type { StructuredArticle, StructuredClaim } from '../parsers/shared/types';
 
 export interface SectionAlignmentRecord {
   wikipedia?: { section_id: string; heading: string };
@@ -60,7 +60,7 @@ export const alignSections = (
       });
     }
   }
-  grok.sections.forEach((section) => {
+  grok.sections.forEach((section: { section_id: string; heading?: string }) => {
     if (usedGrok.has(section.section_id)) return;
     results.push({
       wikipedia: undefined,
@@ -106,7 +106,7 @@ export const alignClaims = (
       });
     }
   }
-  grokClaims.forEach((claim) => {
+  grokClaims.forEach((claim: StructuredClaim) => {
     if (used.has(claim.claim_id)) return;
     alignments.push({
       wikipedia: undefined,

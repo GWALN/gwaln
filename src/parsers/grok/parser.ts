@@ -1,122 +1,51 @@
 /**
- * @file src/lib/wiki-structured.ts
- * @description Parses Wikipedia wikitext and Grokipedia Markdown into the structured GWALN JSON
- *              snapshots consumed by downstream tooling (`data/{wiki,grok}/<topic>.parsed.json`).
+ * @file src/parsers/grok/parser.ts
+ * @description Parses Grokipedia Markdown into the structured GWALN JSON
+ *              snapshots consumed by downstream tooling (`data/grok/<topic>.parsed.json`).
  *              The parser focuses on metadata required by the analyzer flow: lead/section sentences,
  *              media usage, references, and lead-derived claims, while staying dependency-light so
  *              the CLI works offline after fetching a snapshot once.
  * @author Doğu Abaris <abaris@null.net>
  */
 
-import type { Topic } from '../shared/topics';
+import type { Topic } from '../../shared/topics';
+import { stripInfobox, stripMetaTemplates } from '../wiki';
+import {
+  cleanSentenceText,
+  normalizeText,
+  tokenize,
+  stripHtmlComments,
+  stripTables,
+  stripFileLinks,
+} from '../wiki';
+import { splitSentences, GROK_BANNER_PATTERNS } from '../wiki/sentence-splitter';
+import type {
+  ArticleMetadata,
+  ExternalCitation,
+  StructuredSentence,
+  StructuredParagraph,
+  StructuredLead,
+  StructuredSection,
+  StructuredMediaUsage,
+  StructuredMedia,
+  StructuredReference,
+  StructuredClaim,
+  StructuredArticle,
+} from '../shared/types';
 
-export interface ArticleMetadata {
-  source: 'wikipedia' | 'grokipedia';
-  pageId: string;
-  lang: string;
-  title: string;
-  canonicalUrl: string;
-  revisionId: string;
-  revisionTimestamp: string;
-}
-
-export interface ExternalCitation {
-  id?: string;
-  title?: string;
-  description?: string;
-  url: string;
-  favicon?: string | null;
-}
-
-export interface StructuredSentence {
-  sentence_id: string;
-  text: string;
-  normalized_text: string;
-  tokens: string[];
-  citation_ids: string[];
-  media_ids: string[];
-  claim_ids: string[];
-}
-
-export interface StructuredParagraph {
-  para_id: string;
-  sentences: StructuredSentence[];
-}
-
-export interface StructuredLead {
-  text_range: { start_offset: number; end_offset: number };
-  paragraphs: StructuredParagraph[];
-}
-
-export interface StructuredSection {
-  section_id: string;
-  heading: string;
-  level: number;
-  anchor: string;
-  parent_section_id?: string;
-  media_ids?: string[];
-  paragraphs: StructuredParagraph[];
-}
-
-export interface StructuredMediaUsage {
-  context: string;
-  section_id: string | null;
-  sentence_id: string | null;
-}
-
-export interface StructuredMedia {
-  media_id: string;
-  title: string;
-  type: 'image' | 'audio' | 'video' | 'unknown';
-  origin: 'infobox' | 'body';
-  caption: string | null;
-  alt_text: string | null;
-  license: {
-    name: string | null;
-    short_name: string | null;
-    url: string | null;
-  };
-  usage: StructuredMediaUsage[];
-}
-
-export interface StructuredReference {
-  citation_id: string;
-  name: string | null;
-  raw: string;
-  normalized: {
-    type: string | null;
-    title: string | null;
-    publisher?: string | null;
-    journal?: string | null;
-    year: number | null;
-    url: string | null;
-    doi?: string | null;
-  };
-}
-
-export interface StructuredClaim {
-  claim_id: string;
-  text: string;
-  normalized_text: string;
-  entities: Array<{ label: string; type: string | null; qid: string | null }>;
-  time: { unit: string; value: number } | null;
-  numbers: Array<{ raw: string; value: number; unit: string | null }>;
-  citation_ids: string[];
-}
-
-export interface StructuredArticle {
-  source: 'wikipedia' | 'grokipedia';
-  page_id: string;
-  lang: string;
-  title: string;
-  canonical_url: string;
-  revision: { id: string; timestamp: string };
-  lead: StructuredLead;
-  sections: StructuredSection[];
-  media: StructuredMedia[];
-  references: StructuredReference[];
-  claims: StructuredClaim[];
-}
+export type {
+  ArticleMetadata,
+  ExternalCitation,
+  StructuredSentence,
+  StructuredParagraph,
+  StructuredLead,
+  StructuredSection,
+  StructuredMediaUsage,
+  StructuredMedia,
+  StructuredReference,
+  StructuredClaim,
+  StructuredArticle,
+};
 
 interface ReferenceMatch {
   citationId: string;
@@ -127,15 +56,6 @@ interface MediaMatch {
   mediaId: string;
   offset: number;
 }
-
-const META_TEMPLATE_WHITELIST = [
-  'short description',
-  'use american english',
-  'use british english',
-  'use dmy dates',
-  'use mdy dates',
-  'good article',
-];
 
 const CLEANUP_TOKENS = new Set([
   'thumb',
@@ -168,86 +88,6 @@ const anchorize = (value: string): string =>
     .replace(/\s+/g, '_')
     .replace(/[^\w:.-]+/g, '');
 
-const cleanWikiLinks = (text: string): string =>
-  text.replace(/\[\[([^|\]]+)\|([^\]]+)]]/g, '$2').replace(/\[\[([^\]]+)]]/g, '$1');
-
-const stripTemplates = (text: string): string => {
-  let result = '';
-  let depth = 0;
-  for (let i = 0; i < text.length; i += 1) {
-    const two = text.slice(i, i + 2);
-    if (two === '{{') {
-      depth += 1;
-      i += 1;
-      continue;
-    }
-    if (two === '}}') {
-      if (depth > 0) depth -= 1;
-      i += 1;
-      continue;
-    }
-    if (depth === 0) {
-      result += text[i];
-    }
-  }
-  return result;
-};
-
-const cleanSentenceText = (text: string): string => {
-  let cleaned = text;
-  cleaned = cleaned.replace(/<!--[\s\S]*?-->/g, '');
-  cleaned = cleanWikiLinks(cleaned);
-  cleaned = stripTemplates(cleaned);
-  cleaned = cleaned.replace(/''+/g, '');
-  cleaned = cleaned.replace(/&nbsp;/g, ' ');
-  cleaned = cleaned.replace(/<[^>]+>/g, '');
-  cleaned = cleaned.replace(/\[(\d+)]/g, '');
-  cleaned = cleaned.replace(/\s+/g, ' ');
-  return cleaned.trim();
-};
-
-const normalizeText = (text: string): string => text.toLowerCase();
-
-const tokenize = (text: string): string[] =>
-  text
-    .toLowerCase()
-    .split(/[^a-z0-9]+/g)
-    .map((token) => token.trim())
-    .filter(Boolean);
-
-const getTemplateBlock = (
-  text: string,
-  startIndex: number,
-): { block: string; end: number } | null => {
-  let depth = 0;
-  for (let i = startIndex; i < text.length - 1; i += 1) {
-    const pair = text.slice(i, i + 2);
-    if (pair === '{{') {
-      depth += 1;
-      i += 1;
-      continue;
-    }
-    if (pair === '}}') {
-      depth -= 1;
-      i += 1;
-      if (depth === 0) {
-        return { block: text.slice(startIndex, i + 1), end: i + 1 };
-      }
-    }
-  }
-  return null;
-};
-
-const stripHtmlComments = (text: string): string => {
-  let previous: string;
-  let result = text;
-  do {
-    previous = result;
-    result = result.replace(/<!--[\s\S]*?-->/g, '');
-  } while (result !== previous);
-  return result.trim();
-};
-
 const splitMarkdownLead = (markdown: string): { leadText: string; bodyText: string } => {
   const headingRegex = /^#{1,6}\s+.*$/m;
   const match = headingRegex.exec(markdown);
@@ -275,87 +115,112 @@ const stripLeadingTitleHeading = (markdown: string, title: string): string => {
   return markdown;
 };
 
-const stripInfobox = (text: string): string => {
-  const start = text.match(/\{\{\s*Infobox[^{]*/i);
-  if (!start || start.index === undefined) {
-    return text;
-  }
-  const block = getTemplateBlock(text, start.index);
-  if (!block) {
-    return text;
-  }
-  const before = text.slice(0, start.index).trimEnd();
-  const after = text.slice(block.end).trimStart();
-  const glue = before && after ? `${before}\n\n${after}` : before || after;
-  return glue.trim();
-};
-
-const stripMetaTemplates = (text: string): string => {
-  const seen = new Set<string>();
-  const regex = /\{\{\s*([^|}]+)([^}]*)}/gi;
-  return text
-    .replace(regex, (match, name) => {
-      const trimmed = name.trim();
-      const normalized = trimmed.toLowerCase();
-      if (META_TEMPLATE_WHITELIST.includes(normalized) && !seen.has(normalized)) {
-        seen.add(normalized);
-        return '';
-      }
-      return match;
-    })
-    .trimStart();
-};
-
-const stripTables = (text: string): string => text.replace(/\{\|[\s\S]*?\|}/g, '');
-
 const stripWikiMediaMarkup = (
   text: string,
   registry: MediaRegistry,
   sectionId: string | null,
 ): { text: string; matches: MediaMatch[] } => {
   const matches: MediaMatch[] = [];
-  const regex = /\[\[(File|Image):([^|]]+)([^]])]/gi;
-  let lastIndex = 0;
   let output = '';
-  let match: RegExpExecArray | null;
-  while ((match = regex.exec(text)) !== null) {
-    output += text.slice(lastIndex, match.index);
-    lastIndex = regex.lastIndex;
-    const fileName = match[2].trim();
-    const paramsRaw = match[3] ?? '';
-    const params = paramsRaw
-      .split('|')
-      .map((value) => value.trim())
-      .filter(Boolean);
-    const captionParts: string[] = [];
-    let altText: string | null = null;
-    let context = 'body';
-    for (const param of params) {
-      const lower = param.toLowerCase();
-      if (CLEANUP_TOKENS.has(lower)) {
-        context = lower === 'thumb' ? 'thumb' : context;
-        continue;
+  let i = 0;
+
+  while (i < text.length) {
+    if (text[i] === '[' && text[i + 1] === '[') {
+      const startPos = i;
+      i += 2;
+
+      const remaining = text.slice(i);
+      const fileMatch = remaining.match(/^(File|Image):/i);
+
+      if (fileMatch) {
+        i += fileMatch[0].length;
+        let depth = 1;
+        let content = '';
+
+        while (i < text.length && depth > 0) {
+          if (text[i] === '[' && text[i + 1] === '[') {
+            content += '[[';
+            i += 2;
+            depth++;
+          } else if (text[i] === ']' && text[i + 1] === ']') {
+            depth--;
+            if (depth === 0) {
+              i += 2;
+              break;
+            }
+            content += ']]';
+            i += 2;
+          } else {
+            content += text[i];
+            i++;
+          }
+        }
+
+        const parts = [];
+        let currentPart = '';
+        let nestedDepth = 0;
+
+        for (let j = 0; j < content.length; j++) {
+          if (content[j] === '[' && content[j + 1] === '[') {
+            currentPart += '[[';
+            j++;
+            nestedDepth++;
+          } else if (content[j] === ']' && content[j + 1] === ']') {
+            currentPart += ']]';
+            j++;
+            nestedDepth--;
+          } else if (content[j] === '|' && nestedDepth === 0) {
+            parts.push(currentPart);
+            currentPart = '';
+          } else {
+            currentPart += content[j];
+          }
+        }
+        if (currentPart) {
+          parts.push(currentPart);
+        }
+
+        const fileName = parts[0]?.trim() || '';
+        const params = parts.slice(1);
+
+        const captionParts: string[] = [];
+        let altText: string | null = null;
+        let context = 'body';
+
+        for (const param of params) {
+          const lower = param.toLowerCase();
+          if (CLEANUP_TOKENS.has(lower)) {
+            context = lower === 'thumb' ? 'thumb' : context;
+            continue;
+          }
+          if (lower.startsWith('alt=')) {
+            altText = param.slice(4).trim();
+            continue;
+          }
+          if (lower.startsWith('link=') || lower.startsWith('class=')) {
+            continue;
+          }
+          captionParts.push(cleanSentenceText(param));
+        }
+
+        const caption = captionParts.filter(Boolean).join(' | ') || null;
+        const mediaId = registry.registerBodyMedia({
+          title: fileName.startsWith('File:') ? fileName : `File:${fileName}`,
+          caption,
+          alt: altText,
+          context,
+          sectionId,
+        });
+        matches.push({ mediaId, offset: output.length });
+      } else {
+        output += text.slice(startPos, i);
       }
-      if (lower.startsWith('alt=')) {
-        altText = param.slice(4).trim();
-        continue;
-      }
-      if (lower.startsWith('link=') || lower.startsWith('class=')) {
-        continue;
-      }
-      captionParts.push(cleanSentenceText(param));
+    } else {
+      output += text[i];
+      i++;
     }
-    const caption = captionParts.filter(Boolean).join(' | ') || null;
-    const mediaId = registry.registerBodyMedia({
-      title: fileName.startsWith('File:') ? fileName : `File:${fileName}`,
-      caption,
-      alt: altText,
-      context,
-      sectionId,
-    });
-    matches.push({ mediaId, offset: output.length });
   }
-  output += text.slice(lastIndex);
+
   return { text: output, matches };
 };
 
@@ -445,31 +310,6 @@ const stripMarkdownReferences = (
   return { text: output, matches };
 };
 
-interface SentenceSlice {
-  text: string;
-  start: number;
-  end: number;
-}
-
-const splitSentences = (text: string): SentenceSlice[] => {
-  const sentences: SentenceSlice[] = [];
-  const regex = /[^.!?]+(?:[.!?]+|$)/g;
-  let match: RegExpExecArray | null;
-  while ((match = regex.exec(text)) !== null) {
-    const raw = match[0];
-    const trimmed = raw.trim();
-    if (!trimmed) continue;
-    const leading = raw.length - raw.trimStart().length;
-    const trailing = raw.length - raw.trimEnd().length;
-    const start = match.index + leading;
-    const end = match.index + raw.length - trailing;
-    sentences.push({ text: trimmed, start, end });
-  }
-  return sentences;
-};
-
-const GROK_BANNER_PATTERNS = [/search\s*⌘k/i, /fact-checked\s+by\s+grok/i];
-
 const parseParagraph = (
   rawParagraph: string,
   prefix: string,
@@ -534,10 +374,12 @@ const buildLead = (
 ): { lead: StructuredLead; offsetEnd: number } => {
   const paragraphs: StructuredParagraph[] = [];
   const blocks = text.split(/\n\s*\n/);
-  blocks.forEach((block, idx) => {
-    const paragraph = parseParagraph(block, 'lead', idx, references, media, null, mode);
+  let validIndex = 0;
+  blocks.forEach((block) => {
+    const paragraph = parseParagraph(block, 'lead', validIndex, references, media, null, mode);
     if (paragraph) {
       paragraphs.push(paragraph);
+      validIndex += 1;
     }
   });
   return {
@@ -549,12 +391,59 @@ const buildLead = (
   };
 };
 
+const processSections = (
+  matches: Array<{ heading: string; level: number; start: number; end: number }>,
+  text: string,
+  references: ReferenceStore,
+  media: MediaRegistry,
+  mode: 'wiki' | 'markdown',
+): StructuredSection[] => {
+  const sections: StructuredSection[] = [];
+  if (!matches.length) return sections;
+  const stack: Array<{ level: number; id: string }> = [];
+  for (let i = 0; i < matches.length; i += 1) {
+    const current = matches[i];
+    const nextStart = matches[i + 1]?.start ?? text.length;
+    const content = text.slice(current.end, nextStart).trim();
+    const sectionId = `sec-${slugify(current.heading, `${i + 1}`)}`;
+    while (stack.length && stack[stack.length - 1].level >= current.level) {
+      stack.pop();
+    }
+    const parent = stack[stack.length - 1]?.id;
+    stack.push({ level: current.level, id: sectionId });
+    const paragraphs: StructuredParagraph[] = [];
+    const blocks = content.split(/\n\s*\n/);
+    blocks.forEach((block, idx) => {
+      const paragraph = parseParagraph(block, sectionId, idx, references, media, sectionId, mode);
+      if (paragraph) {
+        paragraphs.push(paragraph);
+      }
+    });
+    const mediaIds = Array.from(
+      new Set(
+        paragraphs.flatMap((paragraph) =>
+          paragraph.sentences.flatMap((sentence) => sentence.media_ids),
+        ),
+      ),
+    );
+    sections.push({
+      section_id: sectionId,
+      heading: current.heading,
+      level: current.level,
+      anchor: anchorize(current.heading),
+      parent_section_id: parent,
+      media_ids: mediaIds.length ? mediaIds : undefined,
+      paragraphs,
+    });
+  }
+  return sections;
+};
+
 const buildWikiSections = (
   text: string,
   references: ReferenceStore,
   media: MediaRegistry,
 ): StructuredSection[] => {
-  const sections: StructuredSection[] = [];
   const headingRegex = /^={2,6}\s*(.*?)\s*={2,6}\s*$/gm;
   const matches: Array<{ heading: string; level: number; start: number; end: number }> = [];
   let match: RegExpExecArray | null;
@@ -567,44 +456,7 @@ const buildWikiSections = (
       end: match.index + match[0].length,
     });
   }
-  if (!matches.length) return sections;
-  const stack: Array<{ level: number; id: string }> = [];
-  for (let i = 0; i < matches.length; i += 1) {
-    const current = matches[i];
-    const nextStart = matches[i + 1]?.start ?? text.length;
-    const content = text.slice(current.end, nextStart).trim();
-    const sectionId = `sec-${slugify(current.heading, `${i + 1}`)}`;
-    while (stack.length && stack[stack.length - 1].level >= current.level) {
-      stack.pop();
-    }
-    const parent = stack[stack.length - 1]?.id;
-    stack.push({ level: current.level, id: sectionId });
-    const paragraphs: StructuredParagraph[] = [];
-    const blocks = content.split(/\n\s*\n/);
-    blocks.forEach((block, idx) => {
-      const paragraph = parseParagraph(block, sectionId, idx, references, media, sectionId, 'wiki');
-      if (paragraph) {
-        paragraphs.push(paragraph);
-      }
-    });
-    const mediaIds = Array.from(
-      new Set(
-        paragraphs.flatMap((paragraph) =>
-          paragraph.sentences.flatMap((sentence) => sentence.media_ids),
-        ),
-      ),
-    );
-    sections.push({
-      section_id: sectionId,
-      heading: current.heading,
-      level: current.level,
-      anchor: anchorize(current.heading),
-      parent_section_id: parent,
-      media_ids: mediaIds.length ? mediaIds : undefined,
-      paragraphs,
-    });
-  }
-  return sections;
+  return processSections(matches, text, references, media, 'wiki');
 };
 
 const buildMarkdownSections = (
@@ -612,7 +464,6 @@ const buildMarkdownSections = (
   references: ReferenceStore,
   media: MediaRegistry,
 ): StructuredSection[] => {
-  const sections: StructuredSection[] = [];
   const headingRegex = /^#{1,6}\s+(.*?)\s*#*\s*$/gm;
   const matches: Array<{ heading: string; level: number; start: number; end: number }> = [];
   let match: RegExpExecArray | null;
@@ -625,52 +476,7 @@ const buildMarkdownSections = (
       end: match.index + match[0].length,
     });
   }
-  if (!matches.length) return sections;
-  const stack: Array<{ level: number; id: string }> = [];
-  for (let i = 0; i < matches.length; i += 1) {
-    const current = matches[i];
-    const nextStart = matches[i + 1]?.start ?? text.length;
-    const content = text.slice(current.end, nextStart).trim();
-    const sectionId = `sec-${slugify(current.heading, `${i + 1}`)}`;
-    while (stack.length && stack[stack.length - 1].level >= current.level) {
-      stack.pop();
-    }
-    const parent = stack[stack.length - 1]?.id;
-    stack.push({ level: current.level, id: sectionId });
-    const paragraphs: StructuredParagraph[] = [];
-    const blocks = content.split(/\n\s*\n/);
-    blocks.forEach((block, idx) => {
-      const paragraph = parseParagraph(
-        block,
-        sectionId,
-        idx,
-        references,
-        media,
-        sectionId,
-        'markdown',
-      );
-      if (paragraph) {
-        paragraphs.push(paragraph);
-      }
-    });
-    const mediaIds = Array.from(
-      new Set(
-        paragraphs.flatMap((paragraph) =>
-          paragraph.sentences.flatMap((sentence) => sentence.media_ids),
-        ),
-      ),
-    );
-    sections.push({
-      section_id: sectionId,
-      heading: current.heading,
-      level: current.level,
-      anchor: anchorize(current.heading),
-      parent_section_id: parent,
-      media_ids: mediaIds.length ? mediaIds : undefined,
-      paragraphs,
-    });
-  }
-  return sections;
+  return processSections(matches, text, references, media, 'markdown');
 };
 
 const fallbackEntities = (text: string): string[] => {
@@ -965,7 +771,7 @@ const normalizeReference = (
       doi: null,
     };
   }
-  const citeMatch = inner.match(/\{\{\s*cite\s+([^\s|}]+)([^}]*)}/i);
+  const citeMatch = inner.match(/{{\s*cite\s+([^\s|}]+)([^}]*)}/i);
   if (!citeMatch) {
     return {
       type: null,
@@ -1010,8 +816,9 @@ export const parseWikiArticle = (
   const referenceStore = new ReferenceStore();
   const mediaRegistry = new MediaRegistry();
   const trimmed = wikitext.trim();
-  const remainder = stripMetaTemplates(trimmed);
-  const cleaned = stripInfobox(remainder);
+  const remainder = stripInfobox(trimmed);
+  const withoutFiles = stripFileLinks(remainder);
+  const cleaned = stripMetaTemplates(withoutFiles);
   const firstHeadingMatch = cleaned.match(/^={2,6}[\s\S]*$/m);
   const leadEnd =
     firstHeadingMatch && firstHeadingMatch.index !== undefined

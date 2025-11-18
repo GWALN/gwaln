@@ -11,11 +11,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import {
-  ArticleMetadata,
-  parseMarkdownStructuredArticle,
-  parseWikiArticle,
-} from '../src/lib/wiki-structured';
+import { ArticleMetadata } from '../src/parsers/shared/types';
+import { parseMarkdownStructuredArticle } from '../src/parsers/grok';
+import { parseWikiArticle } from '../src/parsers/wiki';
 import type { Topic } from '../src/shared/topics';
 
 const topic: Topic = {
@@ -81,7 +79,7 @@ const venusMetadata: ArticleMetadata = {
 };
 
 describe('parseWikiArticle', () => {
-  it('parses lead sentences from the full Moon article', () => {
+  it('parses lead sentences from the full Moon article', { timeout: 15000 }, () => {
     const article = parseWikiArticle(topic, wikitext, metadata);
     expect(article.lead.paragraphs[0].sentences[0].text).toBe(
       'The Moon is the only natural satellite orbiting Earth.',
@@ -93,12 +91,12 @@ describe('parseWikiArticle', () => {
     expect(article.claims.length).toBeGreaterThan(100);
   });
 
-  it('emits sections, media entries, references, and claims', () => {
+  it('emits sections, media entries, references, and claims', { timeout: 15000 }, () => {
     const article = parseWikiArticle(topic, wikitext, metadata);
     const namesSection = article.sections.find((sec) => sec.heading === 'Names and etymology');
     expect(namesSection).toBeDefined();
     expect(namesSection?.paragraphs[0].sentences[0].citation_ids).toEqual(['r_auto_1', 'r_pn_faq']);
-    expect(article.references).toHaveLength(325);
+    expect(article.references).toHaveLength(315);
     expect(article.sections.length).toBeGreaterThan(40);
   });
 

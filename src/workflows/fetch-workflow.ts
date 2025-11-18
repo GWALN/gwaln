@@ -11,12 +11,9 @@ import fetch from 'node-fetch';
 import fs from 'node:fs';
 import path from 'node:path';
 import TurndownService from 'turndown';
-import {
-  ArticleMetadata,
-  ExternalCitation,
-  parseMarkdownStructuredArticle,
-  parseWikiArticle,
-} from '../lib/wiki-structured';
+import { ArticleMetadata, ExternalCitation } from '../parsers/shared/types';
+import { parseMarkdownStructuredArticle } from '../parsers/grok';
+import { parseWikiArticle } from '../parsers/wiki';
 import { paths } from '../shared/paths';
 import { loadTopics, selectTopics, Topic } from '../shared/topics';
 

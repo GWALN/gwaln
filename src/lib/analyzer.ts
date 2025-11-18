@@ -29,7 +29,14 @@ import {
   type EntityDiscrepancy,
   type NumericDiscrepancy,
 } from './discrepancies';
-import type { StructuredArticle, StructuredClaim } from './wiki-structured';
+import type {
+  StructuredArticle,
+  StructuredClaim,
+  StructuredParagraph,
+  StructuredSection,
+  StructuredSentence,
+  StructuredReference,
+} from '../parsers/shared/types';
 
 export type DiscrepancyType =
   | 'missing_context'
@@ -293,16 +300,16 @@ const collectStructuredSentences = (paragraphs: StructuredParagraphSnapshot[]): 
 const reconstructTextFromStructured = (article: StructuredArticle): string => {
   const parts: string[] = [];
 
-  article.lead.paragraphs.forEach((para) => {
-    const sentences = para.sentences.map((s) => s.text).join(' ');
+  article.lead.paragraphs.forEach((para: StructuredParagraph) => {
+    const sentences = para.sentences.map((s: StructuredSentence) => s.text).join(' ');
     if (sentences.trim()) {
       parts.push(sentences);
     }
   });
 
-  article.sections.forEach((section) => {
-    section.paragraphs.forEach((para) => {
-      const sentences = para.sentences.map((s) => s.text).join(' ');
+  article.sections.forEach((section: StructuredSection) => {
+    section.paragraphs.forEach((para: StructuredParagraph) => {
+      const sentences = para.sentences.map((s: StructuredSentence) => s.text).join(' ');
       if (sentences.trim()) {
         parts.push(sentences);
       }
@@ -317,20 +324,20 @@ const buildContentFromStructured = (
   fallbackText: string,
 ): ArticleContent => {
   const leadSentences = collectStructuredSentences(article.lead.paragraphs);
-  const sectionSentences = article.sections.flatMap((section) =>
+  const sectionSentences = article.sections.flatMap((section: StructuredSection) =>
     collectStructuredSentences(section.paragraphs),
   );
   const sentences = [...leadSentences, ...sectionSentences];
   const sections = article.sections
-    .map((section) => section.heading?.trim())
+    .map((section: StructuredSection) => section.heading?.trim())
     .filter((heading): heading is string => Boolean(heading && heading.length));
   const citations = article.references
     .map(
-      (reference) =>
+      (reference: StructuredReference) =>
         reference.normalized.url ?? reference.name ?? reference.citation_id ?? reference.raw,
     )
     .filter((value): value is string => Boolean(value))
-    .map((value) => value.trim());
+    .map((value: string) => value.trim());
   return {
     sentences: sentences.length ? sentences : sentenceTokens(fallbackText),
     sections,

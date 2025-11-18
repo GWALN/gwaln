@@ -1,26 +1,16 @@
 [
-	{
-		"id": "moon",
-		"title": "Moon",
-		"ual": "did:ot:dkg:topic:moon",
-		"wikipedia_slug": "Moon",
-		"grokipedia_slug": "page/Moon",
-		"category": "space"
-	},
-	{
-		"id": "venus",
-		"title": "Venus",
-		"ual": "did:ot:dkg:topic:venus",
-		"wikipedia_slug": "Venus",
-		"grokipedia_slug": "page/Venus",
-		"category": "space"
-	},
-	{
-		"id": "mars",
-		"title": "Mars",
-		"ual": "did:ot:dkg:topic:mars",
-		"wikipedia_slug": "Mars",
-		"grokipedia_slug": "page/Mars",
-		"category": "space"
-	}
+  {
+    "id": "mars",
+    "title": "Mars",
+    "ual": "did:ot:dkg:topic:mars",
+    "wikipedia_slug": "Mars",
+    "grokipedia_slug": "page/Mars"
+  },
+  {
+    "id": "moon",
+    "title": "Moon",
+    "ual": "did:ot:dkg:topic:moon",
+    "wikipedia_slug": "Moon",
+    "grokipedia_slug": "page/Moon"
+  }
 ]

@@ -9,6 +9,7 @@
  * Commands exposed by the entry point:
  *   - `init`: capture DKG node + blockchain defaults in `.gwalnrc.json`.
  *   - `topics`: sync or inspect the bundled topic catalog.
+ *   - `lookup`: search for topics in the local catalog or discover new ones via API.
  *   - `fetch`: download and normalize snapshots from both sources.
  *   - `analyse`: compute the analysis JSON (with optional Gemini + citation verification).
  *   - `show`: render the analysis in the terminal or as an HTML report.
@@ -18,6 +19,8 @@
  *
  * @example
  *   gwaln init
+ *   gwaln lookup "Moon"
+ *   gwaln lookup "Bitcoin" --limit 3
  *   gwaln fetch wiki --topic moon
  *   gwaln analyse --topic moon --verify-citations --bias-verifier gemini
  *   gwaln show --topic moon --open-html
@@ -36,6 +39,7 @@ import path from 'node:path';
 import analyseCommand from './commands/analyse';
 import fetchCommand from './commands/fetch';
 import initCommand from './commands/init';
+import lookupCommand from './commands/lookup';
 import notesCommand from './commands/notes';
 import publishCommand from './commands/publish';
 import queryCommand from './commands/query';
@@ -56,6 +60,7 @@ program.addCommand(analyseCommand);
 program.addCommand(showCommand);
 program.addCommand(notesCommand);
 program.addCommand(topicsCommand);
+program.addCommand(lookupCommand);
 program.addCommand(publishCommand);
 program.addCommand(queryCommand);
 

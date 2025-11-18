@@ -15,7 +15,7 @@ import { GEMINI_DEFAULT_MODEL, verifyBiasWithGemini } from '../lib/bias-verifier
 import { verifySentencesAgainstCitations } from '../lib/citation-verifier';
 import { generateGeminiComparisonSummary } from '../lib/gemini-summary';
 import { buildStructuredAnalysis } from '../lib/structured-report';
-import type { StructuredArticle } from '../lib/wiki-structured';
+import type { StructuredArticle } from '../parsers/shared/types';
 import { probeCachedAnalysis } from '../shared/analysis-cache';
 import { readConfig } from '../shared/config';
 import { computeContentHash } from '../shared/content-hash';

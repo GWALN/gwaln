@@ -74,13 +74,13 @@ export const detectEntityDiscrepancies = (
     if (!record.wikipedia || !record.grokipedia) return;
     const wikiEntities = new Set(
       (record.wikipedia.entities ?? [])
-        .map((entity) => normalizeEntity(entity))
-        .filter((label) => label.length > 0),
+        .map((entity: { label: string; type: string | null }) => normalizeEntity(entity))
+        .filter((label: string) => label.length > 0),
     );
     const grokEntities = new Set(
       (record.grokipedia.entities ?? [])
-        .map((entity) => normalizeEntity(entity))
-        .filter((label) => label.length > 0),
+        .map((entity: { label: string; type: string | null }) => normalizeEntity(entity))
+        .filter((label: string) => label.length > 0),
     );
     const missing = Array.from(wikiEntities).filter((label) => !grokEntities.has(label));
     const extra = Array.from(grokEntities).filter((label) => !wikiEntities.has(label));
@@ -88,8 +88,8 @@ export const detectEntityDiscrepancies = (
       discrepancies.push({
         wikipedia_claim_id: record.wikipedia.claim_id,
         grokipedia_claim_id: record.grokipedia.claim_id,
-        wikipedia_entities: Array.from(wikiEntities),
-        grokipedia_entities: Array.from(grokEntities),
+        wikipedia_entities: Array.from(wikiEntities) as string[],
+        grokipedia_entities: Array.from(grokEntities) as string[],
         description: 'Entity mismatch between Wikipedia and Grokipedia claims.',
       });
     }

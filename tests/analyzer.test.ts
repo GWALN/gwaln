@@ -6,7 +6,8 @@
 
 import { describe, expect, it } from 'vitest';
 import { analyzeContent, prepareAnalyzerSource } from '../src/lib/analyzer';
-import { parseMarkdownStructuredArticle, StructuredArticle } from '../src/lib/wiki-structured';
+import { parseMarkdownStructuredArticle } from '../src/parsers/grok';
+import type { StructuredArticle } from '../src/parsers/shared/types';
 
 const topic = {
   id: 'moon',

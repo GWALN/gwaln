@@ -21,12 +21,7 @@ const formatPercent = (ratio: number): string => `${(ratio * 100).toFixed(1)}%`;
 const formatSnippet = (value: string): string =>
   value.length > 160 ? `${value.slice(0, 160)}…` : value;
 
-export const renderList = (
-  title: string,
-  items: string[],
-  tone: 'missing' | 'extra',
-  modalId: string,
-): string => {
+export const renderList = (title: string, items: string[], modalId: string): string => {
   if (!items.length) return '';
   const displayCount = Math.min(3, items.length);
   const listItems = items
@@ -126,7 +121,6 @@ export const renderAlignmentTable = (analysis: StructuredAnalysisReport): string
 export const renderDiscrepancyList = (
   title: string,
   issues: DiscrepancyRecord[],
-  tone: 'neutral' | 'alert',
   modalId: string,
 ): string => {
   if (!issues.length) return '';
@@ -350,7 +344,7 @@ export const renderNoteInfoLogo = (notePayload: {
   if (!entry || !note || entry.status !== 'published') {
     return '';
   }
-    return `<div style="margin-bottom: 0.5rem;">
+  return `<div style="margin-bottom: 0.5rem;">
   <img src="gwaln-logo.svg" alt="GWALN" style="height: 32px; width: auto;" />
 </div>`;
 };
@@ -525,27 +519,23 @@ export const renderHtmlReport = (
     missingSentences: renderList(
       `Missing Sentences (${summary.missing_sentence_count} from Wikipedia)`,
       comparison.sentences.missing,
-      'missing',
       'modal-missing-sentences',
     ),
     extraSentences: renderList(
       `Extra Sentences (${summary.extra_sentence_count} in Grokipedia)`,
       comparison.sentences.extra,
-      'extra',
       'modal-extra-sentences',
     ),
     alignmentTable: renderAlignmentTable(analysis),
     coreDiscrepancies: renderDiscrepancyList(
       'Core Discrepancies',
       discrepancies.primary,
-      'neutral',
       'modal-core-discrepancies',
     ),
     biasPanel: renderBiasPanel(analysis),
     hallucinationCues: renderDiscrepancyList(
       'Hallucination Flags',
       discrepancies.hallucinations,
-      'alert',
       'modal-hallucinations',
     ),
     verifications: renderVerifications(analysis),
