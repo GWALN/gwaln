@@ -97,7 +97,7 @@ describe('analyzeContent', () => {
     expect(result.discrepancies.some((d) => d.type === 'missing_context')).toBe(false);
   });
 
-  it('caps missing/extra sentences at five entries', () => {
+  it('stores all missing sentences without capping', () => {
     const wikiSentences = Array.from({ length: 6 }).map((_, idx) =>
       paragraph(`Sentence ${idx + 1}: baseline.`),
     );
@@ -108,8 +108,12 @@ describe('analyzeContent', () => {
       prepareAnalyzerSource(toStructured(wiki, 'wikipedia')),
       prepareAnalyzerSource(toStructured(grok, 'grokipedia')),
     );
-    expect(result.missing_sentences).toHaveLength(5);
-    expect(result.discrepancies.filter((d) => d.type === 'missing_context')).toHaveLength(5);
+    expect(result.missing_sentences.length).toBeGreaterThan(5);
+    expect(result.highlights.missing.length).toBe(result.missing_sentences.length);
+    const missingContextDiscrepancies = result.discrepancies.filter(
+      (d) => d.type === 'missing_context',
+    );
+    expect(missingContextDiscrepancies.length).toBe(result.missing_sentences.length);
   });
 
   it('ignores pure whitespace differences', () => {
