@@ -30,7 +30,7 @@ type PublishCLIOptions = {
 const publishCommand = new Command('publish')
   .description('Publish a JSON-LD Knowledge Asset from a file')
   .argument('<file>', 'Path to the JSON-LD file to publish')
-  .option('--privacy <mode>', 'Specify asset privacy (public|private)', 'private')
+  .option('--privacy <mode>', 'Specify asset privacy (public|private)', 'public')
   .option('--endpoint <url>', 'Override the DKG endpoint URL')
   .option(
     '--environment <env>',
@@ -65,7 +65,7 @@ const publishCommand = new Command('publish')
       const result = await publishJsonLdAsset({
         ...options,
         payload: jsonld as Record<string, unknown>,
-        privacy: (options.privacy as 'public' | 'private' | undefined) ?? 'private',
+        privacy: (options.privacy as 'public' | 'private' | undefined) ?? 'public',
         rpcUrl: options.rpc,
         epochsNum: options.epochs,
         frequencySeconds: options.pollFrequency,

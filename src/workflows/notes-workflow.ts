@@ -154,7 +154,7 @@ export const publishNoteDraft = async ({
         epochsNum: publishConfig.epochsNum,
         maxNumberOfRetries: publishConfig.maxRetries,
         frequencySeconds: publishConfig.frequencySeconds,
-        privacy: 'private',
+        privacy: 'public',
       });
       ual = result.ual ?? null;
       rawResponse = result.raw;
