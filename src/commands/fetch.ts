@@ -12,7 +12,7 @@ const fetchCommand = new Command('fetch').description(
   'Download topic content from Grokipedia and Wikipedia for offline comparison',
 );
 
-const registerSubcommand = (source: 'wiki' | 'grok', description: string): void => {
+const registerSubcommand = (source: 'wiki' | 'grok' | 'both', description: string): void => {
   fetchCommand
     .command(source)
     .description(description)
@@ -24,5 +24,6 @@ const registerSubcommand = (source: 'wiki' | 'grok', description: string): void 
 
 registerSubcommand('wiki', 'Fetch articles from Wikipedia');
 registerSubcommand('grok', 'Fetch articles from Grokipedia');
+registerSubcommand('both', 'Fetch articles from both Wikipedia and Grokipedia');
 
 export default fetchCommand;

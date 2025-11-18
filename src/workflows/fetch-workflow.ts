@@ -11,13 +11,13 @@ import fetch from 'node-fetch';
 import fs from 'node:fs';
 import path from 'node:path';
 import TurndownService from 'turndown';
-import { ArticleMetadata, ExternalCitation } from '../parsers/shared/types';
 import { parseMarkdownStructuredArticle } from '../parsers/grok';
+import { ArticleMetadata, ExternalCitation } from '../parsers/shared/types';
 import { parseWikiArticle } from '../parsers/wiki';
 import { paths } from '../shared/paths';
 import { loadTopics, selectTopics, Topic } from '../shared/topics';
 
-export type FetchSource = 'wiki' | 'grok';
+export type FetchSource = 'wiki' | 'grok' | 'both';
 
 const WIKI_BASE_URL = 'https://en.wikipedia.org';
 const WIKI_API = `${WIKI_BASE_URL}/w/api.php`;
@@ -368,17 +368,17 @@ const fetchGrok = async (topic: Topic): Promise<void> => {
   console.log(`[grok] saved ${topic.id} -> ${target}`);
 };
 
-export const runFetchWorkflow = async (
-  source: 'wiki' | 'grok',
-  topicId?: string,
-): Promise<void> => {
+export const runFetchWorkflow = async (source: FetchSource, topicId?: string): Promise<void> => {
   const topics = loadTopics();
   const selection = selectTopics(topics, topicId);
   for (const topic of selection) {
     try {
       if (source === 'wiki') {
         await fetchWiki(topic);
-      } else {
+      } else if (source === 'grok') {
+        await fetchGrok(topic);
+      } else if (source === 'both') {
+        await fetchWiki(topic);
         await fetchGrok(topic);
       }
     } catch (error) {
