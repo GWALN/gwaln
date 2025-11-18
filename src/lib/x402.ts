@@ -27,7 +27,7 @@ export const BYPASS_PAYMENT_METHODS = [
   'resources/list',
 ] as const;
 
-export const PAYWALLED_TOOLS = ['query', 'publish'] as const;
+export const PAYWALLED_TOOLS = ['query', 'publish', 'lookup'] as const;
 
 /**
  * Create MCP x402 payment middleware that only requires payment for specific tools.
