@@ -7,6 +7,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp';
 import express, { type Request, type Response } from 'express';
 import { randomUUID } from 'node:crypto';
+import { z } from 'zod';
 import pkg from '../package.json';
 import { initializePaymentMiddleware, PAYWALLED_TOOLS } from './lib/x402';
 import { analyzeHandler, analyzeTool } from './tools/analyze';
@@ -31,13 +32,43 @@ const registerWorkflowTools = (
 ): void => {
   const register = server.registerTool.bind(server);
 
-  register('fetch', fetchTool, async (input) => await fetchHandler(input));
-  register('analyze', analyzeTool, async (input) => await analyzeHandler(input, logger));
-  register('notes', notesTool, async (input) => await notesHandler(input));
-  register('publish', publishTool, async (input) => await publishHandler(input));
-  register('query', queryTool, async (input) => await queryHandler(input));
-  register('show', showTool, async (input) => await showHandler(input));
-  register('lookup', lookupTool, async (input) => await lookupHandler(input));
+  register(
+    'fetch',
+    fetchTool as unknown as Parameters<typeof register>[1],
+    async (input: unknown) => await fetchHandler(input as z.infer<typeof fetchTool.inputSchema>),
+  );
+  register(
+    'analyze',
+    analyzeTool as unknown as Parameters<typeof register>[1],
+    async (input: unknown) =>
+      await analyzeHandler(input as z.infer<typeof analyzeTool.inputSchema>, logger),
+  );
+  register(
+    'notes',
+    notesTool as unknown as Parameters<typeof register>[1],
+    async (input: unknown) => await notesHandler(input as z.infer<typeof notesTool.inputSchema>),
+  );
+  register(
+    'publish',
+    publishTool as unknown as Parameters<typeof register>[1],
+    async (input: unknown) =>
+      await publishHandler(input as z.infer<typeof publishTool.inputSchema>),
+  );
+  register(
+    'query',
+    queryTool as unknown as Parameters<typeof register>[1],
+    async (input: unknown) => await queryHandler(input as z.infer<typeof queryTool.inputSchema>),
+  );
+  register(
+    'show',
+    showTool as unknown as Parameters<typeof register>[1],
+    async (input: unknown) => await showHandler(input as z.infer<typeof showTool.inputSchema>),
+  );
+  register(
+    'lookup',
+    lookupTool as unknown as Parameters<typeof register>[1],
+    async (input: unknown) => await lookupHandler(input as z.infer<typeof lookupTool.inputSchema>),
+  );
 };
 
 const PORT = Number(process.env.GWALN_MCP_PORT ?? process.env.PORT ?? 3233);

@@ -86,7 +86,13 @@ export const generateGeminiComparisonSummary = async ({
     const err = await response.text();
     throw new Error(`Gemini summary request failed (${response.status}): ${err}`);
   }
-  const payload = await response.json();
+  const payload = (await response.json()) as {
+    candidates?: Array<{
+      content?: {
+        parts?: Array<{ text?: string }>;
+      };
+    }>;
+  };
   const text =
     payload?.candidates?.[0]?.content?.parts
       ?.map((part: { text?: string }) => part.text ?? '')

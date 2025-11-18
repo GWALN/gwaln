@@ -7,7 +7,7 @@
 
 import chalk from 'chalk';
 import { Command } from 'commander';
-import ora from 'ora';
+import ora, { type Ora } from 'ora';
 
 import pkg from '../../package.json';
 import { loadJsonLdFromFile, publishJsonLdAsset } from '../workflows/publish-workflow';
@@ -56,7 +56,7 @@ const publishCommand = new Command('publish')
     );
     const spinnerLabel = `Publishing via configured DKG node (privacy: ${options.privacy ?? 'private'})`;
     const shouldSpin = !(options.dryRun ?? false);
-    let spinner: ora.Ora | undefined;
+    let spinner: Ora | undefined;
     if (shouldSpin) {
       spinner = ora(spinnerLabel).start();
     }

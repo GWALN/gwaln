@@ -10,7 +10,7 @@ import { textContent } from './utils';
 export const PublishInputSchema = z
   .object({
     filePath: z.string().optional(),
-    payload: z.record(z.unknown()).optional(),
+    payload: z.record(z.string(), z.unknown()).optional(),
     privacy: z.enum(['public', 'private']).optional(),
     endpoint: z.string().optional(),
     environment: z.string().optional(),

@@ -60,8 +60,10 @@ export const searchGrokipedia = async (
       return [];
     }
 
-    const data = await response.json();
-    if (data && typeof data === 'object' && Array.isArray(data.results)) {
+    const data = (await response.json()) as
+      | GrokipediaSearchResult[]
+      | { results: GrokipediaSearchResult[] };
+    if (data && typeof data === 'object' && 'results' in data && Array.isArray(data.results)) {
       return data.results;
     }
     return Array.isArray(data) ? data : [];
@@ -91,7 +93,7 @@ export const searchWikipedia = async (
       return [];
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as { pages?: WikipediaSearchResult[] };
     return Array.isArray(data.pages) ? data.pages : [];
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -114,15 +116,14 @@ export const findInLocalCatalog = (query: string, topics: Record<string, Topic>)
   return partialMatch || null;
 };
 
-const slugify = (value: string): string => {
-  return value
+const slugify = (value: string): string =>
+  value
     .trim()
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
-};
 
 export const addTopicToCatalog = (options: AddTopicOptions): Topic => {
   const topics = loadTopics();

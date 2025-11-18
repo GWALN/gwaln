@@ -4,7 +4,7 @@
  */
 
 import { Command } from 'commander';
-import ora from 'ora';
+import ora, { Ora } from 'ora';
 import { GEMINI_DEFAULT_MODEL } from '../lib/bias-verifier';
 import type { AnalyzeTopicResult } from '../workflows/analyze-workflow';
 import {
@@ -24,7 +24,7 @@ interface AnalyseCliOptions extends BiasVerifierOptionInput, GeminiSummaryOption
 }
 
 const createCliHooks = (): AnalyzeWorkflowHooks => {
-  let spinner: ora.Ora | null = null;
+  let spinner: Ora | null = null;
   return {
     onTopicStart: (topic) => {
       spinner = ora(`[analyse] ${topic.id}: analyzing`).start();

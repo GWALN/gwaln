@@ -6,7 +6,7 @@
  */
 
 import { Command } from 'commander';
-import ora from 'ora';
+import ora, { type Ora } from 'ora';
 import {
   buildNoteDraft,
   type BuildNoteInput,
@@ -97,7 +97,7 @@ notesCommand
   )
   .option('--dry-run', 'Skip publish and print payload')
   .action(async (options: PublishCLIOptions) => {
-    let spinner: ora.Ora | undefined;
+    let spinner: Ora | undefined;
     const shouldSpin = !options.ual && !options.dryRun;
     try {
       if (options.ual) {
