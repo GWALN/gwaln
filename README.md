@@ -69,7 +69,7 @@ You should have:
    2. Supply blockchain identifiers and signing keys.
    3. Set publish defaults such as epochs, retries, and dry-run mode.
 
-3. Confirm that `.gwalnrc.json` contains the expected values.
+3. Confirm that `~/.gwaln/.gwalnrc.json` contains the expected values.
 
 ### Lookup and manage topics
 
@@ -82,7 +82,7 @@ catalog or discover new ones using the lookup command.
    gwaln lookup "Moon"
    ```
 
-   This checks if the topic exists in `topics.json` by title and displays
+   This checks if the topic exists in `~/.gwaln/topics.json` by title and displays
    its details if found.
 
 2. Search both Grokipedia and Wikipedia APIs for a new topic:
@@ -93,7 +93,7 @@ catalog or discover new ones using the lookup command.
 
    If the topic is not found locally, it automatically searches both
    platforms and prompts you to select matching entries to add to
-   `topics.json`.
+   `~/.gwaln/topics.json`.
 
 3. Limit the number of search results:
 
@@ -105,7 +105,7 @@ catalog or discover new ones using the lookup command.
 
 ### Fetch topic snapshots
 
-1. Select a topic ID from `topics.json` (for example, `moon`).
+1. Select a topic ID from `~/.gwaln/topics.json` (for example, `moon`).
 
 2. Download raw Wikipedia data:
 
@@ -119,8 +119,8 @@ catalog or discover new ones using the lookup command.
    gwaln fetch grok --topic moon
    ```
 
-4. Verify that `data/wiki/<topic>.parsed.json` and
-   `data/grok/<topic>.parsed.json` exist.
+4. Verify that `~/.gwaln/data/wiki/<topic>.parsed.json` and
+   `~/.gwaln/data/grok/<topic>.parsed.json` exist.
 
 ### Analyze and inspect results
 
@@ -142,7 +142,7 @@ catalog or discover new ones using the lookup command.
    gwaln show --topic moon --open-html
    ```
 
-4. Open `analysis/moon-report.html` in a browser to explore section
+4. Open `~/.gwaln/analysis/moon-report.html` in a browser to explore section
    alignment, numeric/entity discrepancies, bias cues, and diff samples.
 
 ### Draft and publish a Community Note
@@ -157,7 +157,7 @@ catalog or discover new ones using the lookup command.
      --stake-token TRAC --stake-amount 0
    ```
 
-2. Inspect the output in `notes/moon.json` and `notes/index.json`.
+2. Inspect the output in `~/.gwaln/notes/moon.json` and `~/.gwaln/notes/index.json`.
 
 3. Publish to OriginTrail (ensure your config has live signing keys):
 
@@ -212,10 +212,10 @@ Each MCP tool mirrors the CLI flags:
 * `show`: `{ topicId, renderHtml? }`
 
 Because the MCP server calls the same workflow modules as the CLI,
-cached files, Gemini credentials, and `.gwalnrc.json` are honored
+cached files, Gemini credentials, and `~/.gwaln/.gwalnrc.json` are honored
 automatically.
 
-The server reads DKG credentials and defaults from `.gwalnrc.json`
+The server reads DKG credentials and defaults from `~/.gwaln/.gwalnrc.json`
 via the same `resolvePublishConfig` helper used by the CLI, so you never
 have to expose secrets through the MCP request itself. Just keep the
 config file up to date with `gwaln init`.
@@ -243,7 +243,7 @@ You can also query by UAL directly for advanced use cases:
 gwaln query --ual "did:dkg:base:8453/0xc28f310a87f7621a087a603e2ce41c22523f11d7/666506" --save moon-retrieved
 ```
 
-This retrieves the assertion and optional metadata, displays them in the terminal, and optionally saves the result to `data/dkg/moon-retrieved.json`. You can override connection settings with flags like `--endpoint`, `--blockchain`, or `--private-key`.
+This retrieves the assertion and optional metadata, displays them in the terminal, and optionally saves the result to `~/.gwaln/data/dkg/moon-retrieved.json`. You can override connection settings with flags like `--endpoint`, `--blockchain`, or `--private-key`.
 
 ## Troubleshooting
 
@@ -253,7 +253,7 @@ This retrieves the assertion and optional metadata, displays them in the termina
 
 `DKG publish failed: UNAUTHORIZED`
 
-* Ensure `.gwalnrc.json` contains valid `dkgPrivateKey`, `dkgPublicKey`, and endpoint values; confirm the key has sufficient balance on the target chain.
+* Ensure `~/.gwaln/.gwalnrc.json` contains valid `dkgPrivateKey`, `dkgPublicKey`, and endpoint values; confirm the key has sufficient balance on the target chain.
 
 ## How to get help and report issues
 
@@ -291,9 +291,9 @@ run citation checks against Grokipedia references.
   `notes`, `topics`, `publish`, `query`).
 * `src/lib/`: reusable modules including the parser, analyzer,
   discrepancies, bias metrics, and DKG helpers.
-* `data/`: cached structured snapshots per topic.
-* `analysis/`: analyzer outputs (JSON + HTML report).
-* `notes/`: JSON-LD Community Notes and index metadata.
+* `~/.gwaln/data/`: cached structured snapshots per topic.
+* `~/.gwaln/analysis/`: analyzer outputs (JSON + HTML report).
+* `~/.gwaln/notes/`: JSON-LD Community Notes and index metadata.
 
 ### Local development
 
@@ -318,9 +318,8 @@ run citation checks against Grokipedia references.
 
 #### Configure
 
-1. Copy or create `.gwalnrc.json`.
-2. Run `gwaln init` to populate node, blockchain, and publish
-   defaults.
+1. Run `gwaln init` to create `~/.gwaln/.gwalnrc.json` and populate node, blockchain, and publish defaults.
+2. All user data (topics, snapshots, analysis, notes) will be stored in `~/.gwaln/`.
 
 #### Build and test
 
@@ -338,9 +337,9 @@ run citation checks against Grokipedia references.
 
 #### Debugging
 
-* `Analysis not found`: check `data/wiki` and `data/grok` for missing
+* `Analysis not found`: check `~/.gwaln/data/wiki` and `~/.gwaln/data/grok` for missing
   snapshots; rerun `gwaln fetch`.
-* `Publish timeout`: increase `publishMaxRetries` or verify the DKG node
+* `Publish timeout`: increase `publishMaxRetries` in `~/.gwaln/.gwalnrc.json` or verify the DKG node
   endpoint is reachable; use `--dry-run` to ensure the payload is valid
   before retrying.
 
