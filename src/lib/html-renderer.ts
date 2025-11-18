@@ -335,15 +335,10 @@ export const renderSimilarSentencesModal = (analysis: StructuredAnalysisReport):
 </div>`;
 };
 
-export const renderNoteInfoLogo = (notePayload: {
+export const renderNoteInfoLogo = (_notePayload: {
   entry: { status?: string; file: string; ual?: string | null } | null;
   note: Record<string, unknown> | null;
 }): string => {
-  const entry = notePayload?.entry;
-  const note = notePayload?.note;
-  if (!entry || !note || entry.status !== 'published') {
-    return '';
-  }
   return `<div style="margin-bottom: 0.5rem;">
   <img src="gwaln-logo.svg" alt="GWALN" style="height: 32px; width: auto;" />
 </div>`;
@@ -359,13 +354,18 @@ export const renderNoteInfo = (
 ): string => {
   const entry = notePayload?.entry;
   const note = notePayload?.note;
-  if (!entry || !note || entry.status !== 'published') {
-    return '';
-  }
+
+  const isPublished = entry && note && entry.status === 'published';
+  const statusBadge = isPublished
+    ? `<div style="background: #00EB5E; color: #221C46; padding: 0.5rem 0.75rem; border-radius: 6px; font-size: 0.7rem; font-weight: 600;">
+        Published | UAL: ${entry.ual ? escapeHtml(entry.ual) : 'N/A'}
+      </div>`
+    : `<div style="background: #6c757d; color: #ffffff; padding: 0.5rem 0.75rem; border-radius: 6px; font-size: 0.7rem; font-weight: 600;">
+        Not published yet
+      </div>`;
+
   return `<div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem; flex-wrap: wrap;">
-  <div style="background: #00EB5E; color: #221C46; padding: 0.5rem 0.75rem; border-radius: 6px; font-size: 0.7rem; font-weight: 600;">
-    Published | UAL: ${entry.ual ? escapeHtml(entry.ual) : 'N/A'}
-  </div>
+  ${statusBadge}
   <div style="display: flex; gap: 1rem;">
     <a href="${escapeHtml(wikiUrl)}" target="_blank" rel="noopener" style="color: #221C46; text-decoration: none; font-size: 0.75rem; font-weight: 600; transition: opacity 0.2s;">Wikipedia →</a>
     <a href="${escapeHtml(grokUrl)}" target="_blank" rel="noopener" style="color: #221C46; text-decoration: none; font-size: 0.75rem; font-weight: 600; transition: opacity 0.2s;">Grokipedia →</a>

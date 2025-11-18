@@ -13,9 +13,6 @@ temp/
 *.local
 .gwalnrc.json
 .env
-analysis/
-analysis/*.json
-analysis/*.html
 
 # Editor directories and files
 .vscode/*

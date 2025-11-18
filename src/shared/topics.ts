@@ -19,6 +19,8 @@ export interface Topic {
 export type TopicMap = Record<string, Topic>;
 
 export const loadTopics = (): TopicMap => {
+  paths.ensureTopics();
+
   const raw = fs.readFileSync(paths.TOPICS, 'utf8');
   const list = JSON.parse(raw) as Topic[];
   return Object.fromEntries(list.map((topic) => [topic.id, topic]));
