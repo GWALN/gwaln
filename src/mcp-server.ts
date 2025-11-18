@@ -11,6 +11,7 @@ import pkg from '../package.json';
 import { initializePaymentMiddleware, PAYWALLED_TOOLS } from './lib/x402';
 import { analyzeHandler, analyzeTool } from './tools/analyze';
 import { fetchHandler, fetchTool } from './tools/fetch';
+import { lookupHandler, lookupTool } from './tools/lookup';
 import { notesHandler, notesTool } from './tools/notes';
 import { publishHandler, publishTool } from './tools/publish';
 import { queryHandler, queryTool } from './tools/query';
@@ -31,16 +32,12 @@ const registerWorkflowTools = (
   const register = server.registerTool.bind(server);
 
   register('fetch', fetchTool, async (input) => await fetchHandler(input));
-
   register('analyze', analyzeTool, async (input) => await analyzeHandler(input, logger));
-
   register('notes', notesTool, async (input) => await notesHandler(input));
-
   register('publish', publishTool, async (input) => await publishHandler(input));
-
   register('query', queryTool, async (input) => await queryHandler(input));
-
   register('show', showTool, async (input) => await showHandler(input));
+  register('lookup', lookupTool, async (input) => await lookupHandler(input));
 };
 
 const PORT = Number(process.env.GWALN_MCP_PORT ?? process.env.PORT ?? 3233);
