@@ -41,7 +41,7 @@ Before using this tool, you should be familiar with:
 
 You should have:
 
-* Node.js 18 or later on macOS, Linux, or Windows.
+* Node.js 20.18.1 or later on macOS, Linux, or Windows
 * Network access to a DKG edge node and sufficient blockchain funds if
   you plan to publish.
 * Optional: a Google Gemini API key if you use automated bias
@@ -72,6 +72,30 @@ You should have:
 3. Confirm that `~/.gwaln/.gwalnrc.json` contains the expected values.
 
 ### Lookup and manage topics
+
+#### Sync the topic catalog
+
+Run the `topics` helper when you need to copy the bundled catalog or ingest a
+custom JSON feed (local file or HTTPS endpoint). By default it writes to
+`~/.gwaln/topics.json`.
+
+```bash
+gwaln topics sync
+```
+
+To pull from a remote or local feed:
+
+```bash
+gwaln topics sync \
+  --source https://example.org/gwaln-topics.json \
+  --output ~/analyst/topics.json
+```
+
+`--source` accepts either a path on disk or an HTTPS URL. Use `--output` if you
+need to mirror the catalog elsewhere; the CLI still keeps `~/.gwaln/topics.json`
+up to date for its own use.
+
+#### Lookup topics
 
 Before fetching snapshots, you can search for topics in your local
 catalog or discover new ones using the lookup command.
