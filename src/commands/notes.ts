@@ -62,7 +62,7 @@ notesCommand
   .option('--stake-amount <number>', 'Stake amount', '0')
   .option('--reviewer-name <string>', 'Reviewer/organization name', 'GWALN')
   .option('--reviewer-id <string>', 'Reviewer DID/identifier')
-  .action((options: BuildCLIOptions) => {
+  .action(async (options: BuildCLIOptions) => {
     const input: BuildNoteInput = {
       topicId: options.topic,
       summary: options.summary,
@@ -74,7 +74,7 @@ notesCommand
       reviewerName: options.reviewerName,
       reviewerId: options.reviewerId,
     };
-    const result = buildNoteDraft(input);
+    const result = await buildNoteDraft(input);
     console.log(`[notes] Built Community Note for ${result.topicId} at ${result.filePath}`);
   });
 

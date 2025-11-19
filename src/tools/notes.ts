@@ -42,7 +42,7 @@ export const notesTool = {
 
 export const notesHandler = async (input: z.infer<typeof NotesInputSchema>) => {
   if (input.action === 'build') {
-    const result = buildNoteDraft(input);
+    const result = await buildNoteDraft(input);
     return {
       content: textContent(`[notes] Built draft for ${result.topicId} at ${result.filePath}.`),
       structuredContent: {

@@ -55,10 +55,10 @@ export interface BuildNoteResult {
   entry: NoteIndexEntry;
 }
 
-export const buildNoteDraft = (input: BuildNoteInput): BuildNoteResult => {
+export const buildNoteDraft = async (input: BuildNoteInput): Promise<BuildNoteResult> => {
   const topic = ensureTopic(input.topicId);
   const analysis = readAnalysis(topic);
-  const note = buildCommunityNote(topic, analysis, {
+  const note = await buildCommunityNote(topic, analysis, {
     summary: input.summary,
     accuracy: input.accuracy,
     completeness: input.completeness,

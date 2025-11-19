@@ -17,6 +17,7 @@ import {
 } from './template-handler';
 import {
   cleanSentenceText,
+  cleanWikiLinks,
   normalizeText,
   tokenize,
   stripTables,
@@ -240,7 +241,7 @@ const stripWikiCitations = (
 ): { text: string; matches: ReferenceMatch[] } => {
   let output = '';
   const matches: ReferenceMatch[] = [];
-  const fullRegex = /<ref\b([^>]*)>([\s\S]*?)<\/ref>/gi;
+  const fullRegex = /<ref\b((?:[^/>]|\/(?!>))*)>([\s\S]*?)<\/ref>/gi;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
   while ((match = fullRegex.exec(text)) !== null) {
@@ -308,9 +309,12 @@ const parseParagraph = (
     mode === 'wiki'
       ? stripWikiCitations(mediaStripped.text, references)
       : stripMarkdownReferences(mediaStripped.text, references);
+  const templateStripped =
+    mode === 'wiki' ? stripNonCiteTemplates(citationStripped.text) : citationStripped.text;
   const footnoteStripped =
-    mode === 'wiki' ? stripFootnoteTemplates(citationStripped.text) : citationStripped.text;
-  const slices = splitSentences(footnoteStripped.replace(/\n+/g, ' ').trim());
+    mode === 'wiki' ? stripFootnoteTemplates(templateStripped) : templateStripped;
+  const wikilinksStripped = mode === 'wiki' ? cleanWikiLinks(footnoteStripped) : footnoteStripped;
+  const slices = splitSentences(wikilinksStripped.replace(/\n+/g, ' ').trim());
   const sentences: StructuredSentence[] = [];
   slices.forEach((slice, idx) => {
     const text = cleanSentenceText(slice.text);
@@ -755,7 +759,6 @@ export const parseWikiArticle = (
   cleaned = stripInfobox(cleaned);
   cleaned = stripFileLinks(cleaned);
   cleaned = stripMetaTemplates(cleaned);
-  cleaned = stripNonCiteTemplates(cleaned);
 
   cleaned = cleaned.replace(/^'''[^']+'''\s*/m, '');
 

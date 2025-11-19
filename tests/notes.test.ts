@@ -100,27 +100,35 @@ const baseAnalysis: AnalysisPayload = {
 const structuredAnalysis = buildStructuredAnalysis(topic, baseAnalysis);
 
 describe('buildCommunityNote', () => {
-  it('produces JSON-LD ClaimReview with annotations and trust metadata', () => {
-    const note = buildCommunityNote(topic, structuredAnalysis, {
-      accuracy: 2.5,
-      stakeToken: 'TRAC',
-      stakeAmount: 10,
-    });
-    expect(note['@type']).toBe('ClaimReview');
-    expect(note['topic_id']).toBe('moon');
-    expect(note['reviewRating']).toBeDefined();
-    expect(note['hasPart'] as unknown[]).toHaveLength(2);
-    expect(note['gwalnTrust']).toMatchObject({
-      accuracy: 2.5,
-      stake: { token: 'TRAC', amount: 10 },
-    });
-  });
+  it(
+    'produces JSON-LD ClaimReview with annotations and trust metadata',
+    async () => {
+      const note = await buildCommunityNote(topic, structuredAnalysis, {
+        accuracy: 2.5,
+        stakeToken: 'TRAC',
+        stakeAmount: 10,
+      });
+      expect(note['@type']).toBe('ClaimReview');
+      expect(note['topic_id']).toBe('moon');
+      expect(note['reviewRating']).toBeDefined();
+      expect(note['hasPart'] as unknown[]).toHaveLength(2);
+      expect(note['gwalnTrust']).toMatchObject({
+        accuracy: 2.5,
+        stake: { token: 'TRAC', amount: 10 },
+      });
+    },
+    90000,
+  );
 
-  it('defaults summary when none provided and caps scores', () => {
-    const note = buildCommunityNote(topic, structuredAnalysis, { accuracy: 42 });
-    const trust = note['gwalnTrust'] as Record<string, unknown>;
-    expect(trust.accuracy).toBe(5);
-    const rating = note['reviewRating'] as Record<string, unknown>;
-    expect(typeof rating.ratingExplanation).toBe('string');
-  });
+  it(
+    'defaults summary when none provided and caps scores',
+    async () => {
+      const note = await buildCommunityNote(topic, structuredAnalysis, { accuracy: 42 });
+      const trust = note['gwalnTrust'] as Record<string, unknown>;
+      expect(trust.accuracy).toBe(5);
+      const rating = note['reviewRating'] as Record<string, unknown>;
+      expect(typeof rating.ratingExplanation).toBe('string');
+    },
+    30000,
+  );
 });

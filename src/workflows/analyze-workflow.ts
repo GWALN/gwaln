@@ -100,12 +100,12 @@ const buildTopicContext = (topic: Topic): TopicContext => {
   };
 };
 
-const analyzeTopicSync = (
+const analyzeTopicSync = async (
   topic: Topic,
   force: boolean | undefined,
   context: TopicContext,
   logger: WorkflowLogger,
-): AnalysisPayload | null => {
+): Promise<AnalysisPayload | null> => {
   if (!force) {
     const cached = probeCachedAnalysis(context.analysisPath, context.contentHash);
     if (cached.status === 'fresh' && cached.analysis) {
@@ -121,7 +121,7 @@ const analyzeTopicSync = (
     }
   }
 
-  return analyzeContent(topic, context.wikiSource, context.grokSource, {
+  return await analyzeContent(topic, context.wikiSource, context.grokSource, {
     contentHash: context.contentHash,
   });
 };
@@ -133,9 +133,9 @@ const analyzeTopicAsync = (
   logger: WorkflowLogger,
 ): Promise<AnalysisPayload | null> =>
   new Promise((resolve, reject) => {
-    setImmediate(() => {
+    setImmediate(async () => {
       try {
-        resolve(analyzeTopicSync(topic, force, context, logger));
+        resolve(await analyzeTopicSync(topic, force, context, logger));
       } catch (error) {
         reject(error);
       }

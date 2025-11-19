@@ -11,6 +11,8 @@ import {
   CACHE_TTL_HOURS,
   CLASSIFICATION_THRESHOLDS,
   HIGHLIGHT_WINDOW,
+  SEMANTIC_BIAS_CONFIDENCE_THRESHOLD,
+  SEMANTIC_NEUTRAL_THRESHOLD,
   SHINGLE_SIZE,
 } from '../shared/analyzer-config';
 import { computeContentHash } from '../shared/content-hash';
@@ -29,6 +31,7 @@ import {
   type EntityDiscrepancy,
   type NumericDiscrepancy,
 } from './discrepancies';
+import { detectSemanticBiasBatch } from './semantic-bias-detector';
 import type {
   StructuredArticle,
   StructuredClaim,
@@ -190,7 +193,8 @@ const MIN_SENTENCE_LENGTH = 20;
 const HALLUCINATION_SIMILARITY_MIN = 0.15;
 const HALLUCINATION_SIMILARITY_MAX = 0.6;
 
-const normalizeWhitespace = (text: string): string => text.replace(/\s+/g, ' ').trim();
+const normalizeWhitespace = (text: string): string =>
+  text.replace(/\\-/g, '-').replace(/\\\\/g, '\\').replace(/\s+/g, ' ').trim();
 
 const sentenceTokens = (text: string): string[] =>
   text
@@ -211,40 +215,57 @@ const tokenize = (text: string): string[] =>
     .split(/\s+/)
     .filter(Boolean);
 
-const wordSimilarityRatio = (a: string, b: string): number => {
-  const tokensA = tokenize(a);
-  const tokensB = tokenize(b);
-  if (!tokensA.length && !tokensB.length) {
+const wordSimilarityRatio = (wikiText: string, grokText: string): number => {
+  const wikiTokens = tokenize(wikiText);
+  const grokTokens = tokenize(grokText);
+
+  if (!wikiTokens.length && !grokTokens.length) {
     return 1;
   }
-  if (!tokensA.length || !tokensB.length) {
+  if (!wikiTokens.length || !grokTokens.length) {
     return 0;
   }
-  const [shorter, longer] =
-    tokensA.length <= tokensB.length ? [tokensA, tokensB] : [tokensB, tokensA];
-  const longerSet = new Set(longer);
-  let overlap = 0;
-  shorter.forEach((token) => {
-    if (longerSet.has(token)) {
-      overlap += 1;
+
+  const grokSet = new Set(grokTokens);
+  let matchedCount = 0;
+
+  wikiTokens.forEach((token) => {
+    if (grokSet.has(token)) {
+      matchedCount += 1;
     }
   });
-  return Number((overlap / Math.max(tokensA.length, tokensB.length)).toFixed(4));
+
+  return Number((matchedCount / wikiTokens.length).toFixed(4));
 };
 
-const sentenceSimilarityRatio = (
-  wikiSentences: string[],
-  grokSentences: string[],
-  agreedCount: number,
-  rewordedCount: number,
-): number => {
-  const totalSentences = Math.max(wikiSentences.length, grokSentences.length);
-  if (totalSentences === 0) {
+const sentenceSimilarityRatio = (wikiSentences: string[], grokSentences: string[]): number => {
+  if (wikiSentences.length === 0 && grokSentences.length === 0) {
     return 1;
   }
+  if (wikiSentences.length === 0 || grokSentences.length === 0) {
+    return 0;
+  }
 
-  const matchScore = agreedCount + rewordedCount * 0.5;
-  return Number((matchScore / totalSentences).toFixed(4));
+  const threshold = 0.75;
+  let totalSimilarity = 0;
+
+  wikiSentences.forEach((wikiSent) => {
+    let maxSim = 0;
+    grokSentences.forEach((grokSent) => {
+      const sim = stringSimilarity.compareTwoStrings(
+        wikiSent.toLowerCase().trim(),
+        grokSent.toLowerCase().trim(),
+      );
+      if (sim > maxSim) {
+        maxSim = sim;
+      }
+    });
+    if (maxSim >= threshold) {
+      totalSimilarity += maxSim;
+    }
+  });
+
+  return Number((totalSimilarity / wikiSentences.length).toFixed(4));
 };
 
 const diffSample = (wiki: string, grok: string, topicId: string): string[] => {
@@ -307,16 +328,35 @@ const reconstructTextFromStructured = (article: StructuredArticle): string => {
     }
   });
 
-  article.sections.forEach((section: StructuredSection) => {
-    section.paragraphs.forEach((para: StructuredParagraph) => {
-      const sentences = para.sentences.map((s: StructuredSentence) => s.text).join(' ');
-      if (sentences.trim()) {
-        parts.push(sentences);
-      }
+  article.sections
+    .filter((section) => !isMetaSection(section))
+    .forEach((section: StructuredSection) => {
+      section.paragraphs.forEach((para: StructuredParagraph) => {
+        const sentences = para.sentences.map((s: StructuredSentence) => s.text).join(' ');
+        if (sentences.trim()) {
+          parts.push(sentences);
+        }
+      });
     });
-  });
 
   return parts.join('\n');
+};
+
+const META_SECTION_HEADINGS = new Set([
+  'references',
+  'external links',
+  'notes',
+  'bibliography',
+  'sources',
+  'further reading',
+  'see also',
+  'citations',
+  'footnotes',
+]);
+
+const isMetaSection = (section: StructuredSection): boolean => {
+  const heading = section.heading?.toLowerCase().trim();
+  return heading ? META_SECTION_HEADINGS.has(heading) : false;
 };
 
 const buildContentFromStructured = (
@@ -324,13 +364,19 @@ const buildContentFromStructured = (
   fallbackText: string,
 ): ArticleContent => {
   const leadSentences = collectStructuredSentences(article.lead.paragraphs);
-  const sectionSentences = article.sections.flatMap((section: StructuredSection) =>
+
+  const contentSections = article.sections.filter((section) => !isMetaSection(section));
+  const sectionSentences = contentSections.flatMap((section: StructuredSection) =>
     collectStructuredSentences(section.paragraphs),
   );
+
   const sentences = [...leadSentences, ...sectionSentences];
+
   const sections = article.sections
+    .filter((section: StructuredSection) => !isMetaSection(section))
     .map((section: StructuredSection) => section.heading?.trim())
     .filter((heading): heading is string => Boolean(heading && heading.length));
+
   const citations = article.references
     .map(
       (reference: StructuredReference) =>
@@ -338,6 +384,7 @@ const buildContentFromStructured = (
     )
     .filter((value): value is string => Boolean(value))
     .map((value: string) => value.trim());
+
   return {
     sentences: sentences.length ? sentences : sentenceTokens(fallbackText),
     sections,
@@ -357,7 +404,10 @@ export const prepareAnalyzerSource = (article: StructuredArticle): AnalyzerSourc
   };
 };
 
-const detectBiasEvents = (extraSentences: string[], wikiText: string): DiscrepancyRecord[] => {
+const detectBiasEventsKeywordOnly = (
+  extraSentences: string[],
+  wikiText: string,
+): DiscrepancyRecord[] => {
   if (!extraSentences.length) {
     return [];
   }
@@ -397,6 +447,96 @@ const detectBiasEvents = (extraSentences: string[], wikiText: string): Discrepan
     });
   });
   return events;
+};
+
+const detectBiasEventsHybrid = async (
+  extraSentences: string[],
+  wikiText: string,
+): Promise<DiscrepancyRecord[]> => {
+  if (!extraSentences.length) {
+    return [];
+  }
+
+  const keywordEvents = detectBiasEventsKeywordOnly(extraSentences, wikiText);
+
+  const flaggedSentences = new Set(keywordEvents.map((e) => e.evidence.grokipedia!));
+  const sampleSize = Math.min(50, Math.ceil(extraSentences.length * 0.1));
+  const randomSample = extraSentences
+    .filter((s) => !flaggedSentences.has(s))
+    .sort(() => Math.random() - 0.5)
+    .slice(0, sampleSize);
+
+  const sentencesToCheck = [...flaggedSentences, ...randomSample];
+  const semanticResults = await detectSemanticBiasBatch(sentencesToCheck);
+
+  const verifiedEvents: DiscrepancyRecord[] = [];
+  const processedSentences = new Set<string>();
+
+  keywordEvents.forEach((event) => {
+    const sentence = event.evidence.grokipedia!;
+    const semanticResult = semanticResults.find((r) => r.sentence === sentence);
+
+    if (!semanticResult) {
+      verifiedEvents.push(event);
+      processedSentences.add(sentence);
+      return;
+    }
+
+    if (
+      semanticResult.predicted_bias_type &&
+      semanticResult.confidence > SEMANTIC_BIAS_CONFIDENCE_THRESHOLD
+    ) {
+      verifiedEvents.push({
+        ...event,
+        description: `${event.description} [Semantic: ${semanticResult.predicted_bias_type}, ${(semanticResult.confidence * 100).toFixed(0)}% confidence]`,
+        tags: [...(event.tags || []), 'semantic_verified'],
+      });
+      processedSentences.add(sentence);
+    } else if (semanticResult.scores.neutral > SEMANTIC_NEUTRAL_THRESHOLD) {
+      return;
+    } else {
+      verifiedEvents.push({
+        ...event,
+        severity: Math.max(1, (event.severity ?? 2) - 1),
+        tags: [...(event.tags || []), 'semantic_uncertain'],
+      });
+      processedSentences.add(sentence);
+    }
+  });
+
+  semanticResults.forEach((semanticResult) => {
+    if (processedSentences.has(semanticResult.sentence)) {
+      return;
+    }
+
+    if (
+      semanticResult.predicted_bias_type &&
+      semanticResult.confidence > SEMANTIC_BIAS_CONFIDENCE_THRESHOLD
+    ) {
+      verifiedEvents.push({
+        type: 'bias_shift',
+        description: `Semantic bias detected: ${semanticResult.predicted_bias_type} (${(semanticResult.confidence * 100).toFixed(0)}% confidence)`,
+        evidence: { grokipedia: semanticResult.sentence },
+        severity: semanticResult.confidence > 0.8 ? 3 : 2,
+        category: 'bias',
+        tags: ['semantic_only', semanticResult.predicted_bias_type],
+      });
+    }
+  });
+
+  return verifiedEvents;
+};
+
+const detectBiasEvents = async (
+  extraSentences: string[],
+  wikiText: string,
+): Promise<DiscrepancyRecord[]> => {
+  try {
+    return await detectBiasEventsHybrid(extraSentences, wikiText);
+  } catch (error) {
+    console.warn('[analyzer] Semantic bias detection failed, falling back to keyword-only:', error);
+    return detectBiasEventsKeywordOnly(extraSentences, wikiText);
+  }
 };
 
 const detectHallucinationEvents = (
@@ -637,44 +777,84 @@ const classifyDocument = (
   factualErrors: number,
   agreementCount: number,
   rewordedCount: number,
+  sectionAlignment: number,
 ): ConfidenceSummary => {
   const rationales: string[] = [];
-  let score = (similarity + overlap) / 2;
 
-  if (agreementCount > 0) {
-    const boost = Math.min(0.1, agreementCount * 0.01);
+  let score = 1.0 - similarity;
+
+  if (similarity > 0.95) {
+    const penalty = (similarity - 0.95) * 10;
+    score -= penalty;
+    rationales.push(
+      `Extreme word similarity (${(similarity * 100).toFixed(1)}%) indicates blatant copying`,
+    );
+  } else if (similarity > 0.85) {
+    const penalty = (similarity - 0.85) * 3;
+    score -= penalty;
+    rationales.push(
+      `Very high word similarity (${(similarity * 100).toFixed(1)}%) suggests extensive copying`,
+    );
+  } else if (similarity > 0.7) {
+    const penalty = (similarity - 0.7) * 1.5;
+    score -= penalty;
+    rationales.push(
+      `High word similarity (${(similarity * 100).toFixed(1)}%) indicates limited originality`,
+    );
+  } else if (similarity < 0.3) {
+    const boost = Math.min(0.2, (0.3 - similarity) * 0.5);
     score += boost;
-    rationales.push(`${agreementCount} sentences match exactly between sources`);
+    rationales.push(
+      `Low word similarity (${(similarity * 100).toFixed(1)}%) shows strong originality`,
+    );
   }
 
-  if (rewordedCount > 0) {
-    rationales.push(`${rewordedCount} sentences reworded but semantically similar`);
+  if (sectionAlignment >= 0.95) {
+    const penalty = Math.min(0.05, (sectionAlignment - 0.9) * 0.5);
+    score -= penalty;
+    rationales.push(
+      `Identical section structure (${(sectionAlignment * 100).toFixed(1)}%) suggests copying`,
+    );
+  } else if (sectionAlignment < 0.3) {
+    const boost = Math.min(0.05, (0.3 - sectionAlignment) * 0.2);
+    score += boost;
+    rationales.push(
+      `Different section structure (${(sectionAlignment * 100).toFixed(1)}%) shows independence`,
+    );
   }
 
-  if (trulyMissingCount > 0) {
-    const delta = Math.min(0.25, trulyMissingCount * 0.03);
-    score -= delta;
-    rationales.push(`${trulyMissingCount} Wikipedia sentences truly missing on Grokipedia`);
+  if (agreementCount > 100) {
+    const penalty = Math.min(0.15, agreementCount * 0.0003);
+    score -= penalty;
+    rationales.push(`${agreementCount} identical sentences suggest extensive copying`);
   }
 
-  if (extraCount > 0) {
-    const delta = Math.min(0.2, extraCount * 0.025);
-    score -= delta;
-    rationales.push(`${extraCount} Grokipedia sentences not found on Wikipedia`);
+  if (extraCount > 50) {
+    const boost = Math.min(0.1, extraCount * 0.0001);
+    score += boost;
+    rationales.push(`${extraCount} unique Grokipedia sentences show original content`);
+  }
+
+  if (trulyMissingCount > 50) {
+    const boost = Math.min(0.05, trulyMissingCount * 0.00005);
+    score += boost;
+    rationales.push(
+      `${trulyMissingCount} Wikipedia sentences omitted (shows editorial independence)`,
+    );
   }
 
   if (factualErrors > 0) {
-    score -= 0.15;
+    score -= factualErrors * 0.03;
     rationales.push(`${factualErrors} factual errors detected`);
   }
 
   if (biasEvents > 0) {
-    score -= 0.1;
+    score -= biasEvents * 0.01;
     rationales.push(`${biasEvents} bias cues detected`);
   }
 
   if (hallucinationEvents > 0) {
-    score -= 0.12;
+    score -= hallucinationEvents * 0.025;
     rationales.push(`${hallucinationEvents} hallucination cues detected`);
   }
 
@@ -792,12 +972,12 @@ const buildDiscrepancies = (
   return [...issues, ...bias, ...hallucinations, ...factualErrors];
 };
 
-export const analyzeContent = (
+export const analyzeContent = async (
   topic: Topic,
   wiki: AnalyzerSource,
   grok: AnalyzerSource,
   options: AnalyzerOptions = {},
-): AnalysisPayload => {
+): Promise<AnalysisPayload> => {
   const wikiText = wiki.text;
   const grokText = grok.text;
 
@@ -817,12 +997,7 @@ export const analyzeContent = (
   const rewordedPairs = detectRewordedSentences(missingAll, grokSentences);
 
   const wordSimilarity = wordSimilarityRatio(wikiText, grokText);
-  const sentenceSimilarity = sentenceSimilarityRatio(
-    wikiSentences,
-    grokSentences,
-    agreedSentences.length,
-    rewordedPairs.length,
-  );
+  const sentenceSimilarity = sentenceSimilarityRatio(wikiSentences, grokSentences);
   const rewordedWikiSentences = new Set(rewordedPairs.map((pair) => pair.wikipedia));
   const trulyMissingAll = missingAll.filter((sentence) => !rewordedWikiSentences.has(sentence));
 
@@ -845,13 +1020,18 @@ export const analyzeContent = (
   const numericDiscrepancies = detectNumericDiscrepancies(claimAlignment);
   const entityDiscrepancies = detectEntityDiscrepancies(claimAlignment);
 
-  const biasEvents = detectBiasEvents(extra, wikiText);
+  const biasEvents = await detectBiasEvents(extra, wikiText);
   const hallucinationEvents = detectHallucinationEvents(extra, wiki.content.claims);
   const factualErrors = detectFactualErrors(
     claimAlignment,
     numericDiscrepancies,
     entityDiscrepancies,
   );
+
+  const sectionSimilarityAvg =
+    sectionAlignment.length > 0
+      ? sectionAlignment.reduce((sum, rec) => sum + rec.similarity, 0) / sectionAlignment.length
+      : 0;
 
   const confidence = classifyDocument(
     wordSimilarity,
@@ -863,6 +1043,7 @@ export const analyzeContent = (
     factualErrors.length,
     agreedSentences.length,
     rewordedPairs.length,
+    sectionSimilarityAvg,
   );
 
   const missingHighlights = buildHighlights(missing, 'wikipedia', 'missing');

@@ -35,6 +35,8 @@ const STRIP_TEMPLATES = new Set([
 
 const EXTRACT_FIRST_PARAM_TEMPLATES = new Set(['abbr', 'val', 'cvt', 'convert']);
 
+const SEPARATOR_TEMPLATES = new Set(['sndash', 'snd', 'ndash', 'mdash', 'spaced ndash']);
+
 const FOOTNOTE_TEMPLATES = new Set(['efn', 'efn-ua', 'note', 'refn']);
 
 const META_TEMPLATE_WHITELIST = [
@@ -285,8 +287,10 @@ export const stripNonCiteTemplates = (text: string): string => {
     }
 
     let replacement = '';
-    if (STRIP_TEMPLATES.has(templateName)) {
-      replacement = '';
+    if (SEPARATOR_TEMPLATES.has(templateName)) {
+      replacement = '—';
+    } else if (STRIP_TEMPLATES.has(templateName)) {
+      replacement = parsed.params.join('\n');
     } else if (EXTRACT_FIRST_PARAM_TEMPLATES.has(templateName)) {
       replacement = parsed.params[0] || '';
     } else {

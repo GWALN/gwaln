@@ -32,3 +32,16 @@ export const CLASSIFICATION_THRESHOLDS = {
 };
 
 export const HIGHLIGHT_WINDOW = 3;
+
+/**
+ * Minimum confidence threshold for semantic bias detection.
+ * Only flag bias when semantic model confidence exceeds this value.
+ */
+export const SEMANTIC_BIAS_CONFIDENCE_THRESHOLD = 0.5;
+
+/**
+ * Threshold for false positive filtering.
+ * If keyword detects bias but semantic neutrality score > this threshold,
+ * mark as potential false positive.
+ */
+export const SEMANTIC_NEUTRAL_THRESHOLD = 0.7;

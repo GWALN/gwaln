@@ -8,6 +8,7 @@ import type { Topic } from '../shared/topics';
 import { topicUrls } from '../shared/topics';
 import type { DiscrepancyRecord } from './analyzer';
 import type { StructuredAnalysisReport } from './structured-report';
+import { generateSummary } from './summary-generator';
 
 export interface BuildNoteOptions {
   summary?: string;
@@ -31,6 +32,49 @@ const snip = (value: string, limit = 240): string =>
   value.length > limit ? `${value.slice(0, limit)}…` : value;
 
 const NOTE_CONTEXT: string[] = ['https://schema.org', 'https://www.w3.org/ns/anno.jsonld'];
+
+const buildAnalysisText = (analysis: StructuredAnalysisReport, topic: Topic): string => {
+  const parts: string[] = [];
+
+  parts.push(`Comparison analysis for ${topic.title}.`);
+
+  parts.push(
+    `Similarity metrics: ${(analysis.summary.similarity_ratio.word * 100).toFixed(1)}% word similarity, ` +
+      `${(analysis.summary.similarity_ratio.sentence * 100).toFixed(1)}% sentence similarity, ` +
+      `${(analysis.summary.ngram_overlap * 100).toFixed(1)}% n-gram overlap.`,
+  );
+
+  if (analysis.summary.discrepancy_count > 0) {
+    parts.push(
+      `Detected ${analysis.summary.discrepancy_count} discrepancies including ` +
+        `${analysis.summary.bias_event_count} bias issues, ` +
+        `${analysis.summary.hallucination_count} hallucination flags, ` +
+        `and ${analysis.summary.factual_error_count} factual errors.`,
+    );
+  }
+
+  const missingCount = analysis.comparison.sentences.missing.length;
+  if (missingCount > 0) {
+    const examples = analysis.comparison.sentences.missing.slice(0, 2).join(' ');
+    parts.push(
+      `Grokipedia is missing ${missingCount} Wikipedia sentences. Examples: ${examples.slice(0, 200)}...`,
+    );
+  }
+
+  const extraCount = analysis.comparison.sentences.extra.length;
+  if (extraCount > 0) {
+    const examples = analysis.comparison.sentences.extra.slice(0, 2).join(' ');
+    parts.push(
+      `Grokipedia contains ${extraCount} additional sentences not in Wikipedia. Examples: ${examples.slice(0, 200)}...`,
+    );
+  }
+
+  if (analysis.summary.confidence.label) {
+    parts.push(`Overall confidence assessment: ${analysis.summary.confidence.label}.`);
+  }
+
+  return parts.join(' ');
+};
 
 const annotationFromDiscrepancy = (
   issue: DiscrepancyRecord,
@@ -66,11 +110,11 @@ const annotationFromDiscrepancy = (
   };
 };
 
-export const buildCommunityNote = (
+export const buildCommunityNote = async (
   topic: Topic,
   analysis: StructuredAnalysisReport,
   options: BuildNoteOptions = {},
-): Record<string, unknown> => {
+): Promise<Record<string, unknown>> => {
   const urls = topicUrls(topic);
   const now = new Date().toISOString();
   const accuracy = clampScore(options.accuracy, 3);
@@ -78,11 +122,22 @@ export const buildCommunityNote = (
   const toneBias = clampScore(options.toneBias, 3);
 
   const discrepancies = analysis.discrepancies.primary ?? [];
-  const summary =
-    options.summary ??
-    (discrepancies.length
-      ? `Detected ${analysis.summary.discrepancy_count} notable discrepancies between Grokipedia and Wikipedia entries for ${topic.title}.`
-      : `No material discrepancies detected for ${topic.title}; Grokipedia aligns with Wikipedia.`);
+
+  let summary: string;
+
+  if (options.summary) {
+    summary = options.summary;
+  } else {
+    try {
+      const analysisText = buildAnalysisText(analysis, topic);
+      summary = await generateSummary(analysisText, { maxLength: 100, minLength: 30 });
+    } catch (error) {
+      console.warn('[notes] AI summary generation failed, falling back to template:', error);
+      summary = discrepancies.length
+        ? `Detected ${analysis.summary.discrepancy_count} notable discrepancies between Grokipedia and Wikipedia entries for ${topic.title}.`
+        : `No material discrepancies detected for ${topic.title}; Grokipedia aligns with Wikipedia.`;
+    }
+  }
 
   return {
     '@context': NOTE_CONTEXT,

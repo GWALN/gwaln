@@ -41,11 +41,11 @@ const toStructured = (
 };
 
 describe('analyzeContent', () => {
-  it('returns perfect similarity with no discrepancies when texts match', () => {
+  it('returns perfect similarity with no discrepancies when texts match', async () => {
     const text =
       '# Moon The Moon is the only natural satellite orbiting Earth. It orbits at an average distance of 384,399 kilometres and remains tidally locked to Earth.';
     const source = prepareAnalyzerSource(toStructured(text));
-    const result = analyzeContent(topic, source, source);
+    const result = await analyzeContent(topic, source, source);
     expect(result.stats.similarity_ratio.word).toBe(1);
     expect(result.stats.similarity_ratio.sentence).toBe(1);
     expect(result.discrepancies).toHaveLength(0);
@@ -54,12 +54,12 @@ describe('analyzeContent', () => {
     expect(result.meta.content_hash).toMatch(/[a-f0-9]{64}/);
   });
 
-  it('detects reworded claims when texts diverge with substitutions', () => {
+  it('detects reworded claims when texts diverge with substitutions', async () => {
     const wiki =
       '# Moon The Moon is the only natural satellite orbiting Earth. It orbits at an average distance of 384,399 kilometres and remains tidally locked to Earth.';
     const grok =
       '# Moon The Moon is the only test satellite orbiting Earth. It test orbits at an experimental distance of 384,399 kilometres and remains tidally locked to Earth.';
-    const result = analyzeContent(
+    const result = await analyzeContent(
       topic,
       prepareAnalyzerSource(toStructured(wiki, 'wikipedia')),
       prepareAnalyzerSource(toStructured(grok, 'grokipedia')),
@@ -71,10 +71,10 @@ describe('analyzeContent', () => {
     expect(result.reworded_sentences.length).toBeGreaterThan(0);
   });
 
-  it('identifies pure missing context when Grokipedia truncates the article', () => {
+  it('identifies pure missing context when Grokipedia truncates the article', async () => {
     const wiki = `# Moon ${paragraph("The Moon is Earth's only natural satellite.")}`;
     const grok = '# Moon';
-    const result = analyzeContent(
+    const result = await analyzeContent(
       topic,
       prepareAnalyzerSource(toStructured(wiki, 'wikipedia')),
       prepareAnalyzerSource(toStructured(grok, 'grokipedia')),
@@ -85,10 +85,10 @@ describe('analyzeContent', () => {
     expect(addedOnly).toHaveLength(0);
   });
 
-  it('identifies added claims when Grokipedia appends new paragraphs', () => {
+  it('identifies added claims when Grokipedia appends new paragraphs', async () => {
     const wiki = '# Moon The Moon is the only natural satellite orbiting Earth.';
     const grok = `${wiki} ${paragraph('Test agents claim the Moon emits its own light, which is incorrect.')}`;
-    const result = analyzeContent(
+    const result = await analyzeContent(
       topic,
       prepareAnalyzerSource(toStructured(wiki, 'wikipedia')),
       prepareAnalyzerSource(toStructured(grok, 'grokipedia')),
@@ -97,13 +97,13 @@ describe('analyzeContent', () => {
     expect(result.discrepancies.some((d) => d.type === 'missing_context')).toBe(false);
   });
 
-  it('stores all missing sentences without capping', () => {
+  it('stores all missing sentences without capping', async () => {
     const wikiSentences = Array.from({ length: 6 }).map((_, idx) =>
       paragraph(`Sentence ${idx + 1}: baseline.`),
     );
     const wiki = `# Moon ${wikiSentences.join(' ')}`;
     const grok = '# Moon';
-    const result = analyzeContent(
+    const result = await analyzeContent(
       topic,
       prepareAnalyzerSource(toStructured(wiki, 'wikipedia')),
       prepareAnalyzerSource(toStructured(grok, 'grokipedia')),
@@ -116,13 +116,13 @@ describe('analyzeContent', () => {
     expect(missingContextDiscrepancies.length).toBe(result.missing_sentences.length);
   });
 
-  it('ignores pure whitespace differences', () => {
+  it('ignores pure whitespace differences', async () => {
     const wiki = "# Moon The Moon is Earth's natural satellite. It remains tidally locked.";
     const wikiStructured = toStructured(wiki, 'wikipedia');
     const grokStructured = JSON.parse(JSON.stringify(wikiStructured)) as StructuredArticle;
     grokStructured.source = 'grokipedia';
     grokStructured.page_id = `grok:${topic.id}`;
-    const result = analyzeContent(
+    const result = await analyzeContent(
       topic,
       prepareAnalyzerSource(wikiStructured),
       prepareAnalyzerSource(grokStructured),
@@ -131,14 +131,14 @@ describe('analyzeContent', () => {
     expect(result.discrepancies).toHaveLength(0);
   });
 
-  it('detects missing sections and citations', () => {
+  it('detects missing sections and citations', async () => {
     const wiki = `# Moon
 ## History
 ${paragraph('Historical overview of lunar exploration.')}
 ![Apollo](https://example.com/apollo.png)
 For more info see [NASA](https://nasa.gov/moon).`;
     const grok = '# Moon\nHistory overview.';
-    const result = analyzeContent(
+    const result = await analyzeContent(
       topic,
       prepareAnalyzerSource(toStructured(wiki, 'wikipedia')),
       prepareAnalyzerSource(toStructured(grok, 'grokipedia')),
@@ -151,10 +151,10 @@ For more info see [NASA](https://nasa.gov/moon).`;
     expect(result.section_alignment.some((record) => record.similarity === 0)).toBe(true);
   });
 
-  it('flags bias and hallucination cues in extra sentences', () => {
+  it('flags bias and hallucination cues in extra sentences', async () => {
     const wiki = '# Moon The Moon is the only natural satellite orbiting Earth.';
     const grok = `${wiki} This conspiracy proves scientists lied about the Moon, and reportedly it reflects secret signals.`;
-    const result = analyzeContent(
+    const result = await analyzeContent(
       topic,
       prepareAnalyzerSource(toStructured(wiki, 'wikipedia')),
       prepareAnalyzerSource(toStructured(grok, 'grokipedia')),
@@ -167,10 +167,10 @@ For more info see [NASA](https://nasa.gov/moon).`;
     expect(result.confidence.label).toBe('suspected_divergence');
   });
 
-  it('tags MOS words-to-watch categories as bias events', () => {
+  it('tags MOS words-to-watch categories as bias events', async () => {
     const wiki = '# Moon Encyclopedic overview of the Moon.';
     const grok = `${wiki} Some people say the Moon is an iconic and legendary lighthouse for humanity.`;
-    const result = analyzeContent(
+    const result = await analyzeContent(
       topic,
       prepareAnalyzerSource(toStructured(wiki, 'wikipedia')),
       prepareAnalyzerSource(toStructured(grok, 'grokipedia')),
@@ -181,10 +181,10 @@ For more info see [NASA](https://nasa.gov/moon).`;
     expect(result.bias_metrics).toBeDefined();
   });
 
-  it('skips bias detections when Wikipedia uses the same wording', () => {
+  it('skips bias detections when Wikipedia uses the same wording', async () => {
     const wiki = '# Moon The mission was described as legendary by observers.';
     const grok = `${wiki} Legendary explorers returned additional samples.`;
-    const result = analyzeContent(
+    const result = await analyzeContent(
       topic,
       prepareAnalyzerSource(toStructured(wiki, 'wikipedia')),
       prepareAnalyzerSource(toStructured(grok, 'grokipedia')),
@@ -192,12 +192,12 @@ For more info see [NASA](https://nasa.gov/moon).`;
     expect(result.bias_events).toHaveLength(0);
   });
 
-  it('computes n-gram overlap and confidence metadata', () => {
+  it('computes n-gram overlap and confidence metadata', async () => {
     const wiki =
       '# Moon The Moon is the only natural satellite orbiting Earth and it remains tidally locked with our planet throughout its orbit.';
     const grok =
       '# Moon The Moon is the only natural satellite orbiting Earth, but Grokipedia adds commentary about future experiments.';
-    const result = analyzeContent(
+    const result = await analyzeContent(
       topic,
       prepareAnalyzerSource(toStructured(wiki, 'wikipedia')),
       prepareAnalyzerSource(toStructured(grok, 'grokipedia')),
@@ -208,10 +208,10 @@ For more info see [NASA](https://nasa.gov/moon).`;
     expect(result.meta.cache_ttl_hours).toBeGreaterThan(0);
   });
 
-  it('detects numeric discrepancies when quantitative values diverge', () => {
+  it('detects numeric discrepancies when quantitative values diverge', async () => {
     const wiki = '# Moon The Moon has a mean radius of 1737 km.';
     const grok = '# Moon The Moon has a mean radius of 1500 km.';
-    const result = analyzeContent(
+    const result = await analyzeContent(
       topic,
       prepareAnalyzerSource(toStructured(wiki, 'wikipedia')),
       prepareAnalyzerSource(toStructured(grok, 'grokipedia')),
@@ -219,10 +219,10 @@ For more info see [NASA](https://nasa.gov/moon).`;
     expect(result.numeric_discrepancies.length).toBeGreaterThan(0);
   });
 
-  it('detects entity discrepancies when prominent names shift', () => {
+  it('detects entity discrepancies when prominent names shift', async () => {
     const wiki = '# Moon The giant impact hypothesis describes Theia striking Earth.';
     const grok = '# Moon The giant impact hypothesis describes Mars colliding with Earth.';
-    const result = analyzeContent(
+    const result = await analyzeContent(
       topic,
       prepareAnalyzerSource(toStructured(wiki, 'wikipedia')),
       prepareAnalyzerSource(toStructured(grok, 'grokipedia')),
@@ -230,7 +230,7 @@ For more info see [NASA](https://nasa.gov/moon).`;
     expect(result.entity_discrepancies.length).toBeGreaterThan(0);
   });
 
-  it('calculates sentence similarity correctly with identical, reworded, and unique sentences', () => {
+  it('calculates sentence similarity correctly with identical, reworded, and unique sentences', async () => {
     const wiki = `# Moon
 The Moon is Earth's only natural satellite in the solar system. It orbits around our planet Earth at an average distance of 384,400 kilometers from the surface.
 The lunar surface completely lacks any form of atmosphere. The terrain is heavily covered in impact craters from meteorites.
@@ -241,7 +241,7 @@ The Moon is Earth's only natural satellite in the solar system. It orbits around
 The lunar body's surface completely lacks atmosphere. The lunar terrain features numerous impact craters from space debris.
 SpaceX aerospace company plans future exploration missions to the Moon.`;
 
-    const result = analyzeContent(
+    const result = await analyzeContent(
       topic,
       prepareAnalyzerSource(toStructured(wiki, 'wikipedia')),
       prepareAnalyzerSource(toStructured(grok, 'grokipedia')),
@@ -254,7 +254,7 @@ SpaceX aerospace company plans future exploration missions to the Moon.`;
     expect(result.stats.similarity_ratio.sentence).toBeLessThan(result.stats.similarity_ratio.word);
   });
 
-  it('calculates sentence similarity as zero when no sentences match', () => {
+  it('calculates sentence similarity as zero when no sentences match', async () => {
     const wiki = `# Astronomy Article
 The first document extensively discusses astronomy and planetary science topics.
 Researchers study celestial bodies and their movements through space.
@@ -265,7 +265,7 @@ This text covers completely different subjects like biology and chemistry.
 Scientists examine living organisms and their cellular structures.
 DNA molecules carry genetic information in all living things.`;
 
-    const result = analyzeContent(
+    const result = await analyzeContent(
       topic,
       prepareAnalyzerSource(toStructured(wiki, 'wikipedia')),
       prepareAnalyzerSource(toStructured(grok, 'grokipedia')),
@@ -275,13 +275,13 @@ DNA molecules carry genetic information in all living things.`;
     expect(result.stats.similarity_ratio.sentence).toBeLessThan(0.5);
   });
 
-  it('calculates sentence similarity as 1.0 when all sentences are identical', () => {
+  it('calculates sentence similarity as 1.0 when all sentences are identical', async () => {
     const text = `# Moon
 The Moon is Earth's only natural satellite orbiting our planet.
 It orbits around Earth at an average distance of 384,400 kilometers.
 The Moon has no atmosphere and its surface is covered in impact craters.`;
 
-    const result = analyzeContent(
+    const result = await analyzeContent(
       topic,
       prepareAnalyzerSource(toStructured(text, 'wikipedia')),
       prepareAnalyzerSource(toStructured(text, 'grokipedia')),

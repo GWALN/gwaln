@@ -8,11 +8,10 @@ import type { SentenceSlice } from '../shared/types';
 
 export const splitSentences = (text: string): SentenceSlice[] => {
   const sentences: SentenceSlice[] = [];
-  const regex = /[^.!?]+(?:[.!?]+|$)/g;
-  let match: RegExpExecArray | null;
-  while ((match = regex.exec(text)) !== null) {
-    const raw = match[0];
-    const trimmed = raw.trim();
+  const parts = text.split(/(?<=[.!?])(?=\s+[A-Z])|(?<=[.!?])\s*$/);
+
+  for (const part of parts) {
+    const trimmed = part.trim();
     if (!trimmed) continue;
     if (trimmed.length < 5) continue;
     if (/^[,;:\s.!?]+$/.test(trimmed)) continue;
@@ -31,10 +30,11 @@ export const splitSentences = (text: string): SentenceSlice[] => {
 
     if (trimmed === trimmed.toUpperCase() && trimmed.length > 3) continue;
 
-    const leading = raw.length - raw.trimStart().length;
-    const trailing = raw.length - raw.trimEnd().length;
-    const start = match.index + leading;
-    const end = match.index + raw.length - trailing;
+    if (/^(Retrieved|Archived|Accessed)\s+/i.test(trimmed)) continue;
+    if (/^\w+,\s+\w+\s+\(\w+\s+\d+,\s+\d{4}\)/i.test(trimmed)) continue;
+
+    const start = text.indexOf(trimmed);
+    const end = start + trimmed.length;
     sentences.push({ text: trimmed, start, end });
   }
   return sentences;

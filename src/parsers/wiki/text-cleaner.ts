@@ -23,6 +23,8 @@ export const cleanSentenceText = (text: string): string => {
   cleaned = cleaned.replace(/&nbsp;/g, ' ');
   cleaned = cleaned.replace(/<[^>]+>/g, '');
   cleaned = cleaned.replace(/\[(\d+)]/g, '');
+  cleaned = cleaned.replace(/\\-/g, '-');
+  cleaned = cleaned.replace(/\\\\/g, '\\');
   cleaned = cleaned.replace(/\s+/g, ' ');
   return cleaned.trim();
 };
