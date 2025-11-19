@@ -34,9 +34,9 @@ export const NotesInputSchema = z.object({
 });
 
 export const notesTool = {
-  title: 'Manage Community Notes',
+  title: 'Build, Publish, and Manage Community Notes from Analysis',
   description:
-    'Builds, publishes, or inspects Community Notes derived from analysis (maps to `gwaln notes`).',
+    'Creates, publishes, and manages Community Notes (X Community Notes format) derived from GWALN analysis results. Supports three actions: (1) "build" - generates a note draft from analysis with ratings (accuracy, completeness, tone bias) and summary, returns file path and draft content; (2) "publish" - publishes the note to the DKG (Decentralized Knowledge Graph) and returns a UAL (Universal Asset Locator) for the published asset; (3) "status" - retrieves the current status and content of an existing note draft. Returns structured data including draft content, UALs, file paths, and publication status.',
   inputSchema: NotesInputSchema,
 };
 

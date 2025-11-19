@@ -35,8 +35,9 @@ export const QueryInputSchema = z
   });
 
 export const queryTool = {
-  title: 'Query DKG for Knowledge Assets',
-  description: 'Queries the DKG to retrieve published Knowledge Assets by topic or UAL.',
+  title: 'Retrieve Knowledge Assets from Decentralized Knowledge Graph (DKG)',
+  description:
+    'Queries the DKG to retrieve published Knowledge Assets either by topic name or by UAL (Universal Asset Locator). Returns the complete asset data including assertions, metadata, and content in the requested format (JSON-LD or N-Quads). Optionally saves the retrieved asset to a local file. Supports filtering by content type (public, private, or all) and can include or exclude metadata. Returns structured data with the asset content, UAL, topic title, and file path if saved. Use this to access previously published knowledge assets from the decentralized network.',
   inputSchema: QueryInputSchema,
 };
 

@@ -13,8 +13,9 @@ export const FetchInputSchema = z.object({
 });
 
 export const fetchTool = {
-  title: 'Fetch structured snapshots',
-  description: 'Downloads Grokipedia and/or Wikipedia content for a topic.',
+  title: 'Fetch Structured Content Snapshots from Grokipedia and Wikipedia',
+  description:
+    'Downloads and stores structured content snapshots from Grokipedia (X.AI) and/or Wikipedia for one or more topics. Returns parsed, structured data ready for analysis. Content is cached locally to avoid redundant downloads. Use this tool to gather source material before running analysis. Returns structured payloads containing the fetched content organized by source (wiki/grok) and topic.',
   inputSchema: FetchInputSchema,
 };
 

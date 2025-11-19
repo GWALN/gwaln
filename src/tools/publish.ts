@@ -30,8 +30,9 @@ export const PublishInputSchema = z
   });
 
 export const publishTool = {
-  title: 'Publish arbitrary JSON-LD',
-  description: 'Publishes any JSON-LD Knowledge Asset via the DKG SDK.',
+  title: 'Publish JSON-LD Knowledge Assets to Decentralized Knowledge Graph (DKG)',
+  description:
+    'Publishes any valid JSON-LD Knowledge Asset to the DKG (Decentralized Knowledge Graph) using the DKG SDK. Accepts JSON-LD payloads either inline or from a file path. Supports public and private asset publishing. Returns a UAL (Universal Asset Locator) that uniquely identifies the published asset on the blockchain, along with dataset root information. Supports dry-run mode to validate payloads without publishing. Use this to publish custom structured knowledge assets to the decentralized network.',
   inputSchema: PublishInputSchema,
 };
 

@@ -31,9 +31,9 @@ export const LookupInputSchema = z
   );
 
 export const lookupTool = {
-  title: 'Lookup topics',
+  title: 'Search and Manage Topics in Catalog and External APIs',
   description:
-    'Searches for topics in the local catalog and optionally searches Grokipedia and Wikipedia APIs. Can also add topics to the catalog.',
+    'Searches for topics in the local GWALN catalog and optionally queries Grokipedia and Wikipedia APIs for matching content. Returns topic information including IDs, titles, and slugs if found locally, or search results from external APIs if not found. Can also add new topics to the catalog with required metadata (title, Wikipedia slug, Grokipedia slug). Use this to discover available topics or register new ones for analysis. Returns structured results with topic details, search matches, or confirmation of topic addition.',
   inputSchema: LookupInputSchema,
 };
 

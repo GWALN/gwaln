@@ -22,8 +22,9 @@ export const AnalyzeInputSchema = z.object({
 });
 
 export const analyzeTool = {
-  title: 'Run GWALN analysis',
-  description: 'Reuses or regenerates Grokipedia vs Wikipedia comparisons.',
+  title: 'Analyze and Compare Grokipedia vs Wikipedia Content',
+  description:
+    'Performs comprehensive analysis comparing Grokipedia and Wikipedia content for specified topics. Generates structured comparison reports including bias detection, citation verification, and discrepancy analysis. Returns analysis results with metrics, summaries, and structured data that can be used for further processing or reporting. Supports optional Gemini-based bias verification and AI-generated summaries. Results are cached and can be regenerated with the force option.',
   inputSchema: AnalyzeInputSchema,
 };
 

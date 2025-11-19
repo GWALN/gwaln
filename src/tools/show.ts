@@ -13,8 +13,9 @@ export const ShowInputSchema = z.object({
 });
 
 export const showTool = {
-  title: 'Show GWALN analysis',
-  description: 'Loads structured analysis, note drafts, and optionally renders the HTML report.',
+  title: 'Display GWALN Analysis Results and Generate HTML Reports',
+  description:
+    'Loads and displays comprehensive GWALN analysis results for a specified topic, including structured analysis data, summary information, and associated Community Note drafts. Optionally generates and saves a detailed HTML report with visualizations, metrics, and comparison data. Returns structured content including topic information, analysis summary, note entry status and content, notes index metadata, and the HTML file path if rendered. Use this to review analysis results or generate shareable HTML reports for presentation.',
   inputSchema: ShowInputSchema,
 };
 
