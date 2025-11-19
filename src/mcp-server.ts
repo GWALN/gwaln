@@ -8,7 +8,14 @@ import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/
 import express, { type Request, type Response } from 'express';
 import { randomUUID } from 'node:crypto';
 import pkg from '../package.json';
-import { initializePaymentMiddleware, PAYWALLED_TOOLS } from './lib/x402';
+import {
+  initializePaymentMiddleware,
+  NEUROWEB_TESTNET_ID,
+  NEUROWEB_TESTNET_NAME,
+  PAYWALLED_TOOLS,
+  TRAC_AMOUNT,
+  TRAC_TOKEN_ADDRESS,
+} from './lib/x402';
 import { analyzeHandler, analyzeTool } from './tools/analyze';
 import { fetchHandler, fetchTool } from './tools/fetch';
 import { lookupHandler, lookupTool } from './tools/lookup';
@@ -135,14 +142,13 @@ const handleMcpRequest = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-const network = 'base';
-
 initializePaymentMiddleware({
   host: HOST,
   port: PORT,
-  amount: 10000, // $0.01 per request
-  asset: 'USDC',
-  network,
+  amount: TRAC_AMOUNT,
+  asset: TRAC_TOKEN_ADDRESS,
+  networkId: NEUROWEB_TESTNET_ID,
+  networkName: NEUROWEB_TESTNET_NAME,
   description: 'GWALN MCP tools',
 })
   .then((paymentMiddleware) => {
@@ -155,8 +161,10 @@ initializePaymentMiddleware({
         console.log(`[mcp] Listening on ${url}`);
         console.log('[mcp] Use this URL in your MCP client configuration.');
         console.log(
-          `[mcp] X402 MCP paywall enabled. Tools that require payment on network ${network}: ${PAYWALLED_TOOLS.join(', ')}.`,
+          `[mcp] X402 MCP paywall enabled on ${NEUROWEB_TESTNET_NAME} (${NEUROWEB_TESTNET_ID}).`,
         );
+        console.log(`[mcp] Payment required: 1 TRAC token per request.`);
+        console.log(`[mcp] Paywalled tools: ${PAYWALLED_TOOLS.join(', ')}.`);
       })
       .on('error', (error) => {
         console.error('[mcp] Failed to start server:', error);
