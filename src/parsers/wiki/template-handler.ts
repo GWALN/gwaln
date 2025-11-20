@@ -5,6 +5,7 @@
  */
 
 import type { ParsedTemplate } from '../shared/types';
+import { convertUnits } from './convert';
 
 const STRIP_TEMPLATES = new Set([
   'circa',
@@ -33,7 +34,50 @@ const STRIP_TEMPLATES = new Set([
   'flatlist',
 ]);
 
-const EXTRACT_FIRST_PARAM_TEMPLATES = new Set(['abbr', 'val', 'cvt', 'convert']);
+function processConvertTemplate(params: string[], templateName: string): string {
+  if (!params || params.length < 2) return params[0] || '';
+
+  try {
+    return convertUnits(params, templateName);
+  } catch {
+    return '';
+  }
+}
+
+function processCurrencyTemplate(params: string[], templateName: string): string {
+  if (!params || params.length < 1) return '';
+
+  const amount = params[0]?.trim() || '';
+
+  const currencySymbols: Record<string, string> = {
+    usd: 'US$',
+    gbp: '£',
+    euro: '€',
+    eur: '€',
+    jpy: '¥',
+    cny: '¥',
+    inr: '₹',
+    aud: 'A$',
+    cad: 'C$',
+  };
+
+  const symbol = currencySymbols[templateName.toLowerCase()] || '$';
+  return `${symbol}${amount}`;
+}
+
+const CURRENCY_TEMPLATES = new Set([
+  'usd',
+  'gbp',
+  'euro',
+  'eur',
+  'jpy',
+  'cny',
+  'inr',
+  'aud',
+  'cad',
+]);
+
+const EXTRACT_FIRST_PARAM_TEMPLATES = new Set(['abbr', 'val']);
 
 const SEPARATOR_TEMPLATES = new Set(['sndash', 'snd', 'ndash', 'mdash', 'spaced ndash']);
 
@@ -221,7 +265,7 @@ export const parseTemplate = (text: string, startIndex: number): ParsedTemplate 
   parts.push(current);
 
   const name = parts[0]?.trim().toLowerCase() || '';
-  const params = parts.slice(1).map((p) => p.split('=').pop()?.trim() || '');
+  const params = parts.slice(1);
 
   return {
     name,
@@ -291,8 +335,12 @@ export const stripNonCiteTemplates = (text: string): string => {
       replacement = '—';
     } else if (STRIP_TEMPLATES.has(templateName)) {
       replacement = parsed.params.join('\n');
+    } else if (templateName === 'convert' || templateName === 'cvt') {
+      replacement = processConvertTemplate(parsed.params, templateName);
+    } else if (CURRENCY_TEMPLATES.has(templateName)) {
+      replacement = processCurrencyTemplate(parsed.params, templateName);
     } else if (EXTRACT_FIRST_PARAM_TEMPLATES.has(templateName)) {
-      replacement = parsed.params[0] || '';
+      replacement = parsed.params[0]?.split('=').pop()?.trim() || '';
     } else {
       replacement = '';
     }

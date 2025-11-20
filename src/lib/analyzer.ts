@@ -768,7 +768,8 @@ const detectFactualErrors = (
 const clamp = (value: number): number => Math.max(0, Math.min(1, value));
 
 const classifyDocument = (
-  similarity: number,
+  wordSimilarity: number,
+  sentenceSimilarity: number,
   overlap: number,
   trulyMissingCount: number,
   extraCount: number,
@@ -776,36 +777,50 @@ const classifyDocument = (
   hallucinationEvents: number,
   factualErrors: number,
   agreementCount: number,
-  rewordedCount: number,
+  _rewordedCount: number,
   sectionAlignment: number,
 ): ConfidenceSummary => {
   const rationales: string[] = [];
 
-  let score = 1.0 - similarity;
+  let score = 1.0 - sentenceSimilarity;
 
-  if (similarity > 0.95) {
-    const penalty = (similarity - 0.95) * 10;
+  if (sentenceSimilarity > 0.95) {
+    const penalty = (sentenceSimilarity - 0.95) * 2;
     score -= penalty;
     rationales.push(
-      `Extreme word similarity (${(similarity * 100).toFixed(1)}%) indicates blatant copying`,
+      `Extreme sentence similarity (${(sentenceSimilarity * 100).toFixed(1)}%) indicates blatant copying`,
     );
-  } else if (similarity > 0.85) {
-    const penalty = (similarity - 0.85) * 3;
+  } else if (sentenceSimilarity > 0.8) {
+    const penalty = sentenceSimilarity - 0.8;
     score -= penalty;
     rationales.push(
-      `Very high word similarity (${(similarity * 100).toFixed(1)}%) suggests extensive copying`,
+      `Very high sentence similarity (${(sentenceSimilarity * 100).toFixed(1)}%) suggests extensive copying`,
     );
-  } else if (similarity > 0.7) {
-    const penalty = (similarity - 0.7) * 1.5;
+  } else if (sentenceSimilarity > 0.5) {
+    const penalty = (sentenceSimilarity - 0.5) * 0.5;
     score -= penalty;
     rationales.push(
-      `High word similarity (${(similarity * 100).toFixed(1)}%) indicates limited originality`,
+      `High sentence similarity (${(sentenceSimilarity * 100).toFixed(1)}%) indicates significant overlap`,
     );
-  } else if (similarity < 0.3) {
-    const boost = Math.min(0.2, (0.3 - similarity) * 0.5);
+  } else if (sentenceSimilarity < 0.1) {
+    const boost = Math.min(0.3, (0.1 - sentenceSimilarity) * 2);
     score += boost;
     rationales.push(
-      `Low word similarity (${(similarity * 100).toFixed(1)}%) shows strong originality`,
+      `Very low sentence similarity (${(sentenceSimilarity * 100).toFixed(1)}%) shows strong independence`,
+    );
+  }
+
+  if (wordSimilarity > 0.95 && sentenceSimilarity < 0.5) {
+    const penalty = (wordSimilarity - 0.95) * 0.5;
+    score -= penalty;
+    rationales.push(
+      `Extreme word similarity (${(wordSimilarity * 100).toFixed(1)}%) despite low sentence match suggests paraphrasing`,
+    );
+  } else if (wordSimilarity < 0.5) {
+    const boost = Math.min(0.1, (0.5 - wordSimilarity) * 0.3);
+    score += boost;
+    rationales.push(
+      `Low word similarity (${(wordSimilarity * 100).toFixed(1)}%) shows original vocabulary`,
     );
   }
 
@@ -859,11 +874,11 @@ const classifyDocument = (
   }
 
   const label: ConfidenceLabel =
-    similarity >= CLASSIFICATION_THRESHOLDS.aligned.similarity &&
+    sentenceSimilarity >= CLASSIFICATION_THRESHOLDS.aligned.similarity &&
     overlap >= CLASSIFICATION_THRESHOLDS.aligned.ngram &&
     factualErrors === 0
       ? 'aligned'
-      : similarity >= CLASSIFICATION_THRESHOLDS.possible.similarity &&
+      : sentenceSimilarity >= CLASSIFICATION_THRESHOLDS.possible.similarity &&
           overlap >= CLASSIFICATION_THRESHOLDS.possible.ngram
         ? 'possible_divergence'
         : 'suspected_divergence';
@@ -987,11 +1002,22 @@ export const analyzeContent = async (
   const wikiSentenceCount = wikiSentences.length;
   const grokSentenceCount = grokSentences.length;
 
-  const wikiSet = new Set<string>(wikiSentences);
-  const grokSet = new Set<string>(grokSentences);
+  const wikiNormSentences = wikiSentences.map(normalizeSentence);
+  const grokNormSentences = grokSentences.map(normalizeSentence);
 
-  const missingAll = wikiSentences.filter((sentence) => !grokSet.has(sentence));
-  const extraAll = grokSentences.filter((sentence) => !wikiSet.has(sentence));
+  const missingAll = wikiSentences.filter((_sentence, idx) => {
+    const norm = wikiNormSentences[idx];
+    return !grokNormSentences.some(
+      (grokNorm) => grokNorm === norm || grokNorm.includes(norm) || norm.includes(grokNorm),
+    );
+  });
+
+  const extraAll = grokSentences.filter((_sentence, idx) => {
+    const norm = grokNormSentences[idx];
+    return !wikiNormSentences.some(
+      (wikiNorm) => wikiNorm === norm || wikiNorm.includes(norm) || norm.includes(wikiNorm),
+    );
+  });
 
   const agreedSentences = detectAgreedSentences(wikiSentences, grokSentences);
   const rewordedPairs = detectRewordedSentences(missingAll, grokSentences);
@@ -1035,6 +1061,7 @@ export const analyzeContent = async (
 
   const confidence = classifyDocument(
     wordSimilarity,
+    sentenceSimilarity,
     ngramScore,
     trulyMissingAll.length,
     extraAll.length,
