@@ -24,7 +24,7 @@ const payload: AnalysisPayload = {
   stats: {
     wiki_char_count: 100,
     grok_char_count: 120,
-    similarity_ratio: 0.9,
+    similarity_ratio: { word: 0.9, sentence: 0.9 },
     wiki_sentence_count: 5,
     grok_sentence_count: 4,
     missing_sentence_total: 3,
@@ -66,14 +66,17 @@ const payload: AnalysisPayload = {
     generated_at: '2025-01-01T00:00:00Z',
     cache_ttl_hours: 72,
     shingle_size: 4,
+    analysis_window: {
+      wiki_analyzed_chars: 100,
+      grok_analyzed_chars: 120,
+      source_note: 'test window',
+    },
   },
   section_alignment: [
     {
-      wikipedia_heading: 'History',
-      grokipedia_heading: 'History',
+      wikipedia: { section_id: 'sec-history', heading: 'History' },
+      grokipedia: { section_id: 'sec-history', heading: 'History' },
       similarity: 0.95,
-      wikipedia_section_id: 'sec-history',
-      grokipedia_section_id: 'sec-history',
     },
   ],
   claim_alignment: [],

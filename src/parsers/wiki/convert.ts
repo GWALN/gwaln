@@ -1142,11 +1142,7 @@ function convertValue(value: number, fromUnit: UnitDefinition, toUnit: UnitDefin
   return baseValue / toUnit.scale;
 }
 
-function getUnitName(
-  unit: UnitDefinition,
-  count: number,
-  useUsSpelling: boolean,
-): string {
+function getUnitName(unit: UnitDefinition, count: number, useUsSpelling: boolean): string {
   if (count === 1) {
     return useUsSpelling && unit.name1_us ? unit.name1_us : unit.name1;
   }
@@ -1162,7 +1158,6 @@ export function convertUnits(params: string[], templateName: string = 'convert')
   const { value, unit, sp } = parsed;
   let { abbr } = parsed;
 
-  // Check if US spelling is requested
   const useUsSpelling = sp === 'us';
 
   if (templateName === 'cvt' && abbr === undefined) {
@@ -1211,8 +1206,8 @@ export function convertUnits(params: string[], templateName: string = 'convert')
   const converted = convertValue(value, sourceUnit, targetUnit);
   const roundedConverted = roundToSignificantFigures(converted, 2);
 
-  // Format output: source uses full name unless abbr=on, target always uses abbreviation
-  const sourceLabel = abbr === true ? sourceUnit.symbol : getUnitName(sourceUnit, value, useUsSpelling);
+  const sourceLabel =
+    abbr === true ? sourceUnit.symbol : getUnitName(sourceUnit, value, useUsSpelling);
   const targetLabel = targetUnit.symbol;
 
   return `${value} ${sourceLabel} (${roundedConverted} ${targetLabel})`;

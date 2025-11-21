@@ -124,41 +124,39 @@ arrange them differently.
 
 ## Confidence score and labels
 
-The confidence score indicates how reliably Wikipedia and Grokipedia
-align. The score ranges from 0.0 (completely different) to 1.0
-(identical).
+The current confidence score expresses how strongly the analyzer believes
+the articles **diverge**. A score near 0.0 means “near-identical /
+likely copied,” and a score near 1.0 means “independent or divergent
+content.” Very high similarity will naturally push the score down.
 
-### How the score is calculated
+### How the score is calculated (current behavior)
 
-**Base score**: Average of word similarity and n-gram overlap
+The score starts at `1 - sentence_similarity`, then applies boosts or
+penalties:
 
-```
-base_score = (word_similarity + ngram_overlap) / 2
-```
+* Penalize very high sentence similarity (copying signal).
+* Penalize very high word similarity when sentence similarity is low
+  (possible paraphrase copying).
+* Penalize near-identical section structure; small boost for very
+  different section structure.
+* Penalize large counts of identical sentences.
+* Boost for many extra Grokipedia sentences.
+* Boost for many truly missing Wikipedia sentences.
+* Penalize factual errors, bias cues, and hallucination cues.
 
-**Adjustments** (applied in order):
-
-1. **Add** up to 0.1 for exact sentence matches:
-   `min(0.1, exact_matches × 0.01)`
-2. **Subtract** up to 0.25 for missing Wikipedia content:
-   `min(0.25, missing_sentences × 0.03)`
-3. **Subtract** up to 0.2 for extra Grokipedia content:
-   `min(0.2, extra_sentences × 0.025)`
-4. **Subtract** 0.15 if any factual errors detected
-5. **Subtract** 0.1 if any bias events detected
-6. **Subtract** 0.12 if any hallucination events detected
-
-**Final score**: Clamped between 0.0 and 1.0
+The final value is clamped to `[0, 1]` and rendered as a percentage in
+the HTML report: higher = “more confident this is divergent,” lower =
+“likely copied or closely aligned.”
 
 ### Understanding confidence labels
 
-The report assigns one of three labels based on specific thresholds:
+Labels are assigned using sentence similarity and n-gram overlap:
 
 #### Aligned
 
 **Criteria**:
 
-* Word similarity ≥ 94%
+* Sentence similarity ≥ 94%
 * N-gram overlap ≥ 88%
 * Zero factual errors
 

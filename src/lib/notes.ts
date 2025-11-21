@@ -130,7 +130,11 @@ export const buildCommunityNote = async (
   } else {
     try {
       const analysisText = buildAnalysisText(analysis, topic);
-      summary = await generateSummary(analysisText, { maxLength: 100, minLength: 30 });
+      const summaryPromise = generateSummary(analysisText, { maxLength: 100, minLength: 30 });
+      const timeoutPromise = new Promise<string>((_, reject) =>
+        setTimeout(() => reject(new Error('summary_timeout')), 5000),
+      );
+      summary = await Promise.race([summaryPromise, timeoutPromise]);
     } catch (error) {
       console.warn('[notes] AI summary generation failed, falling back to template:', error);
       summary = discrepancies.length
