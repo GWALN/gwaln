@@ -21,6 +21,7 @@ interface AnalyseCliOptions extends BiasVerifierOptionInput, GeminiSummaryOption
   force?: boolean;
   geminiSummary?: boolean;
   verifyCitations?: boolean;
+  semanticBias?: boolean;
 }
 
 const createCliHooks = (): AnalyzeWorkflowHooks => {
@@ -62,6 +63,10 @@ const analyseCommand = new Command('analyse')
     '--verify-citations',
     'Fetch Grokipedia citations and confirm extra sentences are supported',
   )
+  .option(
+    '--semantic-bias',
+    'Enable transformer-based semantic bias detection (otherwise keyword-only cues are used)',
+  )
   .action(async (options: AnalyseCliOptions) => {
     const verifier = resolveBiasVerifierOptions(options);
     const summary = options.geminiSummary ? resolveGeminiSummaryOptions(options) : null;
@@ -71,6 +76,7 @@ const analyseCommand = new Command('analyse')
       biasVerifier: verifier,
       summary,
       verifyCitations: options.verifyCitations,
+      semanticBias: options.semanticBias,
       hooks: createCliHooks(),
     });
   });

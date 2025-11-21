@@ -129,6 +129,10 @@ the articles **diverge**. A score near 0.0 means “near-identical /
 likely copied,” and a score near 1.0 means “independent or divergent
 content.” Very high similarity will naturally push the score down.
 
+> Note: Bias cues in the default CLI run come from the keyword detector.
+> Semantic transformer-based bias checks are opt-in (`--semantic-bias`)
+> and take longer because they load a model.
+
 ### How the score is calculated (current behavior)
 
 The score starts at `1 - sentence_similarity`, then applies boosts or

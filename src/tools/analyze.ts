@@ -19,6 +19,7 @@ export const AnalyzeInputSchema = z.object({
   geminiModel: z.string().optional(),
   geminiSummary: z.boolean().optional(),
   verifyCitations: z.boolean().optional(),
+  semanticBias: z.boolean().optional(),
 });
 
 export const analyzeTool = {
@@ -52,6 +53,7 @@ export const analyzeHandler = async (
     biasVerifier: verifier,
     summary,
     verifyCitations: input.verifyCitations,
+    semanticBias: input.semanticBias,
     logger,
   });
   return {

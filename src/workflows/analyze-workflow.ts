@@ -57,6 +57,7 @@ export interface AnalyzeWorkflowOptions {
   verifyCitations?: boolean;
   logger?: Pick<Console, 'log' | 'warn' | 'error'>;
   hooks?: AnalyzeWorkflowHooks;
+  semanticBias?: boolean;
 }
 
 type WorkflowLogger = Pick<Console, 'log' | 'warn' | 'error'>;
@@ -103,6 +104,7 @@ const buildTopicContext = (topic: Topic): TopicContext => {
 const analyzeTopicSync = async (
   topic: Topic,
   force: boolean | undefined,
+  semanticBias: boolean | undefined,
   context: TopicContext,
   logger: WorkflowLogger,
 ): Promise<AnalysisPayload | null> => {
@@ -123,19 +125,21 @@ const analyzeTopicSync = async (
 
   return await analyzeContent(topic, context.wikiSource, context.grokSource, {
     contentHash: context.contentHash,
+    semanticBias,
   });
 };
 
 const analyzeTopicAsync = (
   topic: Topic,
   force: boolean | undefined,
+  semanticBias: boolean | undefined,
   context: TopicContext,
   logger: WorkflowLogger,
 ): Promise<AnalysisPayload | null> =>
   new Promise((resolve, reject) => {
     setImmediate(async () => {
       try {
-        resolve(await analyzeTopicSync(topic, force, context, logger));
+        resolve(await analyzeTopicSync(topic, force, semanticBias, context, logger));
       } catch (error) {
         reject(error);
       }
@@ -150,6 +154,7 @@ export const runAnalyzeWorkflow = async ({
   verifyCitations,
   logger,
   hooks,
+  semanticBias,
 }: AnalyzeWorkflowOptions): Promise<AnalyzeTopicResult[]> => {
   const topics = loadTopics();
   const selection = selectTopics(topics, topicId);
@@ -177,7 +182,7 @@ export const runAnalyzeWorkflow = async ({
     }
 
     try {
-      const analysis = await analyzeTopicAsync(topic, force, context, activeLogger);
+      const analysis = await analyzeTopicAsync(topic, force, semanticBias, context, activeLogger);
       if (!analysis) {
         const result: AnalyzeTopicResult = {
           topicId: topic.id,

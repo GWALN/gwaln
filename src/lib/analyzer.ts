@@ -31,7 +31,6 @@ import {
   type EntityDiscrepancy,
   type NumericDiscrepancy,
 } from './discrepancies';
-import { detectSemanticBiasBatch } from './semantic-bias-detector';
 import type {
   StructuredArticle,
   StructuredClaim,
@@ -106,6 +105,7 @@ export interface AnalysisMeta {
 
 interface AnalyzerOptions {
   contentHash?: string;
+  semanticBias?: boolean;
 }
 
 export interface GeminiSummary {
@@ -458,6 +458,7 @@ const detectBiasEventsHybrid = async (
   }
 
   const keywordEvents = detectBiasEventsKeywordOnly(extraSentences, wikiText);
+  const { detectSemanticBiasBatch } = await import('./semantic-bias-detector');
 
   const flaggedSentences = new Set(keywordEvents.map((e) => e.evidence.grokipedia!));
   const sampleSize = Math.min(50, Math.ceil(extraSentences.length * 0.1));
@@ -530,7 +531,11 @@ const detectBiasEventsHybrid = async (
 const detectBiasEvents = async (
   extraSentences: string[],
   wikiText: string,
+  enableSemantic: boolean,
 ): Promise<DiscrepancyRecord[]> => {
+  if (!enableSemantic) {
+    return detectBiasEventsKeywordOnly(extraSentences, wikiText);
+  }
   try {
     return await detectBiasEventsHybrid(extraSentences, wikiText);
   } catch (error) {
@@ -1046,7 +1051,8 @@ export const analyzeContent = async (
   const numericDiscrepancies = detectNumericDiscrepancies(claimAlignment);
   const entityDiscrepancies = detectEntityDiscrepancies(claimAlignment);
 
-  const biasEvents = await detectBiasEvents(extra, wikiText);
+  const semanticBiasEnabled = options.semanticBias === true;
+  const biasEvents = await detectBiasEvents(extra, wikiText, semanticBiasEnabled);
   const hallucinationEvents = detectHallucinationEvents(extra, wiki.content.claims);
   const factualErrors = detectFactualErrors(
     claimAlignment,

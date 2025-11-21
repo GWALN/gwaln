@@ -151,7 +151,20 @@ catalog or discover new ones using the lookup command.
 1. Run the analyzer:
 
    ```bash
+   gwaln analyse --topic moon
+   ```
+
+   To bypass cached results and regenerate even if inputs are unchanged:
+
+   ```bash
    gwaln analyse --topic moon --force
+   ```
+
+   By default, bias cues are keyword-only. Enable transformer-based
+   semantic bias detection (slower, downloads a model) when you need it:
+
+   ```bash
+   gwaln analyse --topic moon --force --semantic-bias
    ```
 
 2. Review the terminal summary:
