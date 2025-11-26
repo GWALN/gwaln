@@ -9,8 +9,6 @@ This tool helps you compare Grokipedia and Wikipedia topics. It parses
 structured snapshots, computes discrepancies, and drafts Community Notes
 so that you can publish verifiable context on the OriginTrail DKG.
 
-Project status: actively maintained.
-
 ## Architecture
 
 GWALN is built on three key layers, leveraging the OriginTrail Decentralized Knowledge Graph (DKG):
@@ -244,7 +242,25 @@ catalog or discover new ones using the lookup command.
 
 4. Record the printed UAL for reporting.
 
-### Use the MCP server
+### Query a published Knowledge Asset
+
+Retrieve previously published Community Notes from the DKG by topic title:
+
+```bash
+gwaln query --topic "Moon" --save moon-retrieved
+```
+
+The query command uses the DKG as the source of truth. It first checks for a local UAL cache, and if not found, searches the DKG directly using SPARQL to find the most recent published Community Note for the topic.
+
+You can also query by UAL directly for advanced use cases:
+
+```bash
+gwaln query --ual "did:dkg:base:8453/0xc28f310a87f7621a087a603e2ce41c22523f11d7/666506" --save moon-retrieved
+```
+
+This retrieves the assertion and optional metadata, displays them in the terminal, and optionally saves the result to `~/.gwaln/data/dkg/moon-retrieved.json`. You can override connection settings with flags like `--endpoint`, `--blockchain`, or `--private-key`.
+
+## Use the MCP server
 
 The same workflows are also available to AI agents via the Model Context
 Protocol (see the [official docs](https://modelcontextprotocol.io/docs/getting-started/intro)).
@@ -304,7 +320,7 @@ using the Model Context Protocol’s session headers and reuses it for the
 subsequent `tools/list`, `tools/call`, etc. There are no extra discovery
 routes—just point your MCP client at that one URL.
 
-### x402 Monetization
+## x402 Monetization
 
 The MCP server implements the **x402** payment standard (via `src/lib/x402.ts`) to monetize premium tools like `query`, `publish`, and `lookup` on the NeuroWeb testnet.
 
@@ -312,24 +328,6 @@ The MCP server implements the **x402** payment standard (via `src/lib/x402.ts`) 
 *   **Paywalled Tools**: `query`, `publish`, `lookup` (requires 1 TRAC payment)
 
 When an AI agent attempts to use a paywalled tool without payment, the server returns a `402 Payment Required` error with payment details. The agent can then facilitate the payment on-chain and retry the request with the payment proof.
-
-### Query a published Knowledge Asset
-
-Retrieve previously published Community Notes from the DKG by topic title:
-
-```bash
-gwaln query --topic "Moon" --save moon-retrieved
-```
-
-The query command uses the DKG as the source of truth. It first checks for a local UAL cache, and if not found, searches the DKG directly using SPARQL to find the most recent published Community Note for the topic.
-
-You can also query by UAL directly for advanced use cases:
-
-```bash
-gwaln query --ual "did:dkg:base:8453/0xc28f310a87f7621a087a603e2ce41c22523f11d7/666506" --save moon-retrieved
-```
-
-This retrieves the assertion and optional metadata, displays them in the terminal, and optionally saves the result to `~/.gwaln/data/dkg/moon-retrieved.json`. You can override connection settings with flags like `--endpoint`, `--blockchain`, or `--private-key`.
 
 ## Troubleshooting
 
@@ -353,6 +351,8 @@ This retrieves the assertion and optional metadata, displays them in the termina
 
 To review the full analyzer pipeline, see
 [docs/analyzer-overview.md](docs/analyzer-overview.md).
+
+To review and learn about the HTML report metrics, see [docs/html-report-metrics.md](docs/html-report-metrics.md)
 
 The CLI uses Node.js and Commander.js to expose subcommands. Parsing is
 handled by a custom module that converts Wikipedia wikitext and
