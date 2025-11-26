@@ -12,6 +12,17 @@ so that you can publish verifiable context on the OriginTrail DKG.
 
 Project status: actively maintained.
 
+## Architecture
+
+GWALN is built on three key layers, leveraging the OriginTrail Decentralized Knowledge Graph (DKG):
+
+1.  **🤖 Agent Layer**: The **MCP Server** exposes all CLI capabilities (fetch, analyze, publish) to AI agents (like Claude or Cursor) via the Model Context Protocol. This allows agents to autonomously verify information and interact with the DKG.
+2.  **🧠 Knowledge Layer**: The tool normalizes unstructured data (Wikipedia/Grokipedia) into **Structured Knowledge Assets** (JSON-LD). These assets are analyzed for discrepancies and formatted as standardized ClaimReviews.
+3.  **🔗 Trust Layer**:
+    *   **OriginTrail DKG**: Verifiable publication of Knowledge Assets on the DKG Edge Node.
+    *   **NeuroWeb/Polkadot**: Blockchain consensus for DKG operations.
+    *   **x402**: Implements the [x402](https://x402.gitbook.io/x402) payment standard for incentivized access to premium MCP tools.
+
 ### Basic functionality
 
 GWALN CLI is intended for analysts and contributors who review
@@ -42,11 +53,11 @@ Before using this tool, you should be familiar with:
 
 You should have:
 
-* Node.js 20.18.1 or later on macOS, Linux, or Windows
-* Network access to a DKG edge node and sufficient blockchain funds if
-  you plan to publish.
-* Optional: a Google Gemini API key if you use automated bias
-  verification.
+*   Node.js 20.18.1 or later on macOS, Linux, or Windows
+*   Network access to a DKG edge node (NeuroWeb) and sufficient $TRAC tokens if
+    you plan to publish.
+*   Optional: a Google Gemini API key if you use automated bias
+    verification.
 
 ## How to use GWALN CLI
 
@@ -197,6 +208,35 @@ catalog or discover new ones using the lookup command.
 
 2. Inspect the output in `~/.gwaln/notes/moon.json` and `~/.gwaln/notes/index.json`.
 
+   <details>
+   <summary>Example JSON-LD Community Note</summary>
+
+   ```json
+   {
+     "@context": ["https://schema.org", "https://www.w3.org/ns/anno.jsonld"],
+     "@type": "ClaimReview",
+     "@id": "urn:gwaln:note:moon:2024-11-26T12:00:00.000Z",
+     "topic_id": "moon",
+     "claimReviewed": "Comparison of Moon entries on Grokipedia and Wikipedia",
+     "reviewRating": {
+       "@type": "Rating",
+       "ratingValue": "4.8",
+       "ratingExplanation": "Detected 2 discrepancies including 0 bias issues..."
+     },
+     "gwalnTrust": {
+       "accuracy": 3,
+       "completeness": 3,
+       "tone_bias": 3,
+       "stake": { "token": "TRAC", "amount": 0 }
+     },
+     "citation": [
+       { "@type": "CreativeWork", "name": "Wikipedia", "url": "..." },
+       { "@type": "CreativeWork", "name": "Grokipedia", "url": "..." }
+     ]
+   }
+   ```
+   </details>
+
 3. Publish to OriginTrail (ensure your config has live signing keys):
 
    ```bash
@@ -264,6 +304,15 @@ first call `initialize`; the server then creates a dedicated session
 using the Model Context Protocol’s session headers and reuses it for the
 subsequent `tools/list`, `tools/call`, etc. There are no extra discovery
 routes—just point your MCP client at that one URL.
+
+### x402 Monetization
+
+The MCP server implements the **x402** payment standard (via `src/lib/x402.ts`) to monetize premium tools like `query`, `publish`, and `lookup` on the NeuroWeb testnet.
+
+*   **Free Tools**: `fetch`, `analyze`, `show`
+*   **Paywalled Tools**: `query`, `publish`, `lookup` (requires 1 TRAC payment)
+
+When an AI agent attempts to use a paywalled tool without payment, the server returns a `402 Payment Required` error with payment details. The agent can then facilitate the payment on-chain and retry the request with the payment proof.
 
 ### Query a published Knowledge Asset
 
