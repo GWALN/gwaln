@@ -59,7 +59,7 @@
     "commander": "^14.0.2",
     "diff": "^8.0.2",
     "dkg.js": "^8.2.0",
-    "express": "^5.1.0",
+    "express": "^5.2.1",
     "figlet": "^1.9.4",
     "json-diff": "^1.0.6",
     "node-fetch": "^3.3.2",
